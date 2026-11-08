@@ -77,7 +77,7 @@ nav.tabs a[aria-current="page"]{background:var(--ink);color:var(--bg)}
 .btn.armed{background:var(--bad);border-color:var(--bad);color:#fff}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 label.f{display:grid;gap:4px;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-input[type=text],input[type=number],select,textarea,input[type=search]{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:14px;width:100%;text-transform:none;letter-spacing:0;font-weight:500;color:var(--ink)}
+input[type=text],input[type=number],input[type=email],input[type=password],select,textarea,input[type=search]{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:14px;width:100%;text-transform:none;letter-spacing:0;font-weight:500;color:var(--ink)}
 textarea{resize:vertical;min-height:70px}
 input[type=color]{width:38px;height:34px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);padding:2px}
 
@@ -278,6 +278,27 @@ a.btn{text-decoration:none;color:inherit}
 a.btn.primary{color:var(--accent-ink)}
 .fs .eqbar,.fs .drillinfo{display:none}
 
+/* Accounts */
+.acct{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.acct .who{display:grid;line-height:1.25;text-align:right}
+.acct .who small{color:var(--muted);font-size:11.5px}
+.cbanner{background:var(--accent-soft);border:1px solid var(--accent);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.cbanner.warn{background:var(--bad-soft);border-color:var(--bad)}
+.cbanner .grow{flex:1;min-width:220px}
+.cbanner a{color:inherit;font-weight:700}
+.aform{display:grid;gap:10px}
+.linkbtn{background:none;border:0;color:var(--accent);text-decoration:underline;padding:0;font-size:13px;justify-self:start;cursor:pointer}
+.admin{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.7fr);gap:16px;align-items:start}
+@media (max-width:900px){.admin{grid-template-columns:minmax(0,1fr)}}
+table.utable{min-width:560px}
+.utable select{width:auto;min-width:160px;padding:4px 6px}
+.utable tr.pending td,.utable tr.pending th{background:var(--bad-soft)}
+.roles{margin:0;padding-left:18px;display:grid;gap:4px;font-size:13px}
+body.readonly #tools,body.readonly #eqBar,body.readonly #fmtSeg,body.readonly #viewSeg,body.readonly #penColors,body.readonly #penBtn,
+body.readonly .board > aside,body.readonly #addFrame,body.readonly #delFrame,body.readonly #benchBar,body.readonly #v-bang .hint,
+body.readonly nav.tabs a:not([data-view="bang"]),body.readonly #acct{display:none!important}
+body.readonly .board{grid-template-columns:minmax(0,1fr)}
+
 /* Export choices */
 .choices{display:grid;gap:8px}
 .choices button{display:grid;gap:2px;text-align:left;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:12px 14px;color:var(--ink)}
@@ -377,8 +398,11 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
     <a href="#cau-hoi" data-view="cau-hoi">Tình huống</a>
     <a href="#giao-an" data-view="giao-an">Giáo án</a>
     <a href="#be" data-view="be">Cho bé (sân 5)</a>
+    <a href="#quan-ly" data-view="quan-ly" id="navAdmin" hidden>Quản lý</a>
   </nav>
+  <div class="acct" id="acct"></div>
 </header>
+<div class="cbanner" id="cBanner" hidden></div>
 
 <!-- ============ BOARD ============ -->
 <section id="v-bang">
@@ -618,6 +642,43 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
   </div>
 </section>
 
+<!-- ============ QUẢN LÝ TÀI KHOẢN ============ -->
+<section id="v-quan-ly" hidden>
+  <div class="admin">
+    <div class="panel">
+      <h2>Tạo tài khoản</h2>
+      <form id="aForm" class="aform" autocomplete="off">
+        <label class="f">Họ tên<input type="text" id="aName" required maxlength="40"></label>
+        <label class="f">Email<input type="email" id="aEmail" required></label>
+        <label class="f">Mật khẩu ban đầu<input type="text" id="aPw" required minlength="6" placeholder="Ít nhất 6 ký tự"></label>
+        <label class="f">Vai trò<select id="aRole">
+          <option value="viewer">Cầu thủ / phụ huynh (chỉ xem)</option>
+          <option value="assistant">Trợ lý</option>
+          <option value="coach">HLV</option>
+          <option value="admin">Admin</option>
+        </select></label>
+        <button class="btn primary" type="submit" id="aSubmit">Tạo tài khoản</button>
+        <p class="err" id="aErr" hidden></p>
+      </form>
+      <p class="hint">Tạo xong, gửi email và mật khẩu cho người đó qua Zalo. Họ đổi mật khẩu bằng nút “Quên mật khẩu” ở màn hình đăng nhập.</p>
+      <div class="sub-h">Vai trò</div>
+      <ul class="roles">
+        <li><b>Admin:</b> toàn quyền, tạo tài khoản, đổi vai trò, khoá tài khoản.</li>
+        <li><b>HLV:</b> tạo, sửa, xoá bài chiến thuật, giáo án, danh sách đội; tạo link chỉ xem.</li>
+        <li><b>Trợ lý:</b> như HLV, nhưng không quản lý tài khoản.</li>
+        <li><b>Cầu thủ / phụ huynh:</b> xem bài và giáo án của đội, không sửa được.</li>
+        <li><b>Chờ duyệt:</b> người tự đăng ký, chưa xem được gì cho tới khi Admin cấp vai trò.</li>
+        <li><b>Đã khoá:</b> không vào được dữ liệu đội.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h2>Thành viên <span class="hint" id="uCount" style="font-family:var(--font-body);text-transform:none;letter-spacing:0"></span></h2>
+      <div class="tbl-wrap" style="margin:0"><table class="cmp utable"><thead><tr><th>Họ tên</th><th>Email</th><th>Vai trò</th></tr></thead><tbody id="uBody"></tbody></table></div>
+      <p class="hint">Đổi vai trò là có hiệu lực ngay. Muốn chặn ai, chọn “Đã khoá”.</p>
+    </div>
+  </div>
+</section>
+
 <!-- ============ GIÁO ÁN ============ -->
 <section id="v-giao-an" hidden>
   <div class="plan">
@@ -672,6 +733,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
       <button data-x="vid"><b>Video hình động</b><span>MP4, gửi Zalo xem ngay. Nên dùng.</span></button>
       <button data-x="png"><b>Ảnh khung đang xem</b><span>PNG, nét, nhẹ.</span></button>
       <button data-x="gif"><b>GIF động</b><span>Tự lặp lại, không cần bấm phát.</span></button>
+      <button data-x="link"><b>Link chỉ xem</b><span>Gửi link, cầu thủ mở xem hình động, không sửa được. Cần tài khoản HLV/Trợ lý.</span></button>
     </div>
     <div class="mprog" id="expProg" hidden><span id="expBar"></span></div>
     <p class="hint" id="expMsg"></p>
@@ -680,6 +742,30 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
       <a class="btn primary" id="expSave" download>⤓ Lưu về máy</a>
       <button class="btn" id="expShare" hidden>Chia sẻ (Zalo, Messenger…)</button>
     </div>
+  </div>
+</div>
+<div class="modal" id="authModal" hidden role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <div class="mbox" style="width:min(420px,100%)">
+    <div class="mhead"><h2 id="authTitle">Tài khoản</h2><button class="btn" id="authClose">Đóng</button></div>
+    <div class="seg" id="authSeg" role="group" aria-label="Đăng nhập hoặc đăng ký"><button data-m="in">Đăng nhập</button><button data-m="up">Đăng ký</button></div>
+    <form id="authForm" class="aform">
+      <label class="f" id="authNameRow" hidden>Họ tên<input type="text" id="authName" autocomplete="name" maxlength="40"></label>
+      <label class="f">Email<input type="email" id="authEmail" autocomplete="email" required></label>
+      <label class="f">Mật khẩu<input type="password" id="authPw" autocomplete="current-password" minlength="6" required></label>
+      <button class="btn primary" type="submit" id="authSubmit">Đăng nhập</button>
+    </form>
+    <button class="btn" id="authGoogle">Đăng nhập bằng Google</button>
+    <button class="linkbtn" id="authForgot">Quên mật khẩu?</button>
+    <p class="err" id="authErr" hidden></p>
+    <p class="hint" id="authMsg">Người tự đăng ký sẽ chờ Admin duyệt rồi mới xem được bài của đội.</p>
+  </div>
+</div>
+<div class="modal" id="linkModal" hidden role="dialog" aria-modal="true" aria-labelledby="linkTitle">
+  <div class="mbox" style="width:min(540px,100%)">
+    <div class="mhead"><h2 id="linkTitle">Link chỉ xem</h2><button class="btn" id="linkClose">Đóng</button></div>
+    <p class="hint">Ai có link đều mở xem được bài này (kể cả chưa đăng nhập), xem hình động, phóng to, nhưng không sửa được. Dán link vào nhóm Zalo.</p>
+    <div class="row"><input type="text" id="linkInput" readonly class="grow" aria-label="Link chỉ xem"><button class="btn primary" id="linkCopy">Sao chép</button></div>
+    <div class="row"><button class="btn danger" id="linkOff">Tắt link này</button></div>
   </div>
 </div>
 <div class="toast" id="toast" hidden></div>
@@ -826,7 +912,12 @@ const saved0 = store.get('sbct.work.v1', null);
 if(saved0 && saved0.S && saved0.S['11'] && saved0.S['7'] && saved0.S['5']){ S = saved0.S; fmt = saved0.fmt || '11'; }
 else { S = {'11':buildScenario(SCEN[0]), '7':buildScenario(SCEN[2]), '5':buildScenario(SCEN[4])}; }
 const st = () => S[fmt];
-function persist(){ store.set('sbct.work.v1', {fmt, S}); }
+/* Tài khoản & đồng bộ: trạng thái dùng chung (phần chính ở mục CLOUD bên dưới) */
+const CLOUD = {state:'idle', fb:null, user:null, profile:null, role:'none', boards:[], plans:[], users:[], adminExists:null, unsub:[], dataUnsub:[], rosterJSON:null, rosterLoaded:false};
+let readOnly = false;
+function canEditCloud(){ return ['admin','coach','assistant'].includes(CLOUD.role); }
+function isMember(){ return canEditCloud() || CLOUD.role === 'viewer'; }
+function persist(){ if(readOnly) return; store.set('sbct.work.v1', {fmt, S}); scheduleRosterSync(); }
 
 // Danh sách đội sân 5 điền sẵn (áp dụng một lần; sau đó người dùng sửa tự do)
 // [số áo, tên, là thủ môn]. Người đầu tiên đứng khung thành; thủ môn dự bị có cờ TM.
@@ -987,7 +1078,7 @@ function renderDrawings(list){
   $('#drawings').innerHTML = (list || s.dr).map((d,i) => drawingSVG(d,i)).join('');
   // Tay nắm ở giữa mũi tên chạy/chuyền/sút: kéo để uốn cong
   let h = '';
-  if(!list && tool === 'move' && !playing && !exporting){
+  if(!list && tool === 'move' && !playing && !exporting && !readOnly){
     const F = FMT[fmt];
     s.dr.forEach((d,i) => {
       if(!['run','pass','shot'].includes(d.t)) return;
@@ -1120,6 +1211,8 @@ let libCat = 'Tất cả';
 function renderLib(){
   const saved = store.get('sbct.saved.v1', []);
   const items = [
+    ...CLOUD.boards.filter(x => x.fmt === fmt).map(x => ({cat:'Bài của đội', html:`<div class="item"><div><span class="tag">Của đội${x.public ? ' · có link xem' : ''}</span><b>${esc(x.name)}</b><small>${esc(x.ownerName || '')}${x.updatedAt && x.updatedAt.toDate ? ' · ' + x.updatedAt.toDate().toLocaleDateString('vi-VN') : ''}</small></div>
+      <div class="acts"><button class="btn" data-cb="${x.id}">Mở</button>${canEditCloud() ? `<button class="btn" data-cshare="${x.id}" title="Tạo link chỉ xem">Link</button><button class="btn danger" data-cdel="${x.id}" title="Xoá bài">✕</button>` : ''}</div></div>`})),
     ...SCEN.filter(x => x.fmt === fmt).map(x => ({cat:'Chiến thuật trận đấu', html:`<div class="item"><div><span class="tag">Chiến thuật</span><b>${esc(x.name)}</b><small>${esc(x.desc)}</small></div>
       <div class="acts"><button class="btn" data-ex="${x.id}">Mở</button></div></div>`})),
     ...(fmt === '5' ? DRILLS : []).map(x => ({cat:x.cat, html:`<div class="item"><div><span class="tag">${esc(x.cat)}</span><b>${esc(x.name)}</b><small>${esc(x.time)} · ${esc(x.n)}</small></div>
@@ -1207,6 +1300,7 @@ svg.addEventListener('pointerdown', e => {
   }
   if(ptrs.size > 2) return;
   if(exporting) return;
+  if(readOnly){ if(Z.z > 1.01){ pan = {last:clientToSvg(svg, e.clientX, e.clientY), pid:e.pointerId}; try{ svg.setPointerCapture(e.pointerId); }catch(_){} } return; }
   const cvEl = T === 'move' && e.target.closest('.cv');
   if(cvEl){ bend = {di:+cvEl.dataset.di, pid:e.pointerId}; try{ svg.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault(); return; }
   if(T === 'place'){ if(!playing) placeEq(toNorm(e)); e.preventDefault(); return; }
@@ -1615,12 +1709,18 @@ $('#playBtn').addEventListener('click', togglePlay);
 $('#saveBtn').addEventListener('click', () => {
   const name = $('#saveName').value.trim();
   if(!name){ $('#saveName').focus(); toast('Nhập tên bài trước khi lưu'); return; }
+  if(canEditCloud()){
+    saveBoardCloud(name, false).then(() => { $('#saveName').value = ''; toast(`Đã lưu “${name}” lên tài khoản đội`); }).catch(err => toast(fbErr(err)));
+    return;
+  }
   const saved = store.get('sbct.saved.v1', []);
   saved.unshift({id:'s'+Date.now(), name, fmt, at:Date.now(), data:deep(st())});
   store.set('sbct.saved.v1', saved);
   $('#saveName').value = ''; renderLib(); toast(`Đã lưu “${name}”`);
 });
 $('#lib').addEventListener('click', e => {
+  const cbtn = e.target.closest('button[data-cb],button[data-cshare],button[data-cdel]');
+  if(cbtn){ cloudLibAction(cbtn); return; }
   const b = e.target.closest('button'); if(!b) return;
   if(b.dataset.ex){ const sc = SCEN.find(x => x.id === b.dataset.ex); stopPlay(); S[fmt] = keepRoster(S[fmt], buildScenario(sc)); selId = null; resetZoom(); renderPanels(); renderAll(); persist(); toast(`Đã mở “${sc.name}”. Bấm ▶ Phát để xem.`); }
   if(b.dataset.drill){ const D = DRILLS.find(x => x.id === b.dataset.drill); stopPlay(); S[fmt] = keepRoster(S[fmt], buildDrill(D)); selId = null; resetZoom(); renderPanels(); renderAll(); persist(); toast(`Đã mở “${D.name}”. Bấm ▶ Phát để xem.`); }
@@ -1869,6 +1969,7 @@ $('#shareBtn').addEventListener('click', () => {
 $('#expChoices').addEventListener('click', e => {
   const b = e.target.closest('button[data-x]'); if(!b) return;
   $('#expChoices').hidden = true;
+  if(b.dataset.x === 'link'){ shareCurrent(); return; }
   ({vid:exportVideo, png:exportPNG, gif:exportGIF})[b.dataset.x]();
 });
 $('#exportPng').addEventListener('click', exportPNG);
@@ -2169,10 +2270,17 @@ function renderPlan(){
   }).join('') || '<p class="hint">Chưa có phần nào. Bấm “+ Thêm phần”.</p>';
   $('#pTotal').textContent = `Tổng: ${t} phút`;
   $('#pTotal').classList.toggle('over', t > 120);
-  const list = store.get('sbct.plans.v1', []);
-  $('#pList').innerHTML = list.map(x => `<div class="item"><div><b>${esc(x.title)}</b><small>${esc(x.date || '')} · ${x.blocks.reduce((a, b) => a + (+b.min || 0), 0)} phút · ${x.blocks.length} phần</small></div>
-    <div class="acts"><button class="btn" data-p="${x.id}">Mở</button><button class="btn danger" data-pdel="${x.id}" title="Xoá">✕</button></div></div>`).join('') || '<p class="hint">Chưa lưu giáo án nào.</p>';
+  renderPlanList();
   renderTimer();
+}
+function renderPlanList(){
+  const sum = x => `${esc(x.date || '')} · ${(x.blocks || []).reduce((a, b) => a + (+b.min || 0), 0)} phút · ${(x.blocks || []).length} phần`;
+  const cloud = CLOUD.plans.map(x => `<div class="item"><div><span class="tag">Của đội</span><b>${esc(x.title)}</b><small>${sum(x)}</small></div>
+    <div class="acts"><button class="btn" data-cp="${x.id}">Mở</button>${canEditCloud() ? `<button class="btn danger" data-cpdel="${x.id}" title="Xoá">✕</button>` : ''}</div></div>`).join('');
+  const local = store.get('sbct.plans.v1', []).map(x => `<div class="item"><div><span class="tag">Trên máy này</span><b>${esc(x.title)}</b><small>${sum(x)}</small></div>
+    <div class="acts"><button class="btn" data-p="${x.id}">Mở</button><button class="btn danger" data-pdel="${x.id}" title="Xoá">✕</button></div></div>`).join('');
+  $('#pList').innerHTML = (cloud + local) || '<p class="hint">Chưa lưu giáo án nào.</p>';
+  $('#pSave').textContent = canEditCloud() ? 'Lưu giáo án lên đội' : 'Lưu giáo án';
 }
 $('#pTitle').addEventListener('input', e => { plan.title = e.target.value; savePlanCur(); });
 $('#pDate').addEventListener('input', e => { plan.date = e.target.value; savePlanCur(); });
@@ -2207,6 +2315,14 @@ $('#pBlocks').addEventListener('click', e => {
 $('#pAdd').addEventListener('click', () => { plan.blocks.push({ph:'main', ref:'', title:'', min:10, note:''}); savePlanCur(); renderPlan(); const ins = $$('#pBlocks input[data-f="title"]'); ins[ins.length-1] && ins[ins.length-1].focus(); });
 $('#pNew').addEventListener('click', () => { plan = {id:'', title:'Buổi tập mới', date:today(), goal:'', blocks:[{ph:'warm', ref:'', title:'', min:10, note:''}]}; savePlanCur(); tStop(); T.idx = 0; T.left = null; renderPlan(); });
 $('#pSave').addEventListener('click', () => {
+  if(canEditCloud()){
+    if(!plan.id) plan.id = 'p' + Date.now();
+    const {fs, db} = CLOUD.fb, clean = JSON.parse(JSON.stringify({title:plan.title || '', date:plan.date || '', goal:plan.goal || '',
+      blocks:plan.blocks.map(b => ({ph:b.ph, ref:b.ref || '', title:b.title || '', min:+b.min || 0, note:b.note || ''}))}));
+    fs.setDoc(fs.doc(db, 'plans', plan.id), {...clean, owner:CLOUD.user.uid, updatedAt:fs.serverTimestamp()})
+      .then(() => { savePlanCur(); toast(`Đã lưu “${plan.title}” lên tài khoản đội`); }).catch(err => toast(fbErr(err)));
+    return;
+  }
   const list = store.get('sbct.plans.v1', []);
   if(!plan.id) plan.id = 'p' + Date.now();
   const i = list.findIndex(x => x.id === plan.id), copy = deep(plan);
@@ -2215,6 +2331,11 @@ $('#pSave').addEventListener('click', () => {
 });
 $('#pList').addEventListener('click', e => {
   const b = e.target.closest('button'); if(!b) return;
+  if(b.dataset.cp){ const x = CLOUD.plans.find(y => y.id === b.dataset.cp); if(x){ plan = {id:x.id, title:x.title, date:x.date, goal:x.goal, blocks:deep(x.blocks || [])}; savePlanCur(); tStop(); T.idx = 0; T.left = null; renderPlan(); toast(`Đã mở “${x.title}”`); } return; }
+  if(b.dataset.cpdel){
+    if(b.dataset.armed !== '1'){ b.dataset.armed = '1'; b.classList.add('armed'); b.textContent = 'Xoá?'; setTimeout(() => { if(b.isConnected){ b.dataset.armed = ''; b.classList.remove('armed'); b.textContent = '✕'; } }, 2500); return; }
+    const {fs, db} = CLOUD.fb; fs.deleteDoc(fs.doc(db, 'plans', b.dataset.cpdel)).then(() => toast('Đã xoá giáo án')).catch(err => toast(fbErr(err))); return;
+  }
   if(b.dataset.p){ const x = store.get('sbct.plans.v1', []).find(y => y.id === b.dataset.p); if(x){ plan = deep(x); savePlanCur(); tStop(); T.idx = 0; T.left = null; renderPlan(); toast(`Đã mở “${x.title}”`); } }
   if(b.dataset.pdel){
     if(b.dataset.armed !== '1'){ b.dataset.armed = '1'; b.classList.add('armed'); b.textContent = 'Xoá?'; setTimeout(() => { if(b.isConnected){ b.dataset.armed = ''; b.classList.remove('armed'); b.textContent = '✕'; } }, 2500); return; }
@@ -2318,6 +2439,341 @@ $('#pPrint').addEventListener('click', () => {
   try{ window.print(); }catch(_){}
   setTimeout(() => { if(!document.hasFocus()) return; }, 0);
 });
+
+/* =================== CLOUD: tài khoản, phân quyền, đồng bộ (Firebase) =================== */
+const FB_CONFIG = {
+  apiKey: "AIzaSyA4eczhUXUMh9y3Gc9c9l25ikcCmRzvNbI",
+  authDomain: "sa-ban-1c482.firebaseapp.com",
+  projectId: "sa-ban-1c482",
+  storageBucket: "sa-ban-1c482.firebasestorage.app",
+  messagingSenderId: "420037416906",
+  appId: "1:420037416906:web:722976bafe21b1e0636133",
+  measurementId: "G-TCWPWNH65H"
+};
+const FB_BASE = 'https://www.gstatic.com/firebasejs/10.12.2/';
+const MAIN_SITE = 'https://dungntpvi-art.github.io/';
+const ROLE_VN = {admin:'Admin', coach:'HLV', assistant:'Trợ lý', viewer:'Cầu thủ / phụ huynh', pending:'Chờ duyệt', disabled:'Đã khoá', none:''};
+let pendingName = '';
+async function loadFB(){
+  if(CLOUD.fb) return CLOUD.fb;
+  const [app, auth, fs] = await Promise.all([import(FB_BASE + 'firebase-app.js'), import(FB_BASE + 'firebase-auth.js'), import(FB_BASE + 'firebase-firestore.js')]);
+  const a = app.initializeApp(FB_CONFIG);
+  CLOUD.fb = {app, auth, fs, a, au:auth.getAuth(a), db:fs.getFirestore(a)};
+  return CLOUD.fb;
+}
+function fbErr(e){
+  const c = (e && e.code) || '';
+  const M = {
+    'auth/invalid-email':'Email không hợp lệ.', 'auth/missing-password':'Chưa nhập mật khẩu.', 'auth/missing-email':'Chưa nhập email.',
+    'auth/weak-password':'Mật khẩu phải có ít nhất 6 ký tự.',
+    'auth/email-already-in-use':'Email này đã có tài khoản. Hãy đăng nhập, hoặc bấm “Quên mật khẩu”.',
+    'auth/invalid-credential':'Sai email hoặc mật khẩu.', 'auth/wrong-password':'Sai email hoặc mật khẩu.', 'auth/user-not-found':'Sai email hoặc mật khẩu.',
+    'auth/invalid-login-credentials':'Sai email hoặc mật khẩu.',
+    'auth/too-many-requests':'Thử sai quá nhiều lần. Đợi vài phút rồi thử lại.',
+    'auth/operation-not-allowed':'Cách đăng nhập này chưa được bật trong Firebase (Authentication → Sign-in method).',
+    'auth/unauthorized-domain':'Trang này chưa được phép đăng nhập. Admin cần thêm dungntpvi-art.github.io vào Firebase → Authentication → Settings → Authorized domains.',
+    'auth/popup-closed-by-user':'Đã đóng cửa sổ đăng nhập Google.', 'auth/cancelled-popup-request':'Đã huỷ đăng nhập Google.',
+    'auth/popup-blocked':'Trình duyệt chặn cửa sổ đăng nhập Google. Cho phép cửa sổ bật lên rồi thử lại.',
+    'auth/network-request-failed':'Không có mạng. Kiểm tra kết nối rồi thử lại.',
+    'permission-denied':'Không có quyền. Tài khoản chưa được cấp quyền, hoặc Admin chưa dán luật bảo mật Firestore.',
+    'unavailable':'Mất kết nối tới máy chủ. Thử lại sau.',
+    'failed-precondition':'Cơ sở dữ liệu chưa sẵn sàng (Firestore chưa được tạo).',
+    'not-found':'Không tìm thấy dữ liệu.'
+  };
+  return M[c] || ('Có lỗi: ' + (c || (e && e.message) || 'không rõ'));
+}
+function banner(html, warn){
+  const b = $('#cBanner');
+  if(!html){ b.hidden = true; b.innerHTML = ''; return; }
+  b.hidden = false; b.classList.toggle('warn', !!warn); b.innerHTML = html;
+}
+function renderAuth(){
+  const box = $('#acct');
+  if(readOnly){ box.innerHTML = ''; }
+  else if(CLOUD.state === 'off'){
+    box.innerHTML = location.href.startsWith(MAIN_SITE) ? '' : `<a class="btn" href="${MAIN_SITE}" target="_blank" rel="noopener">Đăng nhập trên web chính</a>`;
+  } else if(!CLOUD.user){
+    box.innerHTML = `<button class="btn primary" data-acct="login">Đăng nhập</button>`;
+  } else {
+    const name = (CLOUD.profile && CLOUD.profile.name) || CLOUD.user.email || '';
+    box.innerHTML = `<span class="who"><b>${esc(name)}</b><small>${esc(ROLE_VN[CLOUD.role] || '')}</small></span><button class="btn" data-acct="logout">Đăng xuất</button>`;
+  }
+  $('#navAdmin').hidden = CLOUD.role !== 'admin';
+  if(!readOnly){
+    if(CLOUD.state === 'dberr') banner('Chưa kết nối được cơ sở dữ liệu của đội. Admin kiểm tra: đã tạo Firestore Database và đã dán luật bảo mật chưa.', true);
+    else if(CLOUD.user && CLOUD.adminExists === false) banner(`<span class="grow">Đội chưa có Admin. Nếu bạn là người quản lý đội, bấm nút bên cạnh để nhận quyền Admin (chỉ người đầu tiên bấm mới được).</span><button class="btn primary" data-acct="claim">Nhận quyền Admin</button>`);
+    else if(CLOUD.user && CLOUD.role === 'pending') banner('Tài khoản của bạn đang chờ Admin duyệt. Trong lúc chờ, bạn vẫn dùng app bình thường trên máy này.');
+    else if(CLOUD.user && CLOUD.role === 'disabled') banner('Tài khoản của bạn đã bị khoá. Liên hệ Admin của đội.', true);
+    else if(CLOUD.user && CLOUD.role === 'viewer') banner('Bạn đang ở quyền <b>xem</b>: thấy bài và giáo án của đội trong Thư viện bài và tab Giáo án. Sửa trên máy này không ảnh hưởng tới đội.');
+    else banner('');
+  }
+  $('#saveBtn').textContent = canEditCloud() ? 'Lưu lên đội' : 'Lưu';
+  renderLib(); renderPlanList();
+  if(CLOUD.role === 'admin') renderAdmin();
+  if(location.hash === '#quan-ly' && CLOUD.role !== 'admin') route();
+}
+$('#acct').addEventListener('click', e => { const b = e.target.closest('[data-acct]'); if(b) acctAction(b.dataset.acct); });
+$('#cBanner').addEventListener('click', e => { const b = e.target.closest('[data-acct]'); if(b) acctAction(b.dataset.acct); });
+async function acctAction(k){
+  if(k === 'login') openAuth('in');
+  if(k === 'logout'){ try{ await CLOUD.fb.auth.signOut(CLOUD.fb.au); toast('Đã đăng xuất'); }catch(err){ toast(fbErr(err)); } }
+  if(k === 'claim'){
+    try{
+      const {fs, db} = CLOUD.fb, b = fs.writeBatch(db);
+      b.set(fs.doc(db, 'meta', 'admin'), {uid:CLOUD.user.uid, at:fs.serverTimestamp()});
+      b.update(fs.doc(db, 'users', CLOUD.user.uid), {role:'admin'});
+      await b.commit(); CLOUD.adminExists = true; toast('Bạn đã là Admin của đội');
+    }catch(err){ CLOUD.adminExists = true; renderAuth(); toast('Không nhận được quyền Admin: đội đã có Admin, hoặc chưa dán luật bảo mật.'); }
+  }
+}
+
+/* Đăng nhập / đăng ký */
+let authMode = 'in';
+function openAuth(m){
+  authMode = m;
+  $$('#authSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === m));
+  $('#authNameRow').hidden = m !== 'up';
+  $('#authName').required = m === 'up';
+  $('#authSubmit').textContent = m === 'up' ? 'Đăng ký' : 'Đăng nhập';
+  $('#authPw').autocomplete = m === 'up' ? 'new-password' : 'current-password';
+  $('#authGoogle').textContent = m === 'up' ? 'Đăng ký bằng Google' : 'Đăng nhập bằng Google';
+  $('#authErr').hidden = true;
+  $('#authModal').hidden = false;
+}
+const authFail = err => { $('#authErr').textContent = fbErr(err); $('#authErr').hidden = false; };
+$('#authSeg').addEventListener('click', e => { const b = e.target.closest('button[data-m]'); if(b) openAuth(b.dataset.m); });
+$('#authClose').addEventListener('click', () => { $('#authModal').hidden = true; });
+$('#authForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = $('#authEmail').value.trim(), pw = $('#authPw').value;
+  $('#authSubmit').disabled = true; $('#authErr').hidden = true;
+  try{
+    const {auth, au} = await loadFB();
+    if(authMode === 'up'){
+      pendingName = $('#authName').value.trim();
+      const c = await auth.createUserWithEmailAndPassword(au, email, pw);
+      try{ await auth.updateProfile(c.user, {displayName:pendingName}); }catch(_){}
+      toast('Đã đăng ký. Chờ Admin cấp quyền.');
+    } else {
+      await auth.signInWithEmailAndPassword(au, email, pw);
+      toast('Đã đăng nhập');
+    }
+    $('#authModal').hidden = true; $('#authPw').value = '';
+  }catch(err){ authFail(err); }
+  finally{ $('#authSubmit').disabled = false; }
+});
+$('#authGoogle').addEventListener('click', async () => {
+  $('#authErr').hidden = true;
+  try{ const {auth, au} = await loadFB(); await auth.signInWithPopup(au, new auth.GoogleAuthProvider()); $('#authModal').hidden = true; toast('Đã đăng nhập'); }
+  catch(err){ authFail(err); }
+});
+$('#authForgot').addEventListener('click', async () => {
+  const email = $('#authEmail').value.trim();
+  if(!email){ $('#authErr').textContent = 'Nhập email ở trên trước, rồi bấm “Quên mật khẩu?”.'; $('#authErr').hidden = false; return; }
+  try{ const {auth, au} = await loadFB(); await auth.sendPasswordResetEmail(au, email); $('#authErr').hidden = true; $('#authMsg').textContent = `Đã gửi email đặt lại mật khẩu tới ${email}. Kiểm tra cả mục Spam.`; }
+  catch(err){ authFail(err); }
+});
+
+/* Theo dõi người dùng và dữ liệu đội */
+async function onUser(u){
+  CLOUD.unsub.forEach(f => f()); CLOUD.unsub = [];
+  CLOUD.dataUnsub.forEach(f => f()); CLOUD.dataUnsub = [];
+  Object.assign(CLOUD, {user:u, profile:null, role:'none', boards:[], plans:[], users:[], adminExists:null, rosterJSON:null, rosterLoaded:false});
+  if(CLOUD.state === 'dberr') CLOUD.state = 'ready';
+  if(u){
+    const {fs, db} = CLOUD.fb, ref = fs.doc(db, 'users', u.uid);
+    try{
+      let snap = await fs.getDoc(ref);
+      if(!snap.exists()){
+        await fs.setDoc(ref, {email:u.email || '', name:pendingName || u.displayName || (u.email || '').split('@')[0], role:'pending', createdAt:fs.serverTimestamp()});
+        snap = await fs.getDoc(ref);
+      }
+      CLOUD.profile = snap.data(); CLOUD.role = CLOUD.profile.role || 'pending';
+      try{ CLOUD.adminExists = (await fs.getDoc(fs.doc(db, 'meta', 'admin'))).exists(); }catch(_){ CLOUD.adminExists = true; }
+      CLOUD.unsub.push(fs.onSnapshot(ref, s => {
+        if(!s.exists()) return;
+        const prev = CLOUD.role; CLOUD.profile = s.data(); CLOUD.role = CLOUD.profile.role || 'pending';
+        if(prev !== CLOUD.role){ startSync(); toast(`Quyền của bạn: ${ROLE_VN[CLOUD.role] || CLOUD.role}`); }
+        renderAuth();
+      }));
+      startSync();
+    }catch(err){ CLOUD.state = 'dberr'; console.warn(err); }
+  }
+  renderAuth();
+}
+function startSync(){
+  CLOUD.dataUnsub.forEach(f => f()); CLOUD.dataUnsub = [];
+  CLOUD.boards = []; CLOUD.plans = []; CLOUD.users = []; CLOUD.rosterLoaded = false;
+  if(!isMember()){ renderAuth(); return; }
+  const {fs, db} = CLOUD.fb, warn = err => { console.warn(err); toast(fbErr(err)); };
+  CLOUD.dataUnsub.push(fs.onSnapshot(fs.query(fs.collection(db, 'boards'), fs.orderBy('updatedAt', 'desc')),
+    q => { CLOUD.boards = q.docs.map(d => ({id:d.id, ...d.data()})); renderLib(); }, warn));
+  CLOUD.dataUnsub.push(fs.onSnapshot(fs.query(fs.collection(db, 'plans'), fs.orderBy('updatedAt', 'desc')),
+    q => { CLOUD.plans = q.docs.map(d => ({id:d.id, ...d.data()})); renderPlanList(); }, warn));
+  CLOUD.dataUnsub.push(fs.onSnapshot(fs.doc(db, 'team', 'roster'), snap => {
+    CLOUD.rosterLoaded = true;
+    if(!snap.exists()){ if(canEditCloud()) scheduleRosterSync(); return; }
+    const d = snap.data().data;
+    if(!d || d === CLOUD.rosterJSON) return;
+    CLOUD.rosterJSON = d;
+    try{ applyRoster(JSON.parse(d)); }catch(_){ return; }
+    store.set('sbct.work.v1', {fmt, S});
+    renderPanels(); renderTokens();
+  }, warn));
+  if(CLOUD.role === 'admin'){
+    CLOUD.dataUnsub.push(fs.onSnapshot(fs.collection(db, 'users'), q => { CLOUD.users = q.docs.map(d => ({uid:d.id, ...d.data()})); renderAdmin(); }, warn));
+  }
+  renderAuth();
+}
+
+/* Danh sách đội đồng bộ cho cả đội */
+function rosterSnapshot(){
+  const out = {};
+  for(const f of ['11','7','5']){
+    const s = S[f]; if(!s) continue; out[f] = {};
+    for(const side of ['home','away']){
+      const T0 = s[side];
+      const pick = x => x.gk ? {num:x.num, name:x.name, gk:true} : {num:x.num, name:x.name};
+      out[f][side] = {color:T0.color, players:T0.players.map(pick), bench:(T0.bench || []).map(pick)};
+    }
+  }
+  return out;
+}
+function applyRoster(r){
+  for(const f in r){
+    const s = S[f]; if(!s) continue;
+    for(const side of ['home','away']){
+      const R = r[f][side]; if(!R) continue;
+      const T0 = s[side];
+      if(R.color) T0.color = R.color;
+      if(Array.isArray(R.players) && R.players.length === T0.players.length)
+        R.players.forEach((p, i) => { T0.players[i].num = p.num; T0.players[i].name = p.name; if(p.gk) T0.players[i].gk = true; else delete T0.players[i].gk; });
+      T0.bench = (R.bench || []).map(b => ({...b}));
+    }
+  }
+}
+let rosterTimer = null;
+function scheduleRosterSync(){
+  if(!CLOUD.fb || !CLOUD.user || !canEditCloud() || !CLOUD.rosterLoaded) return;
+  clearTimeout(rosterTimer);
+  rosterTimer = setTimeout(() => {
+    const js = JSON.stringify(rosterSnapshot());
+    if(js === CLOUD.rosterJSON) return;
+    CLOUD.rosterJSON = js;
+    const {fs, db} = CLOUD.fb;
+    fs.setDoc(fs.doc(db, 'team', 'roster'), {data:js, updatedAt:fs.serverTimestamp(), by:CLOUD.user.uid}).catch(err => toast(fbErr(err)));
+  }, 1500);
+}
+
+/* Bài của đội + link chỉ xem */
+async function saveBoardCloud(name, makePublic){
+  const {fs, db} = CLOUD.fb;
+  const ref = await fs.addDoc(fs.collection(db, 'boards'), {name, fmt, data:JSON.stringify(st()), owner:CLOUD.user.uid,
+    ownerName:(CLOUD.profile && CLOUD.profile.name) || '', public:!!makePublic, createdAt:fs.serverTimestamp(), updatedAt:fs.serverTimestamp()});
+  return ref.id;
+}
+function showLink(id){
+  const url = MAIN_SITE + '?xem=' + encodeURIComponent(id);
+  $('#linkInput').value = url; $('#linkModal').dataset.id = id; $('#linkModal').hidden = false;
+}
+async function shareCurrent(){
+  if(!canEditCloud()){
+    openModal('Link chỉ xem', CLOUD.user ? 'Tài khoản của bạn chưa có quyền HLV hoặc Trợ lý để tạo link.' : 'Đăng nhập bằng tài khoản HLV hoặc Trợ lý để tạo link chỉ xem.');
+    return;
+  }
+  const name = (st().info && st().info.name) || $('#saveName').value.trim() || ('Bài chiến thuật ' + new Date().toLocaleDateString('vi-VN'));
+  closeModal();
+  try{ const id = await saveBoardCloud(name, true); showLink(id); toast(`Đã lưu “${name}” lên đội và tạo link`); }
+  catch(err){ toast(fbErr(err)); }
+}
+async function cloudLibAction(b){
+  const {fs, db} = CLOUD.fb;
+  if(b.dataset.cb){
+    const x = CLOUD.boards.find(y => y.id === b.dataset.cb); if(!x) return;
+    try{ stopPlay(); S[fmt] = keepRoster(S[fmt], JSON.parse(x.data)); normState(S[fmt]); selId = null; resetZoom(); renderPanels(); renderAll(); persist(); toast(`Đã mở “${x.name}”`); }
+    catch(_){ toast('Bài này bị lỗi dữ liệu, không mở được'); }
+  }
+  if(b.dataset.cshare){
+    try{ await fs.updateDoc(fs.doc(db, 'boards', b.dataset.cshare), {public:true}); showLink(b.dataset.cshare); }catch(err){ toast(fbErr(err)); }
+  }
+  if(b.dataset.cdel){
+    if(b.dataset.armed !== '1'){ b.dataset.armed = '1'; b.classList.add('armed'); b.textContent = 'Xoá?'; setTimeout(() => { if(b.isConnected){ b.dataset.armed = ''; b.classList.remove('armed'); b.textContent = '✕'; } }, 2500); return; }
+    try{ await fs.deleteDoc(fs.doc(db, 'boards', b.dataset.cdel)); toast('Đã xoá bài'); }catch(err){ toast(fbErr(err)); }
+  }
+}
+$('#linkClose').addEventListener('click', () => { $('#linkModal').hidden = true; });
+$('#linkCopy').addEventListener('click', () => {
+  const v = $('#linkInput').value;
+  const fallback = () => { $('#linkInput').select(); toast('Nhấn giữ vào ô link để sao chép'); };
+  try{ navigator.clipboard.writeText(v).then(() => toast('Đã sao chép link'), fallback); }catch(_){ fallback(); }
+});
+$('#linkOff').addEventListener('click', async () => {
+  const id = $('#linkModal').dataset.id; if(!id) return;
+  try{ const {fs, db} = CLOUD.fb; await fs.updateDoc(fs.doc(db, 'boards', id), {public:false}); $('#linkModal').hidden = true; toast('Đã tắt link. Người có link cũ không mở được nữa.'); }
+  catch(err){ toast(fbErr(err)); }
+});
+
+/* Trang Quản lý (Admin) */
+function renderAdmin(){
+  const order = {pending:0, admin:1, coach:2, assistant:3, viewer:4, disabled:5};
+  const list = CLOUD.users.slice().sort((a, b) => (order[a.role] ?? 9) - (order[b.role] ?? 9) || String(a.name).localeCompare(String(b.name), 'vi'));
+  const opts = r => Object.keys(order).map(k => `<option value="${k}"${k === r ? ' selected' : ''}>${ROLE_VN[k]}</option>`).join('');
+  $('#uBody').innerHTML = list.map(u => `<tr class="${u.role === 'pending' ? 'pending' : ''}"><th scope="row">${esc(u.name || '')}</th><td>${esc(u.email || '')}</td>
+    <td><select data-uid="${u.uid}" ${u.uid === (CLOUD.user && CLOUD.user.uid) ? 'disabled title="Không tự đổi vai trò của mình"' : ''} aria-label="Vai trò của ${esc(u.name || u.email || '')}">${opts(u.role)}</select></td></tr>`).join('')
+    || '<tr><td colspan="3">Chưa có thành viên.</td></tr>';
+  const pend = list.filter(u => u.role === 'pending').length;
+  $('#uCount').textContent = `· ${list.length} người${pend ? ` · ${pend} chờ duyệt` : ''}`;
+}
+$('#uBody').addEventListener('change', async e => {
+  const sel = e.target.closest('select[data-uid]'); if(!sel) return;
+  try{ const {fs, db} = CLOUD.fb; await fs.updateDoc(fs.doc(db, 'users', sel.dataset.uid), {role:sel.value}); toast(`Đã đổi vai trò thành ${ROLE_VN[sel.value]}`); }
+  catch(err){ toast(fbErr(err)); renderAdmin(); }
+});
+$('#aForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const name = $('#aName').value.trim(), email = $('#aEmail').value.trim(), pw = $('#aPw').value, role = $('#aRole').value;
+  $('#aErr').hidden = true; $('#aSubmit').disabled = true;
+  try{
+    const {app, auth, fs, db} = CLOUD.fb;
+    // Tạo tài khoản bằng một phiên phụ để Admin không bị đăng xuất
+    const sec = app.getApps().find(x => x.name === 'tao-tk') || app.initializeApp(FB_CONFIG, 'tao-tk');
+    const sa = CLOUD.secAuth || (CLOUD.secAuth = auth.initializeAuth(sec, {persistence:auth.inMemoryPersistence}));
+    const c = await auth.createUserWithEmailAndPassword(sa, email, pw);
+    try{ await auth.updateProfile(c.user, {displayName:name}); }catch(_){}
+    await fs.setDoc(fs.doc(db, 'users', c.user.uid), {email, name, role, createdAt:fs.serverTimestamp(), createdBy:CLOUD.user.uid});
+    await auth.signOut(sa);
+    $('#aForm').reset(); toast(`Đã tạo tài khoản cho ${name} (${ROLE_VN[role]})`);
+  }catch(err){ $('#aErr').textContent = fbErr(err); $('#aErr').hidden = false; }
+  finally{ $('#aSubmit').disabled = false; }
+});
+
+/* Mở link chỉ xem: ?xem=<mã bài> */
+async function openShared(id){
+  readOnly = true; document.body.classList.add('readonly');
+  banner('Đang tải bài…');
+  try{
+    const {fs, db} = await loadFB();
+    const snap = await fs.getDoc(fs.doc(db, 'boards', id));
+    if(!snap.exists()) throw {code:'not-found'};
+    const b = snap.data();
+    fmt = b.fmt; S[fmt] = JSON.parse(b.data); normState(S[fmt]); selId = null;
+    setTool('move'); renderField(); renderPanels(); renderAll();
+    banner(`<span class="grow">Đang xem: <b>${esc(b.name)}</b> (chỉ xem). Bấm ▶ Phát để xem hình động, ⛶ để xem toàn màn hình.</span><a href="${location.pathname}">Về trang chính</a>`);
+  }catch(err){
+    banner(`<span class="grow">Không mở được bài: link đã bị tắt hoặc không đúng.</span><a href="${location.pathname}">Về trang chính</a>`, true);
+  }
+  route();
+}
+async function cloudInit(){
+  const xem = new URLSearchParams(location.search).get('xem');
+  if(xem) openShared(xem);
+  try{
+    const fb = await loadFB();
+    CLOUD.state = 'ready';
+    fb.auth.onAuthStateChanged(fb.au, u => { if(!readOnly) onUser(u); });
+  }catch(err){ CLOUD.state = 'off'; }
+  renderAuth();
+}
 
 /* =================== RULES =================== */
 const COMPARE = {
@@ -2774,9 +3230,11 @@ window.addEventListener('resize', updRot);
 document.addEventListener('keydown', e => { if(e.key === 'Escape' && fsEl) exitFull(); });
 
 /* =================== Routing =================== */
-const VIEWS = ['bang','luat','cau-hoi','giao-an','be'];
+const VIEWS = ['bang','luat','cau-hoi','giao-an','be','quan-ly'];
 function route(){
-  const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'bang';
+  let v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'bang';
+  if(v === 'quan-ly' && CLOUD.role !== 'admin') v = 'bang';
+  if(readOnly) v = 'bang';
   VIEWS.forEach(x => $('#v-' + x).hidden = x !== v);
   $$('nav.tabs a').forEach(a => { if(a.dataset.view === v) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
   if(v !== 'bang') stopPlay();
@@ -2788,6 +3246,7 @@ window.addEventListener('hashchange', route);
 setTool('move');
 renderField(); renderPanels(); renderAll();
 renderRules(); renderQuiz(); renderPlan(); route();
+cloudInit();
 })();
 </script>
 <script>

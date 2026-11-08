@@ -36,6 +36,15 @@ App có icon riêng, mở toàn màn hình không có thanh trình duyệt, và 
 - In 1 trang A4 (hoặc lưu PDF) kèm hình các bài tập để mang ra sân.
 - Lưu nhiều giáo án.
 
+### Tài khoản và đồng bộ (Firebase)
+- Đăng ký, đăng nhập bằng email hoặc Google. Người tự đăng ký chờ Admin duyệt.
+- Vai trò: Admin, HLV, Trợ lý, Cầu thủ / phụ huynh (chỉ xem), Chờ duyệt, Đã khoá.
+- Trang Quản lý (Admin): tạo tài khoản cho người khác, đổi vai trò, khoá tài khoản.
+- Bài chiến thuật, giáo án và danh sách đội lưu online, mở trên mọi máy.
+- Link chỉ xem cho từng bài (`?xem=<mã bài>`), tắt được bất cứ lúc nào.
+- Luật bảo mật nằm ở `firestore.rules`, dán vào Firebase Console → Firestore Database → Rules.
+- Người đầu tiên bấm “Nhận quyền Admin” trở thành Admin của đội.
+
 ### Luật thi đấu
 - Bảng so sánh sân 11 / 7 / 5.
 - Tóm tắt 17 điều luật IFAB 2025/26 (sân 11), luật Futsal FIFA (sân 5), các điểm khác biệt thường gặp của sân 7 phong trào.
@@ -70,6 +79,7 @@ index.html                    Trang chạy trên GitHub Pages (do build.sh tạo
 manifest.webmanifest          Thông tin để cài như app (tên, icon, màu)
 sw.js                         Service worker: chạy offline
 icons/                        Icon app (icon.svg là bản gốc, các PNG xuất từ đó)
+firestore.rules               Luật bảo mật Firestore (phân quyền theo vai trò)
 ```
 
 Mã nguồn trong `src/` không có `<!doctype>` và `<head>` vì cùng file được dùng làm Artifact trên claude.ai. `build.sh` bọc thêm phần đầu trang chuẩn.

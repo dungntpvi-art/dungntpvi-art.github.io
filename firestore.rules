@@ -1,0 +1,57 @@
+rules_version = '2';
+// Luật bảo mật cho Sa Bàn Chiến Thuật.
+// Dán toàn bộ file này vào Firebase Console → Firestore Database → Rules → Publish.
+//
+// Vai trò (lưu ở users/{uid}.role):
+//   admin     – toàn quyền, quản lý tài khoản
+//   coach     – HLV: tạo, sửa bài, giáo án, danh sách đội
+//   assistant – Trợ lý: như HLV, không quản lý tài khoản
+//   viewer    – Cầu thủ / phụ huynh: chỉ xem
+//   pending   – vừa tự đăng ký, chờ Admin duyệt (không xem được dữ liệu đội)
+//   disabled  – đã khoá
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function userDoc() { return /databases/$(database)/documents/users/$(request.auth.uid); }
+    function role() { return signedIn() && exists(userDoc()) ? get(userDoc()).data.role : 'none'; }
+    function isAdmin() { return role() == 'admin'; }
+    function canEdit() { return role() in ['admin', 'coach', 'assistant']; }
+    function member() { return role() in ['admin', 'coach', 'assistant', 'viewer']; }
+    function adminPath() { return /databases/$(database)/documents/meta/admin; }
+
+    // Người đầu tiên bấm "Nhận quyền Admin" trở thành Admin. Sau đó không ai tạo lại được.
+    match /meta/admin {
+      allow read: if signedIn();
+      allow create: if signedIn() && !exists(adminPath()) && request.resource.data.uid == request.auth.uid;
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      // Tự đăng ký: chỉ được tạo hồ sơ của mình với vai trò "pending". Admin tạo được cho người khác.
+      allow create: if isAdmin()
+        || (signedIn() && request.auth.uid == uid && request.resource.data.role == 'pending');
+      // Tự sửa hồ sơ (tên…) nhưng không tự đổi vai trò; riêng lúc nhận quyền Admin lần đầu.
+      allow update: if isAdmin()
+        || (signedIn() && request.auth.uid == uid && request.resource.data.role == resource.data.role)
+        || (signedIn() && request.auth.uid == uid && request.resource.data.role == 'admin'
+            && getAfter(adminPath()).data.uid == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    // Bài chiến thuật / bài tập của đội. public == true: ai có link cũng xem được (chỉ xem).
+    match /boards/{id} {
+      allow read: if member() || resource.data.public == true;
+      allow create, update, delete: if canEdit();
+    }
+
+    match /plans/{id} {
+      allow read: if member();
+      allow create, update, delete: if canEdit();
+    }
+
+    match /team/{doc} {
+      allow read: if member();
+      allow write: if canEdit();
+    }
+  }
+}
