@@ -73,7 +73,7 @@ input[type=color]{width:38px;height:34px;border:1px solid var(--line);border-rad
 @media (max-width:640px){.tools button span.lbl{display:none}.tools kbd{display:none}}
 
 .pitch-wrap{position:relative;background:var(--grass-edge);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 0 var(--line)}
-#pitch,#kPitch{display:block;width:100%;height:auto;max-height:72vh;touch-action:none;user-select:none;-webkit-user-select:none}
+#pitch,#kPitch{display:block;width:100%;height:auto;max-height:72vh;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .caption{position:absolute;left:10px;top:10px;right:10px;pointer-events:none;display:flex;gap:8px;align-items:flex-start}
 .caption .chip{background:rgba(10,20,14,.78);color:#f4f7f2;border-radius:8px;padding:5px 10px;font-size:13px;max-width:min(560px,100%);line-height:1.4}
 .caption .chip b{font-family:var(--font-display);letter-spacing:.05em;text-transform:uppercase;color:#ffd84a;margin-right:6px;font-size:14px}
@@ -909,6 +909,14 @@ function setPenMode(on){
   $('#penBtn').setAttribute('aria-pressed', on);
   if(on && (tool === 'move' || tool === 'erase')) setTool('free');
 }
+// Cầu thủ trên điện thoại chỉ ~10px: chạm trong bán kính ~26px quanh tâm là bắt cầu thủ gần nhất
+function nearestTok(e, px = 26){
+  const a = clientToSvg(svg, e.clientX, e.clientY), b = clientToSvg(svg, e.clientX + px, e.clientY);
+  let bd = Math.max(Math.hypot(b.x - a.x, b.y - a.y), FMT[fmt].r * 1.15), best = null;
+  const s = st(), ids = [...(s.showAway ? s.away.players : []), ...s.home.players].map(p => p.id).concat('ball');
+  for(const id of ids){ const [x,y] = M(...s.pos[id]); const d = Math.hypot(x - a.x, y - a.y); if(d < bd){ bd = d; best = id; } }
+  return best ? $(`#tokens [data-id="${best}"]`) : null;
+}
 svg.addEventListener('pointerdown', e => {
   if(e.pointerType === 'pen'){
     penDown = true;
@@ -918,6 +926,7 @@ svg.addEventListener('pointerdown', e => {
     }
   } else if(e.pointerType === 'touch' && penDown) return;   // lòng bàn tay chạm khi đang vẽ: bỏ qua
   const T = (penMode && e.pointerType === 'touch') ? 'move' : tool;
+  if(e.isPrimary){ ptrs.clear(); pinch = null; pan = null; }   // ngón đầu tiên: xoá các chạm cũ bị kẹt
   ptrs.set(e.pointerId, [e.clientX, e.clientY]);
   if(ptrs.size === 2){   // hai ngón: huỷ thao tác đang làm, chuyển sang chụm để phóng to
     if(drag && drag.moved) commit();
@@ -926,7 +935,7 @@ svg.addEventListener('pointerdown', e => {
     return;
   }
   if(ptrs.size > 2) return;
-  const tokHit = e.target.closest('.tok');
+  const tokHit = e.target.closest('.tok') || (T === 'move' ? nearestTok(e) : null);
   if(Z.z > 1.01 && T === 'move' && !tokHit){   // đã phóng to: kéo vùng trống để di chuyển sân
     pan = {last:clientToSvg(svg, e.clientX, e.clientY), pid:e.pointerId};
     try{ svg.setPointerCapture(e.pointerId); }catch(_){}
@@ -935,12 +944,12 @@ svg.addEventListener('pointerdown', e => {
   }
   if(playing) return;
   const p = toNorm(e);
-  const tokEl = e.target.closest('.tok');
+  const tokEl = tokHit && tokHit.closest('#tokens') ? tokHit : e.target.closest('.tok');
   if(T === 'move'){
     if(tokEl){
       const id = tokEl.dataset.id, cur = st().pos[id];
       drag = {id, el:tokEl, dx:cur[0]-p[0], dy:cur[1]-p[1], moved:false, pid:e.pointerId};
-      if(selId !== id){ selId = id; renderTokens(); drag.el = $(`#tokens [data-id="${id}"]`); renderSel(); }
+      if(selId !== id){ selId = id; drag.reselect = true; renderSel(); }   // vẽ lại vòng chọn khi nhấc tay, không thay DOM giữa lúc chạm
       try{ svg.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault();
     } else if(selId){ selId = null; renderTokens(); renderSel(); }
   } else if(T === 'erase'){
@@ -988,7 +997,7 @@ svg.addEventListener('pointermove', e => {
   }
 });
 function endPointer(){
-  if(drag){ if(drag.moved) commit(); drag = null; }
+  if(drag){ if(drag.moved) commit(); if(drag.reselect) renderTokens(); drag = null; }
   if(draw){
     const F = FMT[fmt];
     if(draw.t === 'free'){
@@ -1679,7 +1688,14 @@ function kNorm(e){
 let kDrag = null;
 ksvg.addEventListener('pointerdown', e => {
   if(K.mode !== 'ch') return;
-  const g = e.target.closest('.ktok.drag'); if(!g) return;
+  let g = e.target.closest('.ktok.drag');
+  if(!g){
+    const c = $('#kTok .ktok.drag'); if(!c) return;
+    const a = clientToSvg(ksvg, e.clientX, e.clientY), b = clientToSvg(ksvg, e.clientX + 30, e.clientY);
+    const [x,y] = kmet(K.pos[c.dataset.id]);
+    if(Math.hypot(x - a.x, y - a.y) > Math.max(Math.hypot(b.x - a.x, b.y - a.y), 1.4)) return;
+    g = c;
+  }
   const p = kNorm(e), cur = K.pos[g.dataset.id];
   kDrag = {id:g.dataset.id, el:g, dx:cur[0]-p[0], dy:cur[1]-p[1]};
   try{ ksvg.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault();
