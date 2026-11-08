@@ -24,7 +24,11 @@ App có icon riêng, mở toàn màn hình không có thanh trình duyệt, và 
 - Danh sách đội: tên, số áo, người đá chính và dự bị, thay người, nhập nhanh cả đội.
 - Toàn màn hình nằm ngang (điện thoại dọc tự xoay), phóng to và thu nhỏ (chụm 2 ngón, nút + / −, Ctrl + lăn chuột).
 - Bút cảm ứng (Apple Pencil, S Pen): nét vẽ theo lực nhấn, chống chạm lòng bàn tay, Chế độ bút (bút để vẽ, ngón tay để kéo và phóng to).
-- Thư viện bài: 6 bài mẫu, lưu bài của mình.
+- Dụng cụ tập: nấm, cọc, rào, thang dây, khung thành nhỏ, hình nộm, bóng phụ (xoay, nhân bản, xoá).
+- Khung nhìn cả sân, nửa sân, 1/3 sân để vẽ bài tập.
+- Mũi tên uốn cong (kéo tay nắm vàng ở giữa mũi tên). Khi phát, cầu thủ và bóng chạy theo đúng mũi tên đã vẽ.
+- Xuất ảnh PNG và GIF động để gửi Zalo (trên điện thoại có nút Chia sẻ).
+- Thư viện: 6 bài chiến thuật mẫu, 16 bài tập sân 5 (khởi động, kỹ thuật, giữ bóng, tấn công – phòng ngự, thủ môn, tình huống cố định), lọc theo nhóm, lưu bài của mình.
 
 ### Luật thi đấu
 - Bảng so sánh sân 11 / 7 / 5.
