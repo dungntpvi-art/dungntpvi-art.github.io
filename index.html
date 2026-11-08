@@ -1075,7 +1075,7 @@ function drawingSVG(d, i){
 }
 function renderDrawings(list){
   const s = st();
-  $('#drawings').innerHTML = (list || s.dr).map((d,i) => drawingSVG(d,i)).join('');
+  $('#drawings').innerHTML = (list || s.dr || []).map((d,i) => { try{ return drawingSVG(d,i); }catch(_){ return ''; } }).join('');
   // Tay nắm ở giữa mũi tên chạy/chuyền/sút: kéo để uốn cong
   let h = '';
   if(!list && tool === 'move' && !playing && !exporting && !readOnly){
@@ -1138,9 +1138,11 @@ function renderTokens(pos){
   const hid = new Set(s.hidden);
   let out = '';
   s.eq.forEach(q => out += eqSVG(q, pos[q.id]));
-  if(s.showAway) s.away.players.forEach(p => { if(!hid.has(p.id)) out += tokenSVG(p.id, p, pos[p.id]); });
-  s.home.players.forEach(p => { if(!hid.has(p.id)) out += tokenSVG(p.id, p, pos[p.id]); });
-  out += tokenSVG('ball', null, pos.ball);
+  // Bỏ qua cầu thủ thiếu vị trí (dữ liệu cũ / lỗi) thay vì dừng cả sân
+  const okPos = q => Array.isArray(q) && isFinite(q[0]) && isFinite(q[1]);
+  if(s.showAway) s.away.players.forEach(p => { if(!hid.has(p.id) && okPos(pos[p.id])) out += tokenSVG(p.id, p, pos[p.id]); });
+  s.home.players.forEach(p => { if(!hid.has(p.id) && okPos(pos[p.id])) out += tokenSVG(p.id, p, pos[p.id]); });
+  if(okPos(pos.ball)) out += tokenSVG('ball', null, pos.ball);
   $('#tokens').innerHTML = out;
 }
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
