@@ -2433,6 +2433,8 @@ const FB_BASE = 'https://www.gstatic.com/firebasejs/10.12.2/';
 const MAIN_SITE = 'https://dungntpvi-art.github.io/';
 const ROLE_VN = {admin:'Admin', coach:'HLV', assistant:'Trợ lý', viewer:'Cầu thủ / phụ huynh', pending:'Chờ duyệt', disabled:'Đã khoá', none:''};
 let pendingName = '';
+// Firestore tự chờ khi mất kết nối; giới hạn để báo lỗi thay vì treo
+const withTimeout = (pr, ms = 12000) => Promise.race([pr, new Promise((_, rej) => setTimeout(() => rej({code:'unavailable'}), ms))]);
 async function loadFB(){
   if(CLOUD.fb) return CLOUD.fb;
   const [app, auth, fs] = await Promise.all([import(FB_BASE + 'firebase-app.js'), import(FB_BASE + 'firebase-auth.js'), import(FB_BASE + 'firebase-firestore.js')]);
@@ -2562,13 +2564,13 @@ async function onUser(u){
   if(u){
     const {fs, db} = CLOUD.fb, ref = fs.doc(db, 'users', u.uid);
     try{
-      let snap = await fs.getDoc(ref);
+      let snap = await withTimeout(fs.getDoc(ref));
       if(!snap.exists()){
-        await fs.setDoc(ref, {email:u.email || '', name:pendingName || u.displayName || (u.email || '').split('@')[0], role:'pending', createdAt:fs.serverTimestamp()});
-        snap = await fs.getDoc(ref);
+        await withTimeout(fs.setDoc(ref, {email:u.email || '', name:pendingName || u.displayName || (u.email || '').split('@')[0], role:'pending', createdAt:fs.serverTimestamp()}));
+        snap = await withTimeout(fs.getDoc(ref));
       }
       CLOUD.profile = snap.data(); CLOUD.role = CLOUD.profile.role || 'pending';
-      try{ CLOUD.adminExists = (await fs.getDoc(fs.doc(db, 'meta', 'admin'))).exists(); }catch(_){ CLOUD.adminExists = true; }
+      try{ CLOUD.adminExists = (await withTimeout(fs.getDoc(fs.doc(db, 'meta', 'admin')))).exists(); }catch(_){ CLOUD.adminExists = true; }
       CLOUD.unsub.push(fs.onSnapshot(ref, s => {
         if(!s.exists()) return;
         const prev = CLOUD.role; CLOUD.profile = s.data(); CLOUD.role = CLOUD.profile.role || 'pending';
@@ -2732,14 +2734,14 @@ async function openShared(id){
   banner('Đang tải bài…');
   try{
     const {fs, db} = await loadFB();
-    const snap = await fs.getDoc(fs.doc(db, 'boards', id));
+    const snap = await withTimeout(fs.getDoc(fs.doc(db, 'boards', id)));
     if(!snap.exists()) throw {code:'not-found'};
     const b = snap.data();
     fmt = b.fmt; S[fmt] = JSON.parse(b.data); normState(S[fmt]); selId = null;
     setTool('move'); renderField(); renderPanels(); renderAll();
     banner(`<span class="grow">Đang xem: <b>${esc(b.name)}</b> (chỉ xem). Bấm ▶ Phát để xem hình động, ⛶ để xem toàn màn hình.</span><a href="${location.pathname}">Về trang chính</a>`);
   }catch(err){
-    banner(`<span class="grow">Không mở được bài: link đã bị tắt hoặc không đúng.</span><a href="${location.pathname}">Về trang chính</a>`, true);
+    banner(`<span class="grow">${err && err.code === 'unavailable' ? 'Không kết nối được máy chủ. Kiểm tra mạng rồi tải lại trang.' : 'Không mở được bài: link đã bị tắt hoặc không đúng.'}</span><a href="${location.pathname}">Về trang chính</a>`, true);
   }
   route();
 }
