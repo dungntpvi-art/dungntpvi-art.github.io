@@ -234,6 +234,29 @@ mark{background:color-mix(in srgb,var(--mark) 35%,transparent);color:inherit;bor
 .pulse{animation:pulse 1.1s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
 @keyframes pulse{50%{transform:scale(1.2);opacity:.45}}
 
+/* Zoom */
+.zoomctl{position:absolute;right:calc(10px + env(safe-area-inset-right,0px));bottom:10px;display:flex;align-items:center;gap:2px;background:rgba(10,20,14,.78);border-radius:10px;padding:3px}
+.zoomctl button{width:34px;height:34px;border:0;border-radius:7px;background:none;color:#f4f7f2;font-size:20px;font-weight:700;line-height:1}
+.zoomctl button:hover{background:rgba(255,255,255,.14)}
+.zoomctl span{color:#f4f7f2;font-size:12px;font-weight:600;min-width:42px;text-align:center;font-variant-numeric:tabular-nums}
+svg.zoomed:not(.drawing):not(.erasing){cursor:grab}
+
+/* Full screen (native khi được phép, nếu không thì phủ kín màn hình; điện thoại dọc thì xoay ngang bằng CSS) */
+body.fs-on{overflow:hidden}
+.fs{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;gap:6px;margin:0;border-radius:0;border:0;overflow:hidden;
+  padding:max(8px,env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) max(8px,env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
+.fs.rot{inset:auto;top:0;left:0;width:100vh;width:100dvh;height:100vw;transform-origin:top left;transform:rotate(90deg) translateY(-100%)}
+.fs .pitch-wrap{flex:1;min-height:0}
+.fs #pitch,.fs #kPitch{width:100%;height:100%;max-height:none}
+.fs .toolbar,.fs .frames{margin:0}
+.fs .frames{padding:4px 8px;gap:6px}
+.fs .frames .lbl,.fs .dim,.fs #benchBar,.fs .tools kbd,.fs .tools .lbl,.fs .kno{display:none}
+.fs .ktitle{font-size:24px}
+.fs .krule{font-size:14px;margin-top:2px}
+.fs .ksay{font-size:clamp(15px,2.4vw,26px);min-height:0}
+.fs .khead,.fs .kctrl,.fs .kfb{flex:none}
+.fs .kfb{padding:6px 10px;font-size:15px}
+
 .toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;z-index:20;max-width:calc(100% - 32px)}
 footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
@@ -257,6 +280,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
 <section id="v-bang">
   <div class="board">
     <div>
+      <div id="boardStage" class="bstage">
       <div class="toolbar">
         <div class="seg" role="group" aria-label="Loại sân" id="fmtSeg">
           <button data-fmt="11">Sân 11</button><button data-fmt="7">Sân 7</button><button data-fmt="5">Sân 5</button>
@@ -272,6 +296,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
           <button data-tool="erase" title="Xoá nét vẽ (E)"><svg viewBox="0 0 20 20"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="2"/></svg><span class="lbl">Xoá nét</span><kbd>E</kbd></button>
         </div>
         <span class="dim" id="dimLabel"></span>
+        <button class="btn" id="fsBtn" title="Xem toàn màn hình, nằm ngang">⛶ Toàn màn hình</button>
       </div>
 
       <div class="pitch-wrap">
@@ -279,6 +304,12 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
           <g id="field"></g><g id="drawings"></g><g id="preview"></g><g id="tokens"></g>
         </svg>
         <div class="caption" id="caption"></div>
+        <div class="zoomctl" role="group" aria-label="Phóng to thu nhỏ">
+          <button id="zOut" title="Thu nhỏ (−)" aria-label="Thu nhỏ">−</button>
+          <span id="zoomLbl">100%</span>
+          <button id="zIn" title="Phóng to (+)" aria-label="Phóng to">+</button>
+          <button id="zReset" title="Vừa khung (0)" aria-label="Xem cả sân">⤢</button>
+        </div>
       </div>
       <div id="benchBar"></div>
 
@@ -292,6 +323,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
           <option value="1.6">Chậm</option><option value="1" selected>Vừa</option><option value="0.6">Nhanh</option>
         </select>
         <button class="btn primary" id="playBtn">▶ Phát</button>
+      </div>
       </div>
       <p class="hint" style="margin-top:8px">Mẹo: chọn <b>Kéo thả</b> để di chuyển cầu thủ, chọn công cụ vẽ rồi kéo trên sân để vẽ (bắt đầu từ một cầu thủ thì mũi tên tự bám vào cầu thủ đó). Mỗi khung lưu vị trí + nét vẽ; nét vẽ ở khung N mô tả chuyển động sang khung N+1. Sửa khung đang chọn sẽ tự lưu.</p>
     </div>
@@ -664,9 +696,30 @@ function pitchSVG(f, pre = ''){
   s += `</g>`;
   return s;
 }
+/* ---------------- Zoom / pan (đổi viewBox) ---------------- */
+const Z = {z:1, cx:null, cy:null};
+function fullBox(){ const {L, W} = FMT[fmt], P = pad(fmt); return {x:-P, y:-P, w:L+2*P, h:W+2*P}; }
+function applyZoom(){
+  const f = fullBox();
+  Z.z = Math.max(1, Math.min(5, Z.z));
+  const w = f.w/Z.z, h = f.h/Z.z;
+  if(Z.cx == null){ Z.cx = f.x + f.w/2; Z.cy = f.y + f.h/2; }
+  Z.cx = Math.max(f.x + w/2, Math.min(f.x + f.w - w/2, Z.cx));
+  Z.cy = Math.max(f.y + h/2, Math.min(f.y + f.h - h/2, Z.cy));
+  svg.setAttribute('viewBox', `${Z.cx - w/2} ${Z.cy - h/2} ${w} ${h}`);
+  $('#zoomLbl').textContent = Math.round(Z.z*100) + '%';
+  svg.classList.toggle('zoomed', Z.z > 1.01);
+}
+function zoomAt(factor, ax, ay){
+  const old = Z.z; Z.z = Math.max(1, Math.min(5, old*factor));
+  const k = old/Z.z;
+  if(ax != null){ Z.cx = ax + (Z.cx - ax)*k; Z.cy = ay + (Z.cy - ay)*k; }
+  applyZoom();
+}
+function resetZoom(){ Z.z = 1; Z.cx = Z.cy = null; applyZoom(); }
+
 function renderField(){
-  const {L, W} = FMT[fmt], P = pad(fmt);
-  svg.setAttribute('viewBox', `${-P} ${-P} ${L+2*P} ${W+2*P}`);
+  resetZoom();
   $('#field').innerHTML = pitchSVG(fmt);
   $('#dimLabel').textContent = FMT[fmt].label;
 }
@@ -808,6 +861,9 @@ function toast(msg){ const t = $('#toast'); t.textContent = msg; t.hidden = fals
 /* ---------------- Pointer interaction ---------------- */
 // toạ độ chuột → toạ độ sân (mét), tính từ viewBox + kích thước hiển thị (preserveAspectRatio mặc định: xMidYMid meet)
 function clientToSvg(el, cx, cy){
+  // getScreenCTM tính cả phép xoay CSS (chế độ toàn màn hình nằm ngang)
+  const ctm = el.getScreenCTM && el.getScreenCTM();
+  if(ctm && el.getBoundingClientRect().width){ const p = el.createSVGPoint(); p.x = cx; p.y = cy; const q = p.matrixTransform(ctm.inverse()); return {x:q.x, y:q.y}; }
   const vb = el.viewBox.baseVal, r = el.getBoundingClientRect();
   const s = Math.min(r.width/vb.width, r.height/vb.height);
   const ox = r.left + (r.width - vb.width*s)/2, oy = r.top + (r.height - vb.height*s)/2;
@@ -819,8 +875,29 @@ function toNorm(e){
   const cx = Math.max(-P*.8, Math.min(F.L + P*.8, m.x)), cy = Math.max(-P*.8, Math.min(F.W + P*.8, m.y));
   return [cx/F.L, cy/F.W];
 }
-let drag = null, draw = null;
+let drag = null, draw = null, pan = null, pinch = null;
+const ptrs = new Map();
+function startPinch(){
+  const [a,b] = [...ptrs.values()];
+  const m = clientToSvg(svg, (a[0]+b[0])/2, (a[1]+b[1])/2);
+  pinch = {d:Math.hypot(a[0]-b[0], a[1]-b[1]) || 1, z:Z.z, ax:m.x, ay:m.y, cx:Z.cx, cy:Z.cy};
+}
 svg.addEventListener('pointerdown', e => {
+  ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+  if(ptrs.size === 2){   // hai ngón: huỷ thao tác đang làm, chuyển sang chụm để phóng to
+    if(drag && drag.moved) commit();
+    drag = null; draw = null; pan = null; $('#preview').innerHTML = '';
+    startPinch(); try{ svg.setPointerCapture(e.pointerId); }catch(_){}
+    return;
+  }
+  if(ptrs.size > 2) return;
+  const tokHit = e.target.closest('.tok');
+  if(Z.z > 1.01 && tool === 'move' && !tokHit){   // đã phóng to: kéo vùng trống để di chuyển sân
+    pan = {last:clientToSvg(svg, e.clientX, e.clientY)};
+    try{ svg.setPointerCapture(e.pointerId); }catch(_){}
+    if(selId){ selId = null; renderTokens(); renderSel(); }
+    return;
+  }
   if(playing) return;
   const p = toNorm(e);
   const tokEl = e.target.closest('.tok');
@@ -841,6 +918,18 @@ svg.addEventListener('pointerdown', e => {
   }
 });
 svg.addEventListener('pointermove', e => {
+  if(ptrs.has(e.pointerId)) ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+  if(pinch && ptrs.size >= 2){
+    const [a,b] = [...ptrs.values()];
+    Z.z = Math.max(1, Math.min(5, pinch.z * Math.hypot(a[0]-b[0], a[1]-b[1]) / pinch.d));
+    const k = pinch.z / Z.z;
+    Z.cx = pinch.ax + (pinch.cx - pinch.ax)*k; Z.cy = pinch.ay + (pinch.cy - pinch.ay)*k;
+    applyZoom(); return;
+  }
+  if(pan){
+    const q = clientToSvg(svg, e.clientX, e.clientY);
+    Z.cx -= q.x - pan.last.x; Z.cy -= q.y - pan.last.y; applyZoom(); return;
+  }
   if(drag){
     const p = toNorm(e), s = st();
     s.pos[drag.id] = [p[0]+drag.dx, p[1]+drag.dy]; drag.moved = true;
@@ -864,8 +953,24 @@ function endPointer(){
     draw = null; $('#preview').innerHTML = '';
   }
 }
-svg.addEventListener('pointerup', endPointer);
-svg.addEventListener('pointercancel', endPointer);
+function upPointer(e){
+  ptrs.delete(e.pointerId);
+  if(pinch){ if(ptrs.size < 2) pinch = null; return; }
+  if(pan){ pan = null; return; }
+  endPointer();
+}
+svg.addEventListener('pointerup', upPointer);
+svg.addEventListener('pointercancel', upPointer);
+// Lăn chuột: Ctrl + lăn (hoặc chụm 2 ngón trên touchpad) để phóng to; ở toàn màn hình thì lăn thường cũng được
+svg.addEventListener('wheel', e => {
+  if(!(e.ctrlKey || e.metaKey || fsEl)) return;
+  e.preventDefault();
+  const m = clientToSvg(svg, e.clientX, e.clientY);
+  zoomAt(Math.exp(-e.deltaY * (e.ctrlKey ? .01 : .0018)), m.x, m.y);
+}, {passive:false});
+$('#zIn').addEventListener('click', () => zoomAt(1.4));
+$('#zOut').addEventListener('click', () => zoomAt(1/1.4));
+$('#zReset').addEventListener('click', resetZoom);
 
 /* ---------------- Tools ---------------- */
 function setTool(t){
@@ -880,6 +985,9 @@ document.addEventListener('keydown', e => {
   if($('#v-bang').hidden) return;
   const map = {v:'move', r:'run', p:'pass', d:'dribble', s:'shot', z:'zone', l:'line', e:'erase'};
   const t = map[e.key.toLowerCase()]; if(t){ setTool(t); return; }
+  if(e.key === '+' || e.key === '='){ zoomAt(1.4); return; }
+  if(e.key === '-'){ zoomAt(1/1.4); return; }
+  if(e.key === '0'){ resetZoom(); return; }
   if(e.key === ' '){ e.preventDefault(); togglePlay(); }
   if(e.key === 'ArrowRight' || e.key === 'ArrowLeft'){
     const s = st(); if(!s.frames.length) return;
@@ -1487,12 +1595,7 @@ $('#kPrev').addEventListener('click', () => {
 });
 $('#kAuto').addEventListener('click', kAutoPlay);
 $('#kLessons').addEventListener('click', e => { const b = e.target.closest('button[data-li]'); if(b) kLesson(+b.dataset.li); });
-$('#kFull').addEventListener('click', () => {
-  const el = $('#kStage');
-  if(document.fullscreenElement){ document.exitFullscreen?.(); return; }
-  try{ const p = el.requestFullscreen?.(); if(p) p.catch(() => toast('Trình duyệt này không cho bật toàn màn hình')); else toast('Trình duyệt này không cho bật toàn màn hình'); }
-  catch(e){ toast('Trình duyệt này không cho bật toàn màn hình'); }
-});
+$('#kFull').addEventListener('click', () => toggleFull($('#kStage')));
 $('#kFb').addEventListener('click', e => {
   const b = e.target.closest('button[data-k]'); if(!b) return;
   const L = KL[K.li], c = L.ch;
@@ -1538,6 +1641,38 @@ ksvg.addEventListener('pointerup', kDrop);
 ksvg.addEventListener('pointercancel', kDrop);
 kLesson(0);
 
+/* =================== Full screen nằm ngang =================== */
+let fsEl = null;
+const portraitMQ = window.matchMedia('(orientation: portrait)');
+function updRot(){ if(fsEl) fsEl.classList.toggle('rot', portraitMQ.matches && window.innerWidth < 900); }
+function setFsLabels(){
+  $('#fsBtn').textContent = fsEl && fsEl.id === 'boardStage' ? '✕ Thoát' : '⛶ Toàn màn hình';
+  $('#kFull').textContent = fsEl && fsEl.id === 'kStage' ? '✕ Thoát' : 'Toàn màn hình';
+}
+function toggleFull(el){
+  if(fsEl){ exitFull(); return; }
+  fsEl = el; el.classList.add('fs'); document.body.classList.add('fs-on');
+  updRot(); setFsLabels();
+  // Thử toàn màn hình thật + khoá ngang (Android, máy tính). iPhone không hỗ trợ: đã có lớp phủ + xoay CSS.
+  try{
+    const p = el.requestFullscreen && el.requestFullscreen({navigationUI:'hide'});
+    if(p && p.then) p.then(() => { try{ const l = screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape'); if(l && l.catch) l.catch(() => {}); }catch(e){} }).catch(() => {});
+  }catch(e){}
+}
+function exitFull(){
+  if(!fsEl) return;
+  const el = fsEl; fsEl = null;
+  el.classList.remove('fs','rot'); document.body.classList.remove('fs-on');
+  try{ screen.orientation && screen.orientation.unlock && screen.orientation.unlock(); }catch(e){}
+  if(document.fullscreenElement){ try{ const p = document.exitFullscreen(); if(p && p.catch) p.catch(() => {}); }catch(e){} }
+  setFsLabels();
+}
+$('#fsBtn').addEventListener('click', () => toggleFull($('#boardStage')));
+document.addEventListener('fullscreenchange', () => { if(!document.fullscreenElement && fsEl) exitFull(); else updRot(); });
+portraitMQ.addEventListener ? portraitMQ.addEventListener('change', updRot) : portraitMQ.addListener(updRot);
+window.addEventListener('resize', updRot);
+document.addEventListener('keydown', e => { if(e.key === 'Escape' && fsEl) exitFull(); });
+
 /* =================== Routing =================== */
 const VIEWS = ['bang','luat','cau-hoi','be'];
 function route(){
@@ -1545,6 +1680,7 @@ function route(){
   VIEWS.forEach(x => $('#v-' + x).hidden = x !== v);
   $$('nav.tabs a').forEach(a => { if(a.dataset.view === v) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
   if(v !== 'bang') stopPlay();
+  exitFull();
 }
 window.addEventListener('hashchange', route);
 
