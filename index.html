@@ -604,6 +604,8 @@ const TEAM5 = [[2,'Khang Anh',1],[1,'Gia Huy'],[3,'Quang Phúc'],[4,'Lê Minh'],
   T.bench = TEAM5.slice(T.players.length).map(([n,name,gk]) => gk ? {num:String(n), name, gk:true} : {num:String(n), name});
   store.set('sbct.team5.v2', true); persist();
 })();
+// Đội đang tập sân 5: mở app vào Sân 5 (một lần; sau đó nhớ lựa chọn của người dùng)
+if(!store.get('sbct.open5.v1', false)){ fmt = '5'; store.set('sbct.open5.v1', true); persist(); }
 // Giữ số áo, tên, màu áo và dự bị khi mở bài mẫu
 function keepRoster(oldS, newS){
   for(const side of ['home','away']){
