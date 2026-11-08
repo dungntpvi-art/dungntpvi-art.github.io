@@ -1193,13 +1193,13 @@ function renderLib(){
   const saved = store.get('sbct.saved.v1', []);
   const items = [
     ...CLOUD.boards.filter(x => x.fmt === fmt).map(x => ({cat:'Bài của đội', html:`<div class="item"><div><span class="tag">Của đội${x.public ? ' · có link xem' : ''}</span><b>${esc(x.name)}</b><small>${esc(x.ownerName || '')}${x.updatedAt && x.updatedAt.toDate ? ' · ' + x.updatedAt.toDate().toLocaleDateString('vi-VN') : ''}</small></div>
-      <div class="acts"><button class="btn" data-cb="${x.id}">Mở</button>${canEditCloud() ? `<button class="btn" data-cshare="${x.id}" title="Tạo link chỉ xem">Link</button><button class="btn danger" data-cdel="${x.id}" title="Xoá bài">✕</button>` : ''}</div></div>`})),
+      <div class="acts"><button class="btn" data-cb="${esc(x.id)}">Mở</button>${canEditCloud() ? `<button class="btn" data-cshare="${esc(x.id)}" title="Tạo link chỉ xem">Link</button><button class="btn danger" data-cdel="${esc(x.id)}" title="Xoá bài">✕</button>` : ''}</div></div>`})),
     ...SCEN.filter(x => x.fmt === fmt).map(x => ({cat:'Chiến thuật trận đấu', html:`<div class="item"><div><span class="tag">Chiến thuật</span><b>${esc(x.name)}</b><small>${esc(x.desc)}</small></div>
       <div class="acts"><button class="btn" data-ex="${x.id}">Mở</button></div></div>`})),
     ...(fmt === '5' ? DRILLS : []).map(x => ({cat:x.cat, html:`<div class="item"><div><span class="tag">${esc(x.cat)}</span><b>${esc(x.name)}</b><small>${esc(x.time)} · ${esc(x.n)}</small></div>
       <div class="acts"><button class="btn" data-drill="${x.id}">Mở</button></div></div>`})),
     ...saved.filter(x => x.fmt === fmt).map(x => ({cat:'Đã lưu', html:`<div class="item"><div><span class="tag">Đã lưu</span><b>${esc(x.name)}</b><small>${x.data.frames.length} khung · ${new Date(x.at).toLocaleDateString('vi-VN')}</small></div>
-      <div class="acts"><button class="btn" data-open="${x.id}">Mở</button><button class="btn danger" data-del="${x.id}" title="Xoá bài">✕</button></div></div>`}))
+      <div class="acts"><button class="btn" data-open="${esc(x.id)}">Mở</button><button class="btn danger" data-del="${esc(x.id)}" title="Xoá bài">✕</button></div></div>`}))
   ];
   const cats = ['Tất cả', ...new Set(items.map(x => x.cat))];
   if(!cats.includes(libCat)) libCat = 'Tất cả';
@@ -1482,9 +1482,9 @@ function renderRoster(){
   const T = s[rosterSide], roles = roleLabels(rosterSide);
   $$('#rosterSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.side === rosterSide));
   let h = `<div class="rsub">Đá chính (${T.players.length})</div>`;
-  h += T.players.map((p,i) => `<div class="rrow${p.id === selId ? ' sel' : ''}" data-pid="${p.id}"><span class="pos" title="${roles[i] === 'TM' ? 'Thủ môn' : roles[i] === 'HV' ? 'Hậu vệ' : roles[i] === 'TĐ' ? 'Tiền đạo' : 'Tiền vệ'}">${roles[i]||''}</span>
-    <input type="number" min="0" max="99" value="${esc(p.num)}" data-f="num" data-pid="${p.id}" aria-label="Số áo">
-    <input type="text" maxlength="18" value="${esc(p.name)}" data-f="name" data-pid="${p.id}" placeholder="Tên cầu thủ" aria-label="Tên cầu thủ số ${esc(p.num)}"><span></span></div>`).join('');
+  h += T.players.map((p,i) => `<div class="rrow${p.id === selId ? ' sel' : ''}" data-pid="${esc(p.id)}"><span class="pos" title="${roles[i] === 'TM' ? 'Thủ môn' : roles[i] === 'HV' ? 'Hậu vệ' : roles[i] === 'TĐ' ? 'Tiền đạo' : 'Tiền vệ'}">${roles[i]||''}</span>
+    <input type="number" min="0" max="99" value="${esc(p.num)}" data-f="num" data-pid="${esc(p.id)}" aria-label="Số áo">
+    <input type="text" maxlength="18" value="${esc(p.name)}" data-f="name" data-pid="${esc(p.id)}" placeholder="Tên cầu thủ" aria-label="Tên cầu thủ số ${esc(p.num)}"><span></span></div>`).join('');
   h += `<div class="rsub">Dự bị (${T.bench.length})</div>`;
   h += T.bench.length ? T.bench.map((b,i) => `<div class="rrow"><span class="pos" title="${b.gk ? 'Thủ môn dự bị' : 'Dự bị'}">${b.gk ? 'TM' : 'DB'}</span>
     <input type="number" min="0" max="99" value="${esc(b.num)}" data-f="num" data-bi="${i}" aria-label="Số áo dự bị">
@@ -1500,8 +1500,8 @@ function renderBench(){
   const sides = s.showAway ? ['home','away'] : ['home'];
   const any = sides.some(x => s[x].bench.length);
   $('#benchBar').innerHTML = !any ? '' : sides.map(side => {
-    const T = s[side], fg = textOn(T.color);
-    return `<div class="bench"><span class="blbl"><i style="background:${T.color}"></i>Dự bị ${SIDE_VN[side]}</span>` +
+    const T = s[side], fg = textOn(safeColor(T.color));
+    return `<div class="bench"><span class="blbl"><i style="background:${safeColor(T.color)}"></i>Dự bị ${SIDE_VN[side]}</span>` +
       (T.bench.length ? T.bench.map((b,i) => `<button data-bside="${side}" data-bi="${i}" title="Thay ${esc(b.name || 'số ' + b.num)} vào cho cầu thủ đang chọn"><b style="background:${safeColor(T.color)};color:${fg}">${esc(b.num)}</b>${esc(b.name || 'Chưa có tên')}${b.gk ? ' <small style="color:var(--muted);font-weight:700">TM</small>' : ''}</button>`).join('')
         : `<span class="none">Chưa có</span>`) + `</div>`;
   }).join('');
@@ -2257,9 +2257,9 @@ function renderPlan(){
 function renderPlanList(){
   const sum = x => `${esc(x.date || '')} · ${(x.blocks || []).reduce((a, b) => a + (+b.min || 0), 0)} phút · ${(x.blocks || []).length} phần`;
   const cloud = CLOUD.plans.map(x => `<div class="item"><div><span class="tag">Của đội</span><b>${esc(x.title)}</b><small>${sum(x)}</small></div>
-    <div class="acts"><button class="btn" data-cp="${x.id}">Mở</button>${canEditCloud() ? `<button class="btn danger" data-cpdel="${x.id}" title="Xoá">✕</button>` : ''}</div></div>`).join('');
+    <div class="acts"><button class="btn" data-cp="${esc(x.id)}">Mở</button>${canEditCloud() ? `<button class="btn danger" data-cpdel="${esc(x.id)}" title="Xoá">✕</button>` : ''}</div></div>`).join('');
   const local = store.get('sbct.plans.v1', []).map(x => `<div class="item"><div><span class="tag">Trên máy này</span><b>${esc(x.title)}</b><small>${sum(x)}</small></div>
-    <div class="acts"><button class="btn" data-p="${x.id}">Mở</button><button class="btn danger" data-pdel="${x.id}" title="Xoá">✕</button></div></div>`).join('');
+    <div class="acts"><button class="btn" data-p="${esc(x.id)}">Mở</button><button class="btn danger" data-pdel="${esc(x.id)}" title="Xoá">✕</button></div></div>`).join('');
   $('#pList').innerHTML = (cloud + local) || '<p class="hint">Chưa lưu giáo án nào.</p>';
   $('#pSave').textContent = canEditCloud() ? 'Lưu giáo án lên đội' : 'Lưu giáo án';
 }
