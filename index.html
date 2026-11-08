@@ -251,13 +251,6 @@ mark{background:color-mix(in srgb,var(--mark) 35%,transparent);color:inherit;bor
 @keyframes pulse{50%{transform:scale(1.2);opacity:.45}}
 
 /* Equipment, curve handles, drill info, export */
-.eqbar{display:flex;flex-wrap:wrap;gap:4px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px 6px;margin-bottom:10px}
-.eqbar .eqlbl{font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-size:13px;color:var(--muted);margin-right:4px}
-.eqbar button{border:0;background:none;border-radius:7px;padding:4px 8px;display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:var(--muted)}
-.eqbar button svg{width:18px;height:18px;flex:none}
-.eqbar button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
-.eqbar .eqclear{margin-left:auto;color:var(--bad)}
-.eqbar .eqclear.armed{background:var(--bad);color:#fff}
 #handles .cv{fill:#ffd84a;fill-opacity:.9;stroke:#15211a;cursor:grab}
 .drillinfo h3{margin:0;font-size:17px}
 .drillinfo .tags{display:flex;flex-wrap:wrap;gap:6px}
@@ -276,7 +269,7 @@ mark{background:color-mix(in srgb,var(--mark) 35%,transparent);color:inherit;bor
 .mprog span{display:block;height:100%;width:0;background:var(--accent);transition:width .15s}
 a.btn{text-decoration:none;color:inherit}
 a.btn.primary{color:var(--accent-ink)}
-.fs .eqbar,.fs .drillinfo{display:none}
+.fs .drillinfo{display:none}
 
 /* Accounts */
 .acct{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -294,7 +287,7 @@ table.utable{min-width:560px}
 .utable select{width:auto;min-width:160px;padding:4px 6px}
 .utable tr.pending td,.utable tr.pending th{background:var(--bad-soft)}
 .roles{margin:0;padding-left:18px;display:grid;gap:4px;font-size:13px}
-body.readonly #tools,body.readonly #eqBar,body.readonly #fmtSeg,body.readonly #viewSeg,body.readonly #penColors,body.readonly #penBtn,
+body.readonly #tools,body.readonly #fmtSeg,body.readonly #viewSeg,body.readonly #penColors,body.readonly #penBtn,
 body.readonly .board > aside,body.readonly #addFrame,body.readonly #delFrame,body.readonly #benchBar,body.readonly #v-bang .hint,
 body.readonly nav.tabs a:not([data-view="bang"]),body.readonly #acct{display:none!important}
 body.readonly .board{grid-template-columns:minmax(0,1fr)}
@@ -440,17 +433,6 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
         <button class="btn" id="fsBtn" title="Xem toàn màn hình, nằm ngang">⛶ Toàn màn hình</button>
       </div>
 
-      <div class="eqbar" id="eqBar" role="group" aria-label="Dụng cụ tập">
-        <span class="eqlbl">Dụng cụ</span>
-        <button data-eq="cone" title="Đặt nấm"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="6.5" fill="#ff8a1f" stroke="#fff" stroke-width="1.5"/><circle cx="10" cy="10" r="2.2" fill="#ffd2a6"/></svg>Nấm</button>
-        <button data-eq="pole" title="Đặt cọc"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="6" fill="none" stroke="#e0b400" stroke-width="2"/><circle cx="10" cy="10" r="2.8" fill="#ffd84a" stroke="#111" stroke-width="1"/></svg>Cọc</button>
-        <button data-eq="hurdle" title="Đặt rào"><svg viewBox="0 0 20 20"><rect x="2" y="7.5" width="16" height="5" rx="1.5" fill="#ffd84a" stroke="#d63a3a" stroke-width="1.4" stroke-dasharray="3 2"/></svg>Rào</button>
-        <button data-eq="ladder" title="Đặt thang dây"><svg viewBox="0 0 20 20"><rect x="1.5" y="6" width="17" height="8" fill="none" stroke="#e0b400" stroke-width="1.5"/><path d="M5.5 6v8M9.5 6v8M13.5 6v8" stroke="#e0b400" stroke-width="1.3"/></svg>Thang</button>
-        <button data-eq="goal" title="Đặt khung thành nhỏ"><svg viewBox="0 0 20 20"><path d="M6 3h7v14H6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 3h7v14H6z" fill="currentColor" fill-opacity=".15"/></svg>Khung nhỏ</button>
-        <button data-eq="dummy" title="Đặt hình nộm"><svg viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="4.5" ry="7.5" fill="#3b4b8f" stroke="#fff" stroke-width="1"/><circle cx="10" cy="10" r="3" fill="#2a3566" stroke="#fff" stroke-width="1"/></svg>Hình nộm</button>
-        <button data-eq="ball" title="Đặt thêm bóng"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="6" fill="#fff" stroke="#111" stroke-width="1.5"/><circle cx="10" cy="10" r="2.2" fill="#111"/></svg>Bóng</button>
-        <button data-k="clear" class="eqclear" title="Xoá mọi dụng cụ trên sân">Xoá hết dụng cụ</button>
-      </div>
       <div class="pitch-wrap">
         <svg id="pitch" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sân bóng chiến thuật">
           <g id="field"></g><g id="drawings"></g><g id="handles"></g><g id="preview"></g><g id="tokens"></g>
@@ -531,15 +513,6 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
           <div class="row"><button class="btn primary" id="bulkApply">Áp dụng</button><button class="btn" id="bulkCancel">Huỷ</button></div>
         </div>
         <p class="hint" id="rosterHint"></p>
-      </div>
-
-      <div class="panel" id="eqPanel" hidden>
-        <h2>Dụng cụ: <span id="eqName"></span></h2>
-        <div class="row">
-          <button class="btn" data-q="rot">⟳ Xoay 45°</button>
-          <button class="btn" data-q="dup">⧉ Nhân bản</button>
-          <button class="btn danger" data-q="del">✕ Xoá</button>
-        </div>
       </div>
 
       <div class="panel" id="selPanel" hidden>
@@ -1111,25 +1084,11 @@ function tokenSVG(id, p, pos){
     <circle r="${r}" fill="${fill}" stroke="#fff" stroke-width="${r*.13}"/>
     <text class="num" y="${r*.38}" text-anchor="middle" font-size="${r*1.08}" fill="${textOn(fill)}">${esc(p.num)}</text>${nm}</g>`;
 }
-const EQ = {
-  cone:  {name:'Nấm', hit:.65, svg:u => `<circle r="${u*.42}" fill="#ff8a1f" stroke="#fff" stroke-width="${u*.07}"/><circle r="${u*.14}" fill="#ffd2a6"/>`},
-  pole:  {name:'Cọc', hit:.65, svg:u => `<circle r="${u*.36}" fill="none" stroke="#ffd84a" stroke-width="${u*.1}"/><circle r="${u*.17}" fill="#ffd84a" stroke="#111" stroke-width="${u*.05}"/>`},
-  hurdle:{name:'Rào', hit:1, svg:u => `<rect x="${-u*.9}" y="${-u*.17}" width="${u*1.8}" height="${u*.34}" rx="${u*.08}" fill="#ffd84a" stroke="#d63a3a" stroke-width="${u*.08}" stroke-dasharray="${u*.3} ${u*.2}"/>`},
-  ladder:{name:'Thang dây', hit:1.7, svg:u => { const L = u*4.2, w = u*1.1; let r = `<rect x="${-L/2}" y="${-w/2}" width="${L}" height="${w}" fill="#ffd84a" fill-opacity=".12" stroke="#ffd84a" stroke-width="${u*.09}"/>`;
-    for(let i=1;i<6;i++){ const x = -L/2 + L*i/6; r += `<line x1="${x}" y1="${-w/2}" x2="${x}" y2="${w/2}" stroke="#ffd84a" stroke-width="${u*.07}"/>`; } return r; }},
-  goal:  {name:'Khung thành nhỏ', hit:1.25, svg:u => `<path d="M0 ${-u*1.2} L${u*.8} ${-u*1.2} L${u*.8} ${u*1.2} L0 ${u*1.2}" fill="#fff" fill-opacity=".22" stroke="#fff" stroke-width="${u*.12}" stroke-linejoin="round"/>`},
-  dummy: {name:'Hình nộm', hit:.9, svg:u => `<ellipse rx="${u*.4}" ry="${u*.78}" fill="#3b4b8f" stroke="#fff" stroke-width="${u*.07}"/><circle r="${u*.3}" fill="#2a3566" stroke="#fff" stroke-width="${u*.06}"/>`},
-  ball:  {name:'Bóng', hit:.65, svg:u => `<circle r="${u*.36}" fill="#fff" stroke="#111" stroke-width="${u*.07}"/><circle r="${u*.13}" fill="#111"/>`}
-};
-function eqSVG(q, pos){
-  if(!pos) return '';
-  const u = FMT[fmt].r, [x,y] = M(...pos), E = EQ[q.k] || EQ.cone, rot = (+q.rot || 0) % 360;
-  const sel = q.id === selId ? `<circle r="${u*Math.max(E.hit,.75)*1.15}" fill="none" stroke="#ffd84a" stroke-width="${u*.1}" stroke-dasharray="${u*.3} ${u*.2}"/>` : '';
-  return `<g class="tok eq" data-id="${esc(q.id)}" data-rot="${rot}" transform="translate(${x} ${y})${rot ? ` rotate(${rot})` : ''}"><circle r="${u*E.hit}" fill="transparent"/>${E.svg(u)}${sel}</g>`;
-}
 function normState(s){
   if(!s) return;
-  if(!Array.isArray(s.eq)) s.eq = [];
+  // Đã bỏ tính năng dụng cụ: dọn dữ liệu dụng cụ cũ nếu còn
+  if(Array.isArray(s.eq) && s.eq.length){ for(const q of s.eq){ delete s.pos[q.id]; (s.frames || []).forEach(f => { delete f.pos[q.id]; }); } }
+  s.eq = [];
   if(!Array.isArray(s.hidden)) s.hidden = [];
   if(!s.view) s.view = 'full';
 }
@@ -1137,7 +1096,6 @@ function renderTokens(pos){
   const s = st(); pos = pos || s.pos; normState(s);
   const hid = new Set(s.hidden);
   let out = '';
-  s.eq.forEach(q => out += eqSVG(q, pos[q.id]));
   // Bỏ qua cầu thủ thiếu vị trí (dữ liệu cũ / lỗi) thay vì dừng cả sân
   const okPos = q => Array.isArray(q) && isFinite(q[0]) && isFinite(q[1]);
   if(s.showAway) s.away.players.forEach(p => { if(!hid.has(p.id) && okPos(pos[p.id])) out += tokenSVG(p.id, p, pos[p.id]); });
@@ -1179,9 +1137,6 @@ function findPlayer(id){ const s = st(); return [...s.home.players, ...s.away.pl
 function renderSel(){
   const p = selId && selId !== 'ball' ? findPlayer(selId) : null;
   $('#selPanel').hidden = !p;
-  const qq = selId && (st().eq || []).find(x => x.id === selId);
-  $('#eqPanel').hidden = !qq;
-  if(qq) $('#eqName').textContent = (EQ[qq.k] || EQ.cone).name;
   if(p){ $('#selNum').value = p.num; $('#selName').value = p.name; }
   $$('#roster .rrow[data-pid]').forEach(r => r.classList.toggle('sel', r.dataset.pid === selId));
 }
@@ -1287,7 +1242,7 @@ function toNorm(e){
   const cx = Math.max(-P*.8, Math.min(F.L + P*.8, m.x)), cy = Math.max(-P*.8, Math.min(F.W + P*.8, m.y));
   return [cx/F.L, cy/F.W];
 }
-let drag = null, draw = null, pan = null, pinch = null, bend = null, placeKind = 'cone';
+let drag = null, draw = null, pan = null, pinch = null, bend = null;
 const ptrs = new Map();
 function startPinch(){
   const [a,b] = [...ptrs.values()];
@@ -1307,7 +1262,7 @@ function nearestTok(e, px = 26){
   const a = clientToSvg(svg, e.clientX, e.clientY), b = clientToSvg(svg, e.clientX + px, e.clientY);
   let bd = Math.max(Math.hypot(b.x - a.x, b.y - a.y), FMT[fmt].r * 1.15), best = null;
   const s = st(), hid = new Set(s.hidden || []);
-  const ids = [...(s.showAway ? s.away.players : []), ...s.home.players].map(p => p.id).filter(id => !hid.has(id)).concat('ball', ...(s.eq || []).map(q => q.id));
+  const ids = [...(s.showAway ? s.away.players : []), ...s.home.players].map(p => p.id).filter(id => !hid.has(id)).concat('ball');
   for(const id of ids){ if(!s.pos[id]) continue; const [x,y] = M(...s.pos[id]); const d = Math.hypot(x - a.x, y - a.y); if(d < bd){ bd = d; best = id; } }
   return best ? $(`#tokens [data-id="${best}"]`) : null;
 }
@@ -1333,7 +1288,6 @@ svg.addEventListener('pointerdown', e => {
   if(readOnly){ if(Z.z > 1.01){ pan = {last:clientToSvg(svg, e.clientX, e.clientY), pid:e.pointerId}; try{ svg.setPointerCapture(e.pointerId); }catch(_){} } return; }
   const cvEl = T === 'move' && e.target.closest('.cv');
   if(cvEl){ bend = {di:+cvEl.dataset.di, pid:e.pointerId}; try{ svg.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault(); return; }
-  if(T === 'place'){ if(!playing) placeEq(toNorm(e)); e.preventDefault(); return; }
   const tokHit = e.target.closest('.tok') || (T === 'move' ? nearestTok(e) : null);
   if(Z.z > 1.01 && T === 'move' && !tokHit){   // đã phóng to: kéo vùng trống để di chuyển sân
     pan = {last:clientToSvg(svg, e.clientX, e.clientY), pid:e.pointerId};
@@ -1352,8 +1306,6 @@ svg.addEventListener('pointerdown', e => {
       try{ svg.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault();
     } else if(selId){ selId = null; renderTokens(); renderSel(); }
   } else if(T === 'erase'){
-    const qe = e.target.closest('.tok.eq');
-    if(qe){ removeEq(qe.dataset.id); return; }
     const d = e.target.closest('.dr');
     if(d){ st().dr.splice(+d.dataset.di, 1); renderDrawings(); commit(); }
   } else if(T === 'free'){
@@ -1448,7 +1400,6 @@ $('#zReset').addEventListener('click', resetZoom);
 /* ---------------- Tools ---------------- */
 function setTool(t){
   tool = t;
-  $$('#eqBar button[data-eq]').forEach(b => b.setAttribute('aria-pressed', t === 'place' && b.dataset.eq === placeKind));
   if(S[fmt]) renderDrawings();
   $('#penColors').hidden = t !== 'free';
   $$('#tools button').forEach(b => b.setAttribute('aria-pressed', b.dataset.tool === t));
@@ -1668,7 +1619,7 @@ const dmN = (p, q) => Math.hypot((p[0]-q[0])*FMT[fmt].L, (p[1]-q[1])*FMT[fmt].W)
 // Cầu thủ đi theo mũi tên chạy/dẫn bóng/vẽ tay xuất phát từ chỗ mình; bóng đi theo mũi tên chuyền/sút/dẫn bóng
 function motionPaths(a, b){
   const s = st(), tol = FMT[fmt].r*1.7, res = {};
-  const balls = new Set(['ball', ...(s.eq||[]).filter(q => q.k === 'ball').map(q => q.id)]);
+  const balls = new Set(['ball']);
   const paths = (a.dr||[]).filter(d => ['run','dribble','free','pass','shot'].includes(d.t)).map(d => ({d, ...pathFn(d)}));
   for(const id in b.pos){
     const p = a.pos[id], q = b.pos[id];
@@ -1761,47 +1712,6 @@ $('#lib').addEventListener('click', e => {
   }
 });
 
-/* ---------------- Dụng cụ tập ---------------- */
-function placeEq(p, kind, rot){
-  const s = st(); normState(s);
-  const id = 'e' + Date.now().toString(36) + Math.floor(Math.random()*1000);
-  s.eq.push({id, k:kind || placeKind, rot:rot || 0});
-  s.pos[id] = [+p[0].toFixed(4), +p[1].toFixed(4)];
-  s.frames.forEach(f => { f.pos[id] = s.pos[id].slice(); });   // dụng cụ có mặt ở mọi khung
-  renderTokens(); commit();
-  return id;
-}
-function removeEq(id){
-  const s = st(); normState(s);
-  s.eq = s.eq.filter(q => q.id !== id);
-  delete s.pos[id]; s.frames.forEach(f => { delete f.pos[id]; });
-  if(selId === id) selId = null;
-  renderTokens(); renderSel(); commit();
-}
-$('#eqBar').addEventListener('click', e => {
-  const b = e.target.closest('button'); if(!b) return;
-  if(b.dataset.eq){
-    placeKind = b.dataset.eq; setTool('place');
-    if(!store.get('sbct.eqTip.v1', false)){ store.set('sbct.eqTip.v1', true); toast('Chạm lên sân để đặt. Đặt xong chọn Kéo thả (V) để di chuyển.'); }
-    return;
-  }
-  if(b.dataset.k === 'clear'){
-    const s = st(); normState(s);
-    if(!s.eq.length){ toast('Trên sân chưa có dụng cụ nào'); return; }
-    if(!b.classList.contains('armed')){ b.classList.add('armed'); b.textContent = 'Bấm lần nữa để xoá'; setTimeout(() => { b.classList.remove('armed'); b.textContent = 'Xoá hết dụng cụ'; }, 2500); return; }
-    b.classList.remove('armed'); b.textContent = 'Xoá hết dụng cụ';
-    s.eq.forEach(q => { delete s.pos[q.id]; s.frames.forEach(f => { delete f.pos[q.id]; }); });
-    s.eq = []; if(selId && selId[0] === 'e') selId = null;
-    renderTokens(); renderSel(); commit(); toast('Đã xoá hết dụng cụ');
-  }
-});
-$('#eqPanel').addEventListener('click', e => {
-  const b = e.target.closest('button[data-q]'); if(!b) return;
-  const s = st(), q = (s.eq || []).find(x => x.id === selId); if(!q) return;
-  if(b.dataset.q === 'rot'){ q.rot = ((q.rot || 0) + 45) % 360; renderTokens(); persist(); }
-  if(b.dataset.q === 'dup'){ const p = s.pos[q.id]; selId = placeEq([p[0] + .04, p[1] + .05], q.k, q.rot); renderTokens(); renderSel(); }
-  if(b.dataset.q === 'del') removeEq(q.id);
-});
 $('#viewSeg').addEventListener('click', e => {
   const b = e.target.closest('button[data-view]'); if(!b) return;
   st().view = b.dataset.view; resetZoom(); renderAll(); persist();
@@ -2021,12 +1931,10 @@ function buildDrill(D){
   for(const [i,v] of Object.entries(D.a || {})){ pos['a'+i] = m2n(v); used.add('a'+i); }
   st0.hidden = Object.keys(pos).filter(id => /^[ha]\d+$/.test(id) && !used.has(id));
   pos.ball = m2n(D.b);
-  st0.eq = (D.eq || []).map(([k,x,y,rot], i) => { const id = 'e' + i; pos[id] = m2n([x,y]); return {id, k, rot:rot || 0}; });
   const cur = deep(pos);
   st0.frames = D.f.map(fr => {
     for(const [i,v] of Object.entries(fr.h || {})) cur['h'+i] = m2n(v);
     for(const [i,v] of Object.entries(fr.a || {})) cur['a'+i] = m2n(v);
-    for(const [i,v] of Object.entries(fr.e || {})) cur['e'+i] = m2n(v);
     if(fr.b) cur.ball = m2n(fr.b);
     return {pos:deep(cur), dr:(fr.d || []).map(drN), note:fr.n || ''};
   });
@@ -2042,20 +1950,17 @@ const DRILLS = [
   setup:'2 hàng cọc song song, mỗi hàng 5 cọc cách nhau 2,5 m. Đầu hàng có nấm xuất phát, cuối hàng có nấm quay đầu.',
   points:['Bóng luôn sát chân, chạm nhẹ mỗi bước','Dùng cả lòng và mu ngoài bàn chân','Ngẩng đầu nhìn cọc tiếp theo'],
   vary:'Bé lớn: thi tiếp sức giữa 2 hàng, hoặc chỉ được dùng chân không thuận.',
-  eq:[['cone',22,6],['pole',24.5,6],['pole',27,6],['pole',29.5,6],['pole',32,6],['pole',34.5,6],['cone',37,6],
-      ['cone',22,14],['pole',24.5,14],['pole',27,14],['pole',29.5,14],['pole',32,14],['pole',34.5,14],['cone',37,14],['ball',22.4,14.8]],
   h:{1:[21.5,6.8],2:[21.5,14.8],3:[20.4,8.4],4:[20.4,16.4]}, b:[22.3,6.9],
   f:[
    {n:'Hai bé đầu hàng cùng xuất phát, dẫn bóng luồn qua từng cọc.', d:[['free',ZIG(6)],['free',ZIG(14)]]},
-   {h:{1:[37,6.9],2:[37,14.9]}, b:[37.6,6.9], e:{14:[37.6,14.9]}, n:'Đến nấm cuối, kéo bóng quay đầu rồi dẫn tốc độ về.', d:[['dribble',37.6,7.4,23,8.2],['dribble',37.6,15.4,23,16.2]]},
-   {h:{1:[23,8.2],2:[23,16.2]}, b:[22.4,8.2], e:{14:[22.4,16.2]}, n:'Chuyền cho bạn tiếp theo rồi về cuối hàng.', d:[['pass',22.4,8.2,20.9,8.4],['pass',22.4,16.2,20.9,16.4]]}
+   {h:{1:[37,6.9],2:[37,14.9]}, b:[37.6,6.9], n:'Đến nấm cuối, kéo bóng quay đầu rồi dẫn tốc độ về.', d:[['dribble',37.6,7.4,23,8.2],['dribble',37.6,15.4,23,16.2]]},
+   {h:{1:[23,8.2],2:[23,16.2]}, b:[22.4,8.2], n:'Chuyền cho bạn tiếp theo rồi về cuối hàng.', d:[['pass',22.4,8.2,20.9,8.4],['pass',22.4,16.2,20.9,16.4]]}
   ]},
  {id:'d-gates', cat:'Khởi động', name:'Chuyền qua cổng nấm theo cặp', time:'8 phút', n:'Từng cặp 2 bé', view:'half',
   desc:'Chuyền chính xác bằng lòng bàn chân và gọi tên bạn.',
   setup:'Rải 4–6 cổng nấm (2 nấm cách nhau 1 m) khắp nửa sân. Mỗi cặp 1 bóng, chuyền qua càng nhiều cổng càng tốt.',
   points:['Chuyền bằng lòng bàn chân, chân trụ hướng về bạn','Nhận bóng bằng chân xa, khống chế 1 chạm','Gọi tên bạn trước khi chuyền'],
   vary:'Đếm số cổng trong 1 phút; chỉ được chạm 2 lần.',
-  eq:[['cone',27,7.5],['cone',27,8.5],['cone',33.5,12.5],['cone',33.5,13.5],['cone',25,14.5],['cone',26,14.5],['cone',36,4.5],['cone',36,5.5]],
   h:{1:[24,8],2:[30,8]}, b:[24.6,8],
   f:[
    {n:'Bé A chuyền qua cổng cho bé B.', d:[['pass',24.6,8,29.4,8]]},
@@ -2068,7 +1973,6 @@ const DRILLS = [
   setup:'3 nấm thành tam giác cạnh khoảng 10 m. Nấm đầu có 2 bé, mỗi nấm còn lại 1 bé.',
   points:['Chuyền xong chạy theo đường bóng tới nấm tiếp theo','Mở người (xoay hông) trước khi nhận','Chuyền vào chân xa của bạn'],
   vary:'Đổi chiều sau 2 phút; bé lớn chỉ được chuyền 1 chạm.',
-  eq:[['cone',24,5],['cone',34,10],['cone',24,15]],
   h:{1:[24,5],2:[34,10],3:[24,15],4:[22.5,4]}, b:[24.6,5.3],
   f:[
    {n:'Chuyền cho bạn ở nấm tiếp theo rồi chạy theo đường bóng tới nấm đó.', d:[['pass',24.6,5.3,33.4,9.8],['run',24,5,33,8.6],['run',22.5,4,23.8,5]]},
@@ -2081,7 +1985,6 @@ const DRILLS = [
   setup:'Thang dây trước vòng cấm, HLV đứng góc phải với bóng, thủ môn trong khung thành.',
   points:['Mỗi ô thang chạm 2 chân thật nhanh, ngẩng đầu','Ra khỏi thang thì nhìn bóng, di chuyển đón bóng','Sút bằng mu chính diện, chân trụ cạnh bóng'],
   vary:'Đổi kiểu bước: nhảy chụm, bước ngang, một chân.',
-  eq:[['ladder',26,10],['cone',22.8,11]],
   h:{1:[22.8,10],2:[21.6,11.4]}, a:{1:[33,15.5],0:[39.3,10]}, b:[33,14.9],
   f:[
    {n:'Chạy qua thang dây, mỗi ô 2 chạm thật nhanh.', d:[['run',22.8,10,28.6,10]]},
@@ -2094,7 +1997,6 @@ const DRILLS = [
   setup:'Hình nộm (hoặc cọc) giữa sân làm người phòng ngự. 1 bé làm tường bên cạnh, thủ môn trong khung thành.',
   points:['Chuyền mạnh vào chân bạn làm tường','Chuyền xong tăng tốc ngay, chạy vòng qua hình nộm','Bạn làm tường trả 1 chạm vào khoảng trống phía trước'],
   vary:'Thay hình nộm bằng 1 bạn phòng ngự thật, đi bộ rồi chạy dần.',
-  eq:[['dummy',30,11],['cone',24,13]],
   h:{1:[24.5,12.5],2:[31,6.5]}, a:{0:[39.3,10]}, b:[25.1,12.4],
   f:[
    {n:'Chuyền vào chân bạn làm tường rồi chạy vòng qua hình nộm.', d:[['pass',25.1,12.4,30.6,7],['run',24.5,12.5,33.6,12.6,29,16]]},
@@ -2107,7 +2009,6 @@ const DRILLS = [
   setup:'Pivo đứng ở nấm trước vòng cấm, hình nộm phía sau làm hậu vệ, 1 bé chuyền từ giữa sân.',
   points:['Nhìn qua vai trước khi nhận bóng','Chạm đầu tiên đưa bóng sang bên không có người','Xoay người và sút trong 2 chạm'],
   vary:'Cho hậu vệ thật áp sát từ phía sau, chỉ được chạm nhẹ.',
-  eq:[['dummy',33.2,10],['cone',31,11.2]],
   h:{1:[31.2,10],2:[24,10.5]}, a:{0:[39.3,10]}, b:[24.6,10.5],
   f:[
    {n:'Chuyền vào chân pivo đang quay lưng về khung thành.', d:[['pass',24.6,10.5,30.6,10.2]]},
@@ -2120,7 +2021,6 @@ const DRILLS = [
   setup:'Ô vuông 8 × 8 m bằng 4 nấm. 4 bé đứng 4 cạnh, 1 bé ở giữa tranh bóng.',
   points:['Chuyền 1–2 chạm, bóng sệt','Hai bạn hai bên luôn dịch về phía bóng để có 2 đường chuyền','Bé ở giữa chạm được bóng thì đổi chỗ với bạn vừa mất bóng'],
   vary:'Bé nhỏ: ô 10 × 10 m, được 3 chạm. Bé lớn: ô 7 × 7 m, chỉ 1 chạm.',
-  eq:[['cone',26,6],['cone',34,6],['cone',26,14],['cone',34,14]],
   h:{1:[30,6.2],2:[33.8,10],3:[30,13.8],4:[26.2,10]}, a:{1:[30,10]}, b:[30,6.9],
   f:[
    {n:'4 bé đứng 4 cạnh chuyền bóng, 1 bé ở giữa tranh bóng.', d:[['pass',30,6.9,33.2,9.6],['run',30,10,32.2,9.2]]},
@@ -2133,7 +2033,6 @@ const DRILLS = [
   setup:'Ô 12 × 12 m bằng 4 nấm. 3 bé giữ bóng, 2 bé tranh. Đủ 5 đường chuyền liên tiếp được 1 điểm.',
   points:['Ba bạn luôn đứng thành tam giác, không đứng thẳng hàng','Bị ép thì chuyền về bạn đang mở','Đối phương dồn một bên thì đổi cánh'],
   vary:'Đội tranh bóng đoạt được thì dẫn qua vạch nấm để ghi điểm.',
-  eq:[['cone',25,4],['cone',37,4],['cone',25,16],['cone',37,16]],
   h:{1:[27,6],2:[35,7],3:[30,14.5]}, a:{1:[29.5,8.5],2:[33,11]}, b:[27.6,6.2],
   f:[
    {n:'3 bé giữ bóng trong ô, 2 bé tranh. Luôn tạo tam giác.', d:[['pass',27.6,6.2,34.4,7.2],['run',33,11,34.5,8.8],['run',30,14.5,34,13.4]]},
@@ -2174,7 +2073,6 @@ const DRILLS = [
   setup:'Ô 14 × 12 m, mỗi đầu một khung thành nhỏ. Bé tấn công xuất phát với bóng, bé phòng ngự đứng đối diện.',
   points:['Dẫn bóng thẳng vào người phòng ngự','Giả sút hoặc đảo người rồi tăng tốc sang bên kia','Sút gọn, chính xác vào khung nhỏ'],
   vary:'Ghi bàn bằng cách dẫn bóng qua vạch nấm thay vì sút.',
-  eq:[['goal',22.6,10,180],['goal',37.4,10],['cone',23,4],['cone',37,4],['cone',23,16],['cone',37,16]],
   h:{1:[25,10]}, a:{1:[34,10]}, b:[25.6,10],
   f:[
    {n:'Bé tấn công dẫn bóng thẳng vào người phòng ngự.', d:[['dribble',25.6,10,31,10],['run',34,10,32.6,10.2]]},
@@ -2187,7 +2085,6 @@ const DRILLS = [
   setup:'Bé tấn công (áo xanh) xuất phát từ giữa sân với bóng, bé phòng ngự đứng trước vòng cấm.',
   points:['Áp sát nhanh rồi chậm lại khi còn 2 m','Đứng nghiêng người, chân trước hướng ra biên','Chờ đối thủ chạm bóng xa chân rồi mới tắc'],
   vary:'Bé tấn công chỉ ghi điểm khi dẫn bóng qua vạch vòng cấm.',
-  eq:[['cone',28,17.5],['cone',36,17.5]],
   h:{1:[34,10],0:[39.3,10]}, a:{1:[25,10]}, b:[25.6,10],
   f:[
    {n:'Người phòng ngự áp sát nhanh bằng đường chạy cong, chặn phía trong (phía khung thành).', d:[['run',34,10,28.6,9.2,31.5,7]]},
@@ -2213,13 +2110,12 @@ const DRILLS = [
   setup:'3 nấm ở 3 góc trước vòng cấm, mỗi nấm 1 bé có bóng. Thủ môn trong khung thành.',
   points:['Đứng chân rộng bằng vai, trọng tâm thấp, theo hướng bóng','Bóng cao: hai tay hình chữ W, ôm bóng vào ngực','Bóng sệt: khuỵu gối, tay hướng xuống, người chắn sau bóng'],
   vary:'Sút liên tục mỗi 3 giây; hoặc cho bé đá bồi.',
-  eq:[['cone',31,4],['cone',29.5,10.8],['cone',31,16],['ball',31.6,5],['ball',31.6,15]],
   h:{0:[39,10],1:[31,4.5],2:[29.5,10],3:[31,15.5]}, b:[30.1,10],
   f:[
    {n:'Lần lượt sút từ 3 góc. Thủ môn theo hướng bóng.', d:[['shot',31.6,5,39.6,8.4],['run',39,10,38.6,8.6]]},
-   {h:{0:[38.6,8.6]}, e:{3:[39.2,8.5]}, n:'Bắt bóng bằng hai tay hình chữ W, ôm vào ngực.', d:[['shot',30.1,10,39.4,11.4],['run',38.6,8.6,38.4,10.8]]},
+   {h:{0:[38.6,8.6]}, n:'Bắt bóng bằng hai tay hình chữ W, ôm vào ngực.', d:[['shot',30.1,10,39.4,11.4],['run',38.6,8.6,38.4,10.8]]},
    {h:{0:[38.4,10.8]}, b:[39,11.2], n:'Bóng sệt: khuỵu gối, hai tay hướng xuống đất.', d:[['shot',31.6,15,39.5,12.4],['run',38.4,10.8,38.6,12]]},
-   {h:{0:[38.6,12]}, e:{4:[38.9,12.3]}, n:'Sau mỗi lượt, thủ môn ném bóng trả lại cho bạn sút.'}
+   {h:{0:[38.6,12]}, n:'Sau mỗi lượt, thủ môn ném bóng trả lại cho bạn sút.'}
   ]},
  {id:'d-corner', cat:'Tình huống cố định', name:'Phạt góc: chuyền ngược ra sút', time:'10 phút', n:'4 bé + 4 phòng ngự', view:'half',
   desc:'Kéo người kèm vào trong rồi chuyền ngược ra rìa vòng cấm.',
