@@ -639,13 +639,25 @@ function persist(){ store.set('sbct.work.v1', {fmt, S}); }
 // Danh sách đội sân 5 điền sẵn (áp dụng một lần; sau đó người dùng sửa tự do)
 // [số áo, tên, là thủ môn]. Người đầu tiên đứng khung thành; thủ môn dự bị có cờ TM.
 const TEAM5 = [[2,'Khang Anh',1],[1,'Gia Huy'],[3,'Quang Phúc'],[4,'Lê Minh'],[5,'Minh Quân'],
-  [6,'Phúc Nguyên'],[7,'Tuấn Khoa'],[8,'Hoàng Vinh'],[9,'Trung Tín'],[10,'Minh Đức'],[11,'Minh Khang'],[12,'Nhật Nam',1],[13,'Duy Minh']];
+  [6,'Phúc Nguyên'],[7,'Tuấn Khoa'],[8,'Hoàng Vinh'],[9,'Trung Tín'],[10,'Minh Đức'],[11,'Minh Khang'],[12,'Nhật Nam',1],[13,'Duy Minh'],[14,'Huy Khánh']];
 (function seedTeam5(){
   if(store.get('sbct.team5.v2', false)) return;
   const T = S['5'].home;
   T.players.forEach((p,i) => { p.num = String(TEAM5[i][0]); p.name = TEAM5[i][1]; delete p.gk; });
   T.bench = TEAM5.slice(T.players.length).map(([n,name,gk]) => gk ? {num:String(n), name, gk:true} : {num:String(n), name});
   store.set('sbct.team5.v2', true); persist();
+})();
+// Bổ sung cầu thủ mới vào dự bị cho trình duyệt đã có danh sách cũ (không đụng các chỉnh sửa khác)
+(function addNewPlayers(){
+  if(store.get('sbct.team5.v3', false)) return;
+  const T = S['5'].home; if(!Array.isArray(T.bench)) T.bench = [];
+  const all = [...T.players, ...T.bench];
+  for(const [n, name] of [[14,'Huy Khánh']]){
+    if(all.some(x => (x.name || '').trim().toLowerCase() === name.toLowerCase())) continue;
+    let num = n; const used = all.map(x => +x.num); while(used.includes(num)) num++;
+    const item = {num:String(num), name}; T.bench.push(item); all.push(item);
+  }
+  store.set('sbct.team5.v3', true); persist();
 })();
 // Đội đang tập sân 5: mở app vào Sân 5 (một lần; sau đó nhớ lựa chọn của người dùng)
 if(!store.get('sbct.open5.v1', false)){ fmt = '5'; store.set('sbct.open5.v1', true); persist(); }
