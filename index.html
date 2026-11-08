@@ -271,12 +271,64 @@ mark{background:color-mix(in srgb,var(--mark) 35%,transparent);color:inherit;bor
 .mbox{background:var(--surface);color:var(--ink);border-radius:12px;padding:16px;width:min(820px,100%);max-height:100%;overflow:auto;display:grid;gap:10px}
 .mhead{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .mhead h2{margin:0;font-family:var(--font-display);text-transform:uppercase;letter-spacing:.04em;font-size:20px}
-.mprev img{display:block;max-width:100%;max-height:62vh;margin:0 auto;border-radius:8px;border:1px solid var(--line)}
+.mprev img,.mprev video{display:block;max-width:100%;max-height:62vh;margin:0 auto;border-radius:8px;border:1px solid var(--line)}
 .mprog{height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden}
 .mprog span{display:block;height:100%;width:0;background:var(--accent);transition:width .15s}
 a.btn{text-decoration:none;color:inherit}
 a.btn.primary{color:var(--accent-ink)}
 .fs .eqbar,.fs .drillinfo{display:none}
+
+/* Export choices */
+.choices{display:grid;gap:8px}
+.choices button{display:grid;gap:2px;text-align:left;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:12px 14px;color:var(--ink)}
+.choices button:hover{border-color:var(--accent)}
+.choices b{font-size:16px}
+.choices span{font-size:13px;color:var(--muted)}
+
+/* Plan (giáo án) */
+.plan{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.plan{grid-template-columns:minmax(0,1fr)}}
+.pblocks{display:grid;gap:8px}
+.pblk{border:1px solid var(--line);border-left:4px solid var(--ph,var(--accent));border-radius:10px;padding:8px 10px;display:grid;gap:6px;background:var(--surface-2)}
+.pblk .r1{display:grid;grid-template-columns:130px minmax(0,1fr) 70px auto;gap:6px;align-items:center}
+@media (max-width:560px){.pblk .r1{grid-template-columns:minmax(0,1fr) 70px}.pblk .r1 .acts{grid-column:1/-1}}
+.pblk select,.pblk input{padding:5px 7px;font-size:13px}
+.pblk textarea{min-height:38px;font-size:13px;padding:5px 7px}
+.pblk .acts{display:flex;gap:4px;justify-content:flex-end}
+.pblk .acts .btn{padding:4px 8px}
+.pblk .time{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ptotal{font-weight:700;font-variant-numeric:tabular-nums}
+.ptotal.over{color:var(--bad)}
+.sub-h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:6px}
+.ptimer{position:sticky;top:12px}
+.tphase{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+.ttitle{font-family:var(--font-display);font-weight:800;font-size:26px;text-transform:uppercase;line-height:1.1;text-wrap:balance}
+.tclock{font-family:var(--font-display);font-weight:800;font-size:clamp(64px,12vw,112px);line-height:1;font-variant-numeric:tabular-nums;text-align:center}
+.tclock.warn{color:var(--bad)}
+.tnext{color:var(--muted);font-size:13.5px}
+.tctrl .btn{font-size:15px;padding:9px 14px}
+.tlist{margin:0;padding-left:20px;display:grid;gap:3px;font-size:13.5px}
+.tlist li.on{font-weight:700;color:var(--accent)}
+.tlist li.done{color:var(--muted);text-decoration:line-through}
+#printArea{display:none}
+@media print{
+  @page{size:A4;margin:11mm}
+  html,body{background:#fff!important;color:#111!important;padding:0!important}
+  :root{padding:0!important}
+  .wrap,.modal,.toast,.install-tip{display:none!important}
+  #printArea{display:block!important;font-family:var(--font-body);font-size:10.5pt;color:#111}
+  #printArea h1{font-family:var(--font-display);font-size:20pt;margin:0;text-transform:uppercase}
+  #printArea .meta{margin:2mm 0 3mm;color:#333}
+  #printArea table{width:100%;border-collapse:collapse;margin-bottom:3mm}
+  #printArea th,#printArea td{border:1px solid #999;padding:1.5mm 2mm;text-align:left;vertical-align:top}
+  #printArea th{background:#eee}
+  #printArea .thumbs{display:grid;grid-template-columns:1fr 1fr;gap:3mm}
+  #printArea .thumb{border:1px solid #999;padding:2mm;break-inside:avoid}
+  #printArea .thumb img{width:100%;max-height:52mm;object-fit:contain;display:block}
+  #printArea .thumb b{display:block;margin-top:1mm}
+  #printArea .thumb ul{margin:1mm 0 0;padding-left:4mm;font-size:9pt}
+  #printArea .foot{margin-top:2mm;font-size:8.5pt;color:#555}
+}
 
 /* Pen */
 .swatches{display:inline-flex;gap:4px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:4px 6px}
@@ -323,6 +375,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
     <a href="#bang" data-view="bang">Bảng chiến thuật</a>
     <a href="#luat" data-view="luat">Luật thi đấu</a>
     <a href="#cau-hoi" data-view="cau-hoi">Tình huống</a>
+    <a href="#giao-an" data-view="giao-an">Giáo án</a>
     <a href="#be" data-view="be">Cho bé (sân 5)</a>
   </nav>
 </header>
@@ -359,6 +412,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
         </span>
         <button class="btn pen" id="penBtn" aria-pressed="false" title="Bút để vẽ, ngón tay để kéo cầu thủ và phóng to">✎ Chế độ bút</button>
         <span class="dim" id="dimLabel"></span>
+        <button class="btn primary" id="shareBtn" title="Xuất ảnh, video hoặc GIF để gửi nhóm Zalo">⤓ Xuất / Gửi bài</button>
         <button class="btn" id="fsBtn" title="Xem toàn màn hình, nằm ngang">⛶ Toàn màn hình</button>
       </div>
 
@@ -398,6 +452,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
         </select>
         <button class="btn primary" id="playBtn">▶ Phát</button>
         <button class="btn" id="exportPng" title="Lưu khung đang xem thành ảnh">⤓ Ảnh</button>
+        <button class="btn" id="exportVid" title="Lưu cả chuỗi hình động thành video">⤓ Video</button>
         <button class="btn" id="exportGif" title="Lưu cả chuỗi hình động thành GIF">⤓ GIF</button>
       </div>
       </div>
@@ -563,6 +618,49 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
   </div>
 </section>
 
+<!-- ============ GIÁO ÁN ============ -->
+<section id="v-giao-an" hidden>
+  <div class="plan">
+    <div class="panel">
+      <h2>Giáo án buổi tập</h2>
+      <div class="row">
+        <label class="f grow">Tên buổi tập<input type="text" id="pTitle" maxlength="60"></label>
+        <label class="f" style="width:160px">Ngày<input type="date" id="pDate"></label>
+      </div>
+      <label class="f">Mục tiêu buổi tập<input type="text" id="pGoal" maxlength="120" placeholder="vd Chuyền rồi chạy, giữ bóng nhóm nhỏ"></label>
+      <div class="pblocks" id="pBlocks"></div>
+      <div class="row" style="align-items:center">
+        <button class="btn" id="pAdd">+ Thêm phần</button>
+        <span class="ptotal" id="pTotal"></span>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="pSave">Lưu giáo án</button>
+        <button class="btn" id="pNew">Giáo án mới</button>
+        <button class="btn" id="pPrint">⎙ In A4 / Lưu PDF</button>
+      </div>
+      <div class="sub-h">Giáo án đã lưu</div>
+      <div class="lib" id="pList"></div>
+    </div>
+    <div class="panel ptimer" id="pTimer">
+      <h2>Chạy buổi tập</h2>
+      <div class="tphase" id="tPhase"></div>
+      <div class="ttitle" id="tTitle"></div>
+      <div class="tclock" id="tClock">00:00</div>
+      <div class="mprog"><span id="tBar"></span></div>
+      <div class="tnext" id="tNext"></div>
+      <div class="row tctrl">
+        <button class="btn" id="tPrev" aria-label="Phần trước">◀</button>
+        <button class="btn primary" id="tPlay">▶ Bắt đầu</button>
+        <button class="btn" id="tNextBtn" aria-label="Phần sau">▶▶</button>
+        <button class="btn" id="tReset">Đặt lại</button>
+      </div>
+      <button class="btn" id="tOpen" hidden>Mở bài tập của phần này</button>
+      <p class="hint">Hết giờ mỗi phần sẽ kêu 3 tiếng bíp và tự chuyển sang phần sau. Còn 10 giây sẽ bíp nhắc. Màn hình được giữ sáng khi đồng hồ chạy (nếu trình duyệt cho phép).</p>
+      <ol class="tlist" id="tList"></ol>
+    </div>
+  </div>
+</section>
+
 <footer>
   Nội dung luật sân 11 tóm tắt theo Luật Bóng đá của IFAB (bản 2025/26); sân 5 theo Luật Futsal của FIFA. Luật sân 7 và sân 5 phong trào khác nhau giữa các giải. Luôn đối chiếu điều lệ của giải bạn tham gia. Kích thước sân trên bảng chỉ để minh họa tỉ lệ.
 </footer>
@@ -570,9 +668,14 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
 <div class="modal" id="expModal" hidden role="dialog" aria-modal="true" aria-labelledby="expTitle">
   <div class="mbox">
     <div class="mhead"><h2 id="expTitle">Xuất ảnh</h2><button class="btn" id="expClose">Đóng</button></div>
+    <div class="choices" id="expChoices" hidden>
+      <button data-x="vid"><b>Video hình động</b><span>MP4, gửi Zalo xem ngay. Nên dùng.</span></button>
+      <button data-x="png"><b>Ảnh khung đang xem</b><span>PNG, nét, nhẹ.</span></button>
+      <button data-x="gif"><b>GIF động</b><span>Tự lặp lại, không cần bấm phát.</span></button>
+    </div>
     <div class="mprog" id="expProg" hidden><span id="expBar"></span></div>
     <p class="hint" id="expMsg"></p>
-    <div class="mprev" id="expPrev" hidden><img id="expImg" alt="Ảnh xuất từ sa bàn"></div>
+    <div class="mprev" id="expPrev" hidden><img id="expImg" alt="Ảnh xuất từ sa bàn"><video id="expVid" controls playsinline muted loop hidden></video></div>
     <div class="row" id="expActs" hidden>
       <a class="btn primary" id="expSave" download>⤓ Lưu về máy</a>
       <button class="btn" id="expShare" hidden>Chia sẻ (Zalo, Messenger…)</button>
@@ -580,6 +683,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
   </div>
 </div>
 <div class="toast" id="toast" hidden></div>
+<div id="printArea"></div>
 
 <script>
 (() => {
@@ -1625,7 +1729,8 @@ function exportTitle(i){
   return s.frames.length && i >= 0 ? `${base} · Khung ${i+1}/${s.frames.length}` : base;
 }
 function openModal(title, msg){
-  $('#expTitle').textContent = title; $('#expMsg').textContent = msg;
+  $('#expTitle').textContent = title; $('#expMsg').textContent = msg; $('#expChoices').hidden = true;
+  const v = $('#expVid'); if(v){ v.pause(); v.removeAttribute('src'); }
   $('#expPrev').hidden = true; $('#expActs').hidden = true; $('#expProg').hidden = true;
   $('#expModal').hidden = false;
 }
@@ -1635,7 +1740,10 @@ function showResult(blob, ext){
   if(expUrl) URL.revokeObjectURL(expUrl);
   expUrl = URL.createObjectURL(blob);
   const name = `sa-ban-${new Date().toISOString().slice(0,16).replace(/[-:T]/g, '')}.${ext}`;
-  $('#expImg').src = expUrl; $('#expPrev').hidden = false;
+  const isVid = blob.type.startsWith('video/');
+  $('#expImg').hidden = isVid; $('#expVid').hidden = !isVid;
+  if(isVid){ $('#expVid').src = expUrl; } else { $('#expImg').src = expUrl; }
+  $('#expPrev').hidden = false;
   $('#expSave').href = expUrl; $('#expSave').download = name;
   expFile = null;
   try{ const f = new File([blob], name, {type:blob.type}); if(navigator.canShare && navigator.canShare({files:[f]})) expFile = f; }catch(_){}
@@ -1699,6 +1807,70 @@ async function exportGIF(){
   }catch(err){ $('#expMsg').textContent = 'Không tạo được GIF trên trình duyệt này.'; }
   finally{ endExport(keep); }
 }
+async function exportVideo(){
+  const s = st();
+  if(s.frames.length < 2){ toast('Cần ít nhất 2 khung để làm video'); return; }
+  const types = ['video/mp4;codecs=avc1.42E01E','video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
+  const mime = window.MediaRecorder && types.find(t => { try{ return MediaRecorder.isTypeSupported(t); }catch(_){ return false; } });
+  if(!mime){ openModal('Xuất video', 'Trình duyệt này chưa hỗ trợ quay video. Hãy dùng GIF, hoặc mở bằng Chrome / Safari mới.'); return; }
+  openModal('Xuất video', 'Đang chuẩn bị hình…');
+  const keep = beginExport();
+  $('#expProg').hidden = false;
+  try{
+    const W = 960, box = fullBox(), hh = Math.round(W*.13), ph = Math.round(W*box.h/box.w);
+    const H = (hh + ph) % 2 ? hh + ph + 1 : hh + ph;   // bộ mã hoá video cần kích thước chẵn
+    const work = document.createElement('canvas'); work.width = W; work.height = H;
+    const wctx = work.getContext('2d');
+    const steps = reduceMotion ? 3 : 24, k = +$('#speed').value, frames = [];
+    const total = (s.frames.length - 1)*(steps + 1) + 1;
+    const add = async (pos, dr, i, delay) => {
+      renderTokens(pos); renderDrawings(dr);
+      wctx.fillStyle = '#15211a'; wctx.fillRect(0, 0, W, H);
+      await drawComposite(wctx, W, hh, ph, exportTitle(i), s.frames[i].note);
+      frames.push({bmp: await createImageBitmap(work), delay});
+      const pct = Math.round(frames.length/total*60);
+      $('#expBar').style.width = pct + '%'; $('#expMsg').textContent = `Đang dựng hình… ${pct}%`;
+    };
+    for(let i=0; i<s.frames.length-1; i++){
+      const a = s.frames[i], b = s.frames[i+1], mp = motionPaths(a, b);
+      await add(a.pos, a.dr, i, Math.round(1500*k));
+      for(let j=1; j<=steps; j++){ const t = j/(steps+1), e = t < .5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2; await add(interpFrames(a, b, e, mp), a.dr, i, Math.round(1200*k/steps)); }
+    }
+    const L = s.frames.length - 1; await add(s.frames[L].pos, s.frames[L].dr, L, 2500);
+    // Quay: phát lại các hình theo đúng thời gian lên một canvas đang được ghi
+    const rec = document.createElement('canvas'); rec.width = W; rec.height = H;
+    const rctx = rec.getContext('2d'); rctx.drawImage(frames[0].bmp, 0, 0);
+    const stream = rec.captureStream(30), chunks = [];
+    const mr = new MediaRecorder(stream, {mimeType:mime, videoBitsPerSecond:2500000});
+    mr.ondataavailable = ev => { if(ev.data && ev.data.size) chunks.push(ev.data); };
+    const stopped = new Promise(r => mr.onstop = r);
+    mr.start(250);
+    const totalMs = frames.reduce((a, f) => a + f.delay, 0); let done = 0;
+    for(const f of frames){
+      rctx.drawImage(f.bmp, 0, 0);
+      let left = f.delay;
+      while(left > 0){ const st0 = Math.min(left, 100); await new Promise(r => setTimeout(r, st0)); left -= st0; rctx.drawImage(f.bmp, 0, 0); }
+      done += f.delay; const pct = 60 + Math.round(done/totalMs*40);
+      $('#expBar').style.width = pct + '%'; $('#expMsg').textContent = `Đang quay video… ${pct}% (giữ trang này mở)`;
+    }
+    mr.stop(); await stopped;
+    frames.forEach(f => f.bmp.close && f.bmp.close());
+    const type = mime.split(';')[0];
+    showResult(new Blob(chunks, {type}), type === 'video/mp4' ? 'mp4' : 'webm');
+    if(type !== 'video/mp4') $('#expMsg').textContent += ' Lưu ý: trình duyệt này chỉ quay được định dạng WebM; Zalo trên một số máy không phát được, khi đó hãy gửi GIF.';
+  }catch(err){ $('#expMsg').textContent = 'Không quay được video trên trình duyệt này. Hãy thử GIF.'; }
+  finally{ endExport(keep); }
+}
+$('#exportVid').addEventListener('click', exportVideo);
+$('#shareBtn').addEventListener('click', () => {
+  openModal('Xuất / gửi bài', 'Chọn kiểu file để gửi vào nhóm Zalo. Trên điện thoại, xong bấm Chia sẻ để gửi thẳng.');
+  $('#expChoices').hidden = false;
+});
+$('#expChoices').addEventListener('click', e => {
+  const b = e.target.closest('button[data-x]'); if(!b) return;
+  $('#expChoices').hidden = true;
+  ({vid:exportVideo, png:exportPNG, gif:exportGIF})[b.dataset.x]();
+});
 $('#exportPng').addEventListener('click', exportPNG);
 $('#exportGif').addEventListener('click', exportGIF);
 
@@ -1944,6 +2116,208 @@ const DRILLS = [
   ]}
 ];
 $('#libCat').addEventListener('change', e => { libCat = e.target.value; renderLib(); });
+
+/* ---------------- Giáo án buổi tập ---------------- */
+const PHASES = [['warm','Khởi động','#e0a100'],['tech','Kỹ thuật','#2f7fd1'],['main','Bài chính','#1c6a41'],['game','Đấu tập','#d63a3a'],['cool','Thả lỏng','#7a8a80']];
+const phaseOf = id => PHASES.find(x => x[0] === id) || PHASES[2];
+const today = () => new Date().toISOString().slice(0, 10);
+function samplePlan(){
+  return {id:'', title:'Buổi tập sân 5 – 60 phút', date:today(), goal:'Chuyền rồi chạy, giữ bóng nhóm nhỏ, phối hợp 2 đánh 1',
+    blocks:[
+      {ph:'warm', ref:'drill:d-slalom', title:'Dẫn bóng zigzag qua cọc', min:10, note:'Chia 2 hàng, thi tiếp sức ở 3 phút cuối.'},
+      {ph:'tech', ref:'drill:d-triangle', title:'Tam giác chuyền và chạy theo bóng', min:10, note:'Đổi chiều sau 5 phút.'},
+      {ph:'main', ref:'drill:d-rondo41', title:'Rondo 4 đánh 1', min:12, note:'2 ô chạy song song, mỗi ô 5 bé.'},
+      {ph:'main', ref:'drill:d-2v1', title:'2 đánh 1 tấn công', min:10, note:'Khang Anh và Nhật Nam thay nhau bắt.'},
+      {ph:'game', ref:'', title:'Đá trận 4 đánh 4 + thủ môn', min:15, note:'Bàn thắng sau phối hợp 1-2 tính 2 điểm.'},
+      {ph:'cool', ref:'', title:'Thả lỏng, nhắc lại bài học', min:3, note:'Hỏi bé: chuyền xong con làm gì?'}
+    ]};
+}
+let plan = store.get('sbct.plan.cur', null) || samplePlan();
+function savePlanCur(){ store.set('sbct.plan.cur', plan); }
+function refOptions(sel){
+  const saved = store.get('sbct.saved.v1', []);
+  const opt = (v, t) => `<option value="${esc(v)}"${v === sel ? ' selected' : ''}>${esc(t)}</option>`;
+  return opt('', '— Không gắn bài —')
+    + `<optgroup label="Bài tập sân 5">${DRILLS.map(d => opt('drill:' + d.id, d.name)).join('')}</optgroup>`
+    + `<optgroup label="Chiến thuật mẫu">${SCEN.map(x => opt('ex:' + x.id, `${x.name} (sân ${x.fmt})`)).join('')}</optgroup>`
+    + (saved.length ? `<optgroup label="Bài đã lưu">${saved.map(x => opt('saved:' + x.id, `${x.name} (sân ${x.fmt})`)).join('')}</optgroup>` : '');
+}
+function refName(ref){
+  const [k, id] = (ref || '').split(':');
+  if(k === 'drill') return (DRILLS.find(d => d.id === id) || {}).name;
+  if(k === 'ex') return (SCEN.find(x => x.id === id) || {}).name;
+  if(k === 'saved') return (store.get('sbct.saved.v1', []).find(x => x.id === id) || {}).name;
+  return '';
+}
+const mmss = sec => `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(Math.floor(sec%60)).padStart(2,'0')}`;
+function renderPlan(){
+  $('#pTitle').value = plan.title || ''; $('#pDate').value = plan.date || ''; $('#pGoal').value = plan.goal || '';
+  let t = 0;
+  $('#pBlocks').innerHTML = plan.blocks.map((b, i) => {
+    const ph = phaseOf(b.ph), start = t; t += +b.min || 0;
+    return `<div class="pblk" style="--ph:${ph[2]}" data-i="${i}">
+      <div class="r1">
+        <select data-f="ph" aria-label="Phần">${PHASES.map(p => `<option value="${p[0]}"${p[0] === b.ph ? ' selected' : ''}>${p[1]}</option>`).join('')}</select>
+        <select data-f="ref" aria-label="Gắn bài tập">${refOptions(b.ref)}</select>
+        <input type="number" data-f="min" min="1" max="90" value="${+b.min || 0}" aria-label="Số phút">
+        <span class="acts"><button class="btn" data-a="up" title="Lên">↑</button><button class="btn" data-a="down" title="Xuống">↓</button>${b.ref ? '<button class="btn" data-a="open" title="Mở bài trên bảng chiến thuật">Xem bài</button>' : ''}<button class="btn danger" data-a="del" title="Xoá phần này">✕</button></span>
+      </div>
+      <input type="text" data-f="title" value="${esc(b.title || '')}" placeholder="Tên phần, vd Rondo 4 đánh 1" aria-label="Tên phần">
+      <textarea data-f="note" placeholder="Ghi chú: chia nhóm, luật chơi, điểm nhấn" aria-label="Ghi chú">${esc(b.note || '')}</textarea>
+      <span class="time">Phút ${start}–${t}</span>
+    </div>`;
+  }).join('') || '<p class="hint">Chưa có phần nào. Bấm “+ Thêm phần”.</p>';
+  $('#pTotal').textContent = `Tổng: ${t} phút`;
+  $('#pTotal').classList.toggle('over', t > 120);
+  const list = store.get('sbct.plans.v1', []);
+  $('#pList').innerHTML = list.map(x => `<div class="item"><div><b>${esc(x.title)}</b><small>${esc(x.date || '')} · ${x.blocks.reduce((a, b) => a + (+b.min || 0), 0)} phút · ${x.blocks.length} phần</small></div>
+    <div class="acts"><button class="btn" data-p="${x.id}">Mở</button><button class="btn danger" data-pdel="${x.id}" title="Xoá">✕</button></div></div>`).join('') || '<p class="hint">Chưa lưu giáo án nào.</p>';
+  renderTimer();
+}
+$('#pTitle').addEventListener('input', e => { plan.title = e.target.value; savePlanCur(); });
+$('#pDate').addEventListener('input', e => { plan.date = e.target.value; savePlanCur(); });
+$('#pGoal').addEventListener('input', e => { plan.goal = e.target.value; savePlanCur(); });
+$('#pBlocks').addEventListener('input', e => {
+  const blk = e.target.closest('.pblk'); if(!blk) return;
+  const b = plan.blocks[+blk.dataset.i], f = e.target.dataset.f; if(!b || !f) return;
+  if(f === 'min'){ b.min = Math.max(0, Math.min(90, +e.target.value || 0)); savePlanCur(); renderPlanTimesOnly(); return; }
+  b[f] = e.target.value; savePlanCur();
+});
+$('#pBlocks').addEventListener('change', e => {
+  const blk = e.target.closest('.pblk'); if(!blk) return;
+  const b = plan.blocks[+blk.dataset.i], f = e.target.dataset.f;
+  if(f === 'ref'){ const n = refName(b.ref); if(n && (!b.title || refName(b._prev) === b.title)) b.title = n; b._prev = b.ref; savePlanCur(); renderPlan(); }
+  if(f === 'ph') renderPlan();
+});
+function renderPlanTimesOnly(){
+  let t = 0;
+  $$('#pBlocks .pblk').forEach((el, i) => { const s0 = t; t += +plan.blocks[i].min || 0; el.querySelector('.time').textContent = `Phút ${s0}–${t}`; });
+  $('#pTotal').textContent = `Tổng: ${t} phút`; $('#pTotal').classList.toggle('over', t > 120);
+  renderTimer();
+}
+$('#pBlocks').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-a]'); if(!btn) return;
+  const i = +btn.closest('.pblk').dataset.i, B = plan.blocks;
+  if(btn.dataset.a === 'up' && i > 0) [B[i-1], B[i]] = [B[i], B[i-1]];
+  if(btn.dataset.a === 'down' && i < B.length-1) [B[i+1], B[i]] = [B[i], B[i+1]];
+  if(btn.dataset.a === 'del') B.splice(i, 1);
+  if(btn.dataset.a === 'open'){ openRef(B[i].ref); return; }
+  savePlanCur(); renderPlan();
+});
+$('#pAdd').addEventListener('click', () => { plan.blocks.push({ph:'main', ref:'', title:'', min:10, note:''}); savePlanCur(); renderPlan(); const ins = $$('#pBlocks input[data-f="title"]'); ins[ins.length-1] && ins[ins.length-1].focus(); });
+$('#pNew').addEventListener('click', () => { plan = {id:'', title:'Buổi tập mới', date:today(), goal:'', blocks:[{ph:'warm', ref:'', title:'', min:10, note:''}]}; savePlanCur(); tStop(); T.idx = 0; T.left = null; renderPlan(); });
+$('#pSave').addEventListener('click', () => {
+  const list = store.get('sbct.plans.v1', []);
+  if(!plan.id) plan.id = 'p' + Date.now();
+  const i = list.findIndex(x => x.id === plan.id), copy = deep(plan);
+  if(i >= 0) list[i] = copy; else list.unshift(copy);
+  store.set('sbct.plans.v1', list); savePlanCur(); renderPlan(); toast(`Đã lưu “${plan.title}”`);
+});
+$('#pList').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  if(b.dataset.p){ const x = store.get('sbct.plans.v1', []).find(y => y.id === b.dataset.p); if(x){ plan = deep(x); savePlanCur(); tStop(); T.idx = 0; T.left = null; renderPlan(); toast(`Đã mở “${x.title}”`); } }
+  if(b.dataset.pdel){
+    if(b.dataset.armed !== '1'){ b.dataset.armed = '1'; b.classList.add('armed'); b.textContent = 'Xoá?'; setTimeout(() => { if(b.isConnected){ b.dataset.armed = ''; b.classList.remove('armed'); b.textContent = '✕'; } }, 2500); return; }
+    store.set('sbct.plans.v1', store.get('sbct.plans.v1', []).filter(x => x.id !== b.dataset.pdel)); renderPlan();
+  }
+});
+function openRef(ref){
+  const [k, id] = (ref || '').split(':');
+  if(k === 'drill'){ const D = DRILLS.find(d => d.id === id); if(!D) return; tStop(); if(fmt !== '5') setFormat('5'); S['5'] = keepRoster(S['5'], buildDrill(D)); }
+  else if(k === 'ex'){ const sc = SCEN.find(x => x.id === id); if(!sc) return; if(fmt !== sc.fmt) setFormat(sc.fmt); S[fmt] = keepRoster(S[fmt], buildScenario(sc)); }
+  else if(k === 'saved'){ const x = store.get('sbct.saved.v1', []).find(y => y.id === id); if(!x) return; if(fmt !== x.fmt) setFormat(x.fmt); S[fmt] = deep(x.data); }
+  else return;
+  selId = null; resetZoom(); renderPanels(); renderAll(); persist();
+  location.hash = 'bang';
+}
+
+/* Đồng hồ buổi tập */
+const T = {idx:0, left:null, running:false, timer:null, lock:null, ac:null};
+function blockSec(i){ return Math.round((+(plan.blocks[i] || {}).min || 0) * 60); }
+function beep(times = 1, freq = 880){
+  try{
+    T.ac = T.ac || new (window.AudioContext || window.webkitAudioContext)();
+    for(let n=0;n<times;n++){
+      const o = T.ac.createOscillator(), g = T.ac.createGain(), t0 = T.ac.currentTime + n*.32;
+      o.frequency.value = freq; o.connect(g); g.connect(T.ac.destination);
+      g.gain.setValueAtTime(.0001, t0); g.gain.exponentialRampToValueAtTime(.4, t0 + .02); g.gain.exponentialRampToValueAtTime(.0001, t0 + .25);
+      o.start(t0); o.stop(t0 + .27);
+    }
+  }catch(_){}
+  try{ navigator.vibrate && navigator.vibrate(times > 1 ? [200,100,200,100,200] : 150); }catch(_){}
+}
+function renderTimer(){
+  const B = plan.blocks;
+  if(T.idx >= B.length) T.idx = Math.max(0, B.length - 1);
+  const b = B[T.idx];
+  if(T.left == null) T.left = blockSec(T.idx);
+  $('#tPhase').textContent = b ? `${phaseOf(b.ph)[1]} · Phần ${T.idx+1}/${B.length}` : '';
+  $('#tTitle').textContent = b ? (b.title || refName(b.ref) || 'Chưa đặt tên') : 'Chưa có phần nào';
+  $('#tClock').textContent = mmss(T.left || 0);
+  $('#tClock').classList.toggle('warn', T.running && T.left <= 10);
+  const tot = blockSec(T.idx) || 1;
+  $('#tBar').style.width = Math.round((1 - (T.left || 0)/tot)*100) + '%';
+  const nx = B[T.idx + 1];
+  $('#tNext').textContent = nx ? `Tiếp theo: ${nx.title || refName(nx.ref) || phaseOf(nx.ph)[1]} (${nx.min} phút)` : 'Đây là phần cuối.';
+  $('#tPlay').textContent = T.running ? '❚❚ Tạm dừng' : (T.left < blockSec(T.idx) ? '▶ Tiếp tục' : '▶ Bắt đầu');
+  $('#tOpen').hidden = !(b && b.ref);
+  $('#tList').innerHTML = B.map((x, i) => `<li class="${i === T.idx ? 'on' : i < T.idx ? 'done' : ''}">${esc(x.title || refName(x.ref) || phaseOf(x.ph)[1])} · ${x.min}′</li>`).join('');
+}
+function tTick(){
+  if(!T.running) return;
+  T.left -= 1;
+  if(T.left === 10) beep(1, 660);
+  if(T.left <= 0){
+    beep(3);
+    if(T.idx < plan.blocks.length - 1){ T.idx++; T.left = blockSec(T.idx); }
+    else { T.left = 0; tStop(); toast('Hết buổi tập!'); }
+  }
+  renderTimer();
+}
+async function tStart(){
+  if(!plan.blocks.length) return;
+  T.running = true; beep(1, 990);
+  clearInterval(T.timer); T.timer = setInterval(tTick, 1000);
+  try{ T.lock = await navigator.wakeLock.request('screen'); }catch(_){}
+  renderTimer();
+}
+function tStop(){ T.running = false; clearInterval(T.timer); try{ T.lock && T.lock.release(); }catch(_){} T.lock = null; renderTimer(); }
+$('#tPlay').addEventListener('click', () => T.running ? tStop() : tStart());
+$('#tPrev').addEventListener('click', () => { if(T.idx > 0){ T.idx--; T.left = blockSec(T.idx); renderTimer(); } });
+$('#tNextBtn').addEventListener('click', () => { if(T.idx < plan.blocks.length - 1){ T.idx++; T.left = blockSec(T.idx); renderTimer(); } });
+$('#tReset').addEventListener('click', () => { tStop(); T.idx = 0; T.left = blockSec(0); renderTimer(); });
+$('#tOpen').addEventListener('click', () => { const b = plan.blocks[T.idx]; if(b) openRef(b.ref); });
+
+/* In giáo án 1 trang A4 (kèm hình bài tập) */
+function thumbFor(ref){
+  const [k, id] = (ref || '').split(':');
+  let f, data, info = null;
+  if(k === 'drill'){ const D = DRILLS.find(d => d.id === id); if(!D) return null; f = '5'; data = buildDrill(D); info = data.info; }
+  else if(k === 'ex'){ const sc = SCEN.find(x => x.id === id); if(!sc) return null; f = sc.fmt; data = buildScenario(sc); }
+  else if(k === 'saved'){ const x = store.get('sbct.saved.v1', []).find(y => y.id === id); if(!x) return null; f = x.fmt; data = deep(x.data); }
+  else return null;
+  const keepF = fmt, keepS = S[f], keepSel = selId;
+  fmt = f; S[f] = data; selId = null; exporting = true;
+  renderField(); renderTokens(); renderDrawings();
+  const str = snapshotSVG();
+  S[f] = keepS; fmt = keepF; selId = keepSel; exporting = false;
+  return {src:'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(str), info};
+}
+$('#pPrint').addEventListener('click', () => {
+  let t = 0;
+  const rows = plan.blocks.map(b => { const s0 = t; t += +b.min || 0;
+    return `<tr><td>${s0}–${t}′</td><td>${esc(phaseOf(b.ph)[1])}</td><td><b>${esc(b.title || refName(b.ref) || '')}</b></td><td>${esc(b.note || '')}</td></tr>`; }).join('');
+  const seen = new Set(), thumbs = [];
+  plan.blocks.forEach(b => { if(b.ref && !seen.has(b.ref) && thumbs.length < 4){ seen.add(b.ref); const th = thumbFor(b.ref); if(th) thumbs.push({...th, title:b.title || refName(b.ref)}); } });
+  renderField(); renderAll();
+  $('#printArea').innerHTML = `<h1>${esc(plan.title || 'Giáo án')}</h1>
+    <div class="meta">${plan.date ? `Ngày ${esc(plan.date.split('-').reverse().join('/'))} · ` : ''}Tổng ${t} phút${plan.goal ? ` · Mục tiêu: ${esc(plan.goal)}` : ''}</div>
+    <table><thead><tr><th style="width:16mm">Phút</th><th style="width:22mm">Phần</th><th>Bài</th><th>Ghi chú</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="thumbs">${thumbs.map(x => `<div class="thumb"><img src="${x.src}" alt=""><b>${esc(x.title)}</b>${x.info ? `<ul>${x.info.points.map(p => `<li>${esc(p)}</li>`).join('')}</ul>` : ''}</div>`).join('')}</div>
+    <div class="foot">Sa Bàn Chiến Thuật · dungntpvi-art.github.io</div>`;
+  try{ window.print(); }catch(_){}
+  setTimeout(() => { if(!document.hasFocus()) return; }, 0);
+});
 
 /* =================== RULES =================== */
 const COMPARE = {
@@ -2400,7 +2774,7 @@ window.addEventListener('resize', updRot);
 document.addEventListener('keydown', e => { if(e.key === 'Escape' && fsEl) exitFull(); });
 
 /* =================== Routing =================== */
-const VIEWS = ['bang','luat','cau-hoi','be'];
+const VIEWS = ['bang','luat','cau-hoi','giao-an','be'];
 function route(){
   const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'bang';
   VIEWS.forEach(x => $('#v-' + x).hidden = x !== v);
@@ -2413,7 +2787,7 @@ window.addEventListener('hashchange', route);
 /* =================== Boot =================== */
 setTool('move');
 renderField(); renderPanels(); renderAll();
-renderRules(); renderQuiz(); route();
+renderRules(); renderQuiz(); renderPlan(); route();
 })();
 </script>
 <script>

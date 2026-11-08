@@ -27,8 +27,14 @@ App có icon riêng, mở toàn màn hình không có thanh trình duyệt, và 
 - Dụng cụ tập: nấm, cọc, rào, thang dây, khung thành nhỏ, hình nộm, bóng phụ (xoay, nhân bản, xoá).
 - Khung nhìn cả sân, nửa sân, 1/3 sân để vẽ bài tập.
 - Mũi tên uốn cong (kéo tay nắm vàng ở giữa mũi tên). Khi phát, cầu thủ và bóng chạy theo đúng mũi tên đã vẽ.
-- Xuất ảnh PNG và GIF động để gửi Zalo (trên điện thoại có nút Chia sẻ).
+- Nút **Xuất / Gửi bài**: video MP4, ảnh PNG hoặc GIF động để gửi Zalo (trên điện thoại có nút Chia sẻ).
 - Thư viện: 6 bài chiến thuật mẫu, 16 bài tập sân 5 (khởi động, kỹ thuật, giữ bóng, tấn công – phòng ngự, thủ môn, tình huống cố định), lọc theo nhóm, lưu bài của mình.
+
+### Giáo án buổi tập
+- Ghép nhiều phần (khởi động, kỹ thuật, bài chính, đấu tập, thả lỏng), gắn bài tập từ thư viện, ghi số phút và ghi chú.
+- Đồng hồ chạy buổi tập: đếm ngược từng phần, bíp khi còn 10 giây và khi hết giờ, tự chuyển phần, giữ màn hình sáng.
+- In 1 trang A4 (hoặc lưu PDF) kèm hình các bài tập để mang ra sân.
+- Lưu nhiều giáo án.
 
 ### Luật thi đấu
 - Bảng so sánh sân 11 / 7 / 5.
