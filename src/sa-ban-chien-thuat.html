@@ -1189,7 +1189,9 @@ function clientToSvg(el, cx, cy){
     const H = rot.offsetHeight, lx = cy, ly = H - cx;
     let ox = 0, oy = 0, n = el.parentElement;
     while(n && n !== rot){ ox += n.offsetLeft; oy += n.offsetTop; n = n.offsetParent; }
-    sx = lx - ox; sy = ly - oy; w = el.clientWidth; h = el.clientHeight;
+    // Safari iPhone trả svg.clientWidth = 0 → lấy kích thước khung chứa (svg phủ kín khung này ở chế độ toàn màn hình)
+    const box = el.parentElement;
+    sx = lx - ox; sy = ly - oy; w = el.clientWidth || box.clientWidth; h = el.clientHeight || box.clientHeight;
   } else {
     const r = el.getBoundingClientRect();
     sx = cx - r.left; sy = cy - r.top; w = r.width; h = r.height;
