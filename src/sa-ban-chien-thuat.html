@@ -341,7 +341,8 @@ svg.zoomed:not(.drawing):not(.erasing){cursor:grab}
 body.fs-on{overflow:hidden}
 .fs{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;gap:6px;margin:0;border-radius:0;border:0;overflow:hidden;
   padding:max(8px,env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) max(8px,env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
-.fs.rot{inset:auto;top:0;left:0;width:100vh;width:100dvh;height:100vw;transform-origin:top left;transform:rotate(90deg) translateY(-100%)}
+.fs.rot{inset:auto;top:0;left:0;width:100vh;width:100dvh;height:100vw;transform-origin:top left;transform:rotate(90deg) translateY(-100%);
+  padding:max(8px,env(safe-area-inset-right,0px)) max(10px,env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px)) max(10px,env(safe-area-inset-top,0px))}
 .fs .pitch-wrap{flex:1;min-height:0}
 .fs #pitch,.fs #kPitch{width:100%;height:100%;max-height:none}
 .fs .toolbar,.fs .frames{margin:0}
@@ -1203,7 +1204,8 @@ function clientToSvg(el, cx, cy){
   let sx, sy, w, h;
   if(rot){
     // .fs.rot: transform-origin góc trên-trái, rotate(90deg) translateY(-100%) → điểm (lx, ly) trong khung hiện ở (H − ly, lx) trên màn hình
-    const H = rot.offsetHeight, lx = cy, ly = H - cx;
+    // Hộp bao của khung đã xoay trên màn hình: [left, left+H] × [top, top+W]
+    const rr = rot.getBoundingClientRect(), H = rot.offsetHeight, lx = cy - rr.top, ly = H - (cx - rr.left);
     let ox = 0, oy = 0, n = el.parentElement;
     while(n && n !== rot){ ox += n.offsetLeft; oy += n.offsetTop; n = n.offsetParent; }
     // Safari iPhone trả svg.clientWidth = 0 → lấy kích thước khung chứa (svg phủ kín khung này ở chế độ toàn màn hình)
@@ -1221,7 +1223,7 @@ if(new URLSearchParams(location.search).get('debug') === 'touch'){
   const box = document.createElement('pre');
   box.style.cssText = 'position:fixed;left:6px;right:6px;bottom:calc(6px + env(safe-area-inset-bottom,0px));z-index:99;max-height:38vh;overflow:auto;margin:0;padding:6px 8px;background:rgba(0,0,0,.82);color:#9ef59e;font:11px/1.35 ui-monospace,Menlo,monospace;border-radius:8px;white-space:pre-wrap;pointer-events:none';
   const lines = [], moves = {};
-  const head = () => `UA: ${navigator.userAgent.slice(0,110)}\nPointerEvent: ${!!window.PointerEvent} · touch-action: ${CSS.supports && CSS.supports('touch-action','none')} · màn hình ${innerWidth}×${innerHeight}`;
+  const head = () => `UA: ${navigator.userAgent.slice(0,110)}\nPointerEvent: ${!!window.PointerEvent} · touch-action: ${CSS.supports && CSS.supports('touch-action','none')} · màn hình ${innerWidth}×${innerHeight}${window.visualViewport ? ` · nhìn thấy ${Math.round(visualViewport.width)}×${Math.round(visualViewport.height)} lệch ${Math.round(visualViewport.offsetTop)}` : ''}${document.querySelector('.fs') ? ` · khung ${document.querySelector('.fs').offsetWidth}×${document.querySelector('.fs').offsetHeight}` : ''}`;
   const show = () => { box.textContent = head() + '\n' + lines.slice(-10).join('\n'); };
   const tgt = t => t && t.closest ? ((t.closest('.tok') && 'cầu thủ/' + t.closest('.tok').dataset.id) || (t.closest('#pitch') && 'sân') || t.tagName.toLowerCase()) : '?';
   const log = e => {
@@ -3130,7 +3132,19 @@ kLesson(0);
 /* =================== Full screen nằm ngang =================== */
 let fsEl = null;
 const portraitMQ = window.matchMedia('(orientation: portrait)');
-function updRot(){ if(fsEl) fsEl.classList.toggle('rot', portraitMQ.matches && window.innerWidth < 900); }
+function updRot(){
+  if(!fsEl) return;
+  const rot = portraitMQ.matches && window.innerWidth < 900;
+  fsEl.classList.toggle('rot', rot);
+  // Đo đúng vùng đang nhìn thấy (không tính phần bị thanh công cụ Safari che), thay vì 100dvh / 100vw
+  const vv = window.visualViewport;
+  if(rot){
+    const W = vv ? vv.width : innerWidth, H = vv ? vv.height : innerHeight;
+    Object.assign(fsEl.style, {width:H + 'px', height:W + 'px', top:(vv ? vv.offsetTop : 0) + 'px', left:(vv ? vv.offsetLeft : 0) + 'px'});
+  } else {
+    fsEl.style.width = fsEl.style.height = fsEl.style.top = fsEl.style.left = '';
+  }
+}
 function setFsLabels(){
   $('#fsBtn').textContent = fsEl && fsEl.id === 'boardStage' ? '✕ Thoát' : '⛶ Toàn màn hình';
   $('#shareBtn').textContent = fsEl && fsEl.id === 'boardStage' ? '⤓ Gửi' : '⤓ Xuất / Gửi bài';
@@ -3151,6 +3165,7 @@ function exitFull(){
   if(!fsEl) return;
   const el = fsEl; fsEl = null;
   el.classList.remove('fs','rot'); document.body.classList.remove('fs-on');
+  el.style.width = el.style.height = el.style.top = el.style.left = '';
   try{ screen.orientation && screen.orientation.unlock && screen.orientation.unlock(); }catch(e){}
   if(document.fullscreenElement){ try{ const p = document.exitFullscreen(); if(p && p.catch) p.catch(() => {}); }catch(e){} }
   setFsLabels();
@@ -3159,6 +3174,7 @@ $('#fsBtn').addEventListener('click', () => toggleFull($('#boardStage')));
 document.addEventListener('fullscreenchange', () => { if(!document.fullscreenElement && fsEl) exitFull(); else updRot(); });
 portraitMQ.addEventListener ? portraitMQ.addEventListener('change', updRot) : portraitMQ.addListener(updRot);
 window.addEventListener('resize', updRot);
+if(window.visualViewport){ visualViewport.addEventListener('resize', updRot); visualViewport.addEventListener('scroll', updRot); }
 document.addEventListener('keydown', e => { if(e.key === 'Escape' && fsEl) exitFull(); });
 
 /* =================== Routing =================== */
