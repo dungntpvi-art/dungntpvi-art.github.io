@@ -1,0 +1,1759 @@
+<title>Sa Bàn Chiến Thuật</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: bảng chiến thuật như tấm sa bàn của HLV — sân cỏ là trung tâm, công cụ xếp quanh như bảng kẹp hồ sơ */
+:root{
+  --bg:#edf1ec; --surface:#ffffff; --surface-2:#f4f7f3; --ink:#15211a; --muted:#56665b; --line:#d2dcd3;
+  --accent:#1c6a41; --accent-ink:#ffffff; --accent-soft:#e0eee4; --mark:#b98a00;
+  --ok:#17733f; --ok-soft:#dcf0e2; --bad:#b4281c; --bad-soft:#f9e1de;
+  --grass-a:#2f7f49; --grass-b:#2a7543; --grass-edge:#246638; --chalk:#f4f7f2;
+  --font-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --font-body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1410; --surface:#151d18; --surface-2:#1b251f; --ink:#e3eae4; --muted:#9bac9f; --line:#2a372f;
+  --accent:#52c285; --accent-ink:#06130b; --accent-soft:#1d3427; --mark:#f0c53c;
+  --ok:#5fd394; --ok-soft:#173826; --bad:#ff8a7c; --bad-soft:#3d1c19;
+  --grass-a:#276d3e; --grass-b:#23653a; --grass-edge:#1c5230; --chalk:#eef3ec; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1410; --surface:#151d18; --surface-2:#1b251f; --ink:#e3eae4; --muted:#9bac9f; --line:#2a372f;
+  --accent:#52c285; --accent-ink:#06130b; --accent-soft:#1d3427; --mark:#f0c53c;
+  --ok:#5fd394; --ok-soft:#173826; --bad:#ff8a7c; --bad-soft:#3d1c19;
+  --grass-a:#276d3e; --grass-b:#23653a; --grass-edge:#1c5230; --chalk:#eef3ec; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 32px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
+.wrap{max-width:1360px;margin:0 auto}
+
+/* Header */
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;padding-block:18px 14px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.brand h1{font-family:var(--font-display);font-weight:800;font-size:34px;line-height:1;letter-spacing:.02em;text-transform:uppercase;margin:0}
+.brand h1 span{color:var(--accent)}
+.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}
+nav.tabs{display:flex;gap:4px;flex-wrap:wrap}
+nav.tabs a{font-family:var(--font-display);font-weight:700;font-size:17px;letter-spacing:.04em;text-transform:uppercase;
+  text-decoration:none;color:var(--muted);padding:6px 14px;border-radius:999px;border:1px solid transparent}
+nav.tabs a:hover{color:var(--ink);border-color:var(--line)}
+nav.tabs a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+
+/* Generic controls */
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface);gap:2px}
+.seg button{border:0;background:none;padding:5px 12px;border-radius:999px;font-weight:600;font-size:13px;color:var(--muted);white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 11px;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--bad)}
+.btn.armed{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+label.f{display:grid;gap:4px;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+input[type=text],input[type=number],select,textarea,input[type=search]{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:14px;width:100%;text-transform:none;letter-spacing:0;font-weight:500;color:var(--ink)}
+textarea{resize:vertical;min-height:70px}
+input[type=color]{width:38px;height:34px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);padding:2px}
+
+/* Board layout */
+.board{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+@media (max-width:980px){.board{grid-template-columns:minmax(0,1fr)}}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-bottom:10px}
+.toolbar .dim{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums;margin-left:auto}
+.tools{display:inline-flex;flex-wrap:wrap;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px}
+.tools button{border:0;background:none;border-radius:7px;padding:5px 9px;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.tools button svg{width:18px;height:18px;flex:none}
+.tools button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.tools kbd{font-family:var(--font-body);font-size:10px;opacity:.6;border:1px solid currentColor;border-radius:3px;padding:0 3px}
+@media (max-width:640px){.tools button span.lbl{display:none}.tools kbd{display:none}}
+
+.pitch-wrap{position:relative;background:var(--grass-edge);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 0 var(--line)}
+#pitch,#kPitch{display:block;width:100%;height:auto;max-height:72vh;touch-action:none;user-select:none;-webkit-user-select:none}
+.caption{position:absolute;left:10px;top:10px;right:10px;pointer-events:none;display:flex;gap:8px;align-items:flex-start}
+.caption .chip{background:rgba(10,20,14,.78);color:#f4f7f2;border-radius:8px;padding:5px 10px;font-size:13px;max-width:min(560px,100%);line-height:1.4}
+.caption .chip b{font-family:var(--font-display);letter-spacing:.05em;text-transform:uppercase;color:#ffd84a;margin-right:6px;font-size:14px}
+.caption:empty{display:none}
+
+/* drawings & tokens */
+.g1{fill:var(--grass-a)} .g2{fill:var(--grass-b)} .edge{fill:var(--grass-edge)}
+.chalk{fill:none;stroke:var(--chalk);stroke-linecap:round;stroke-linejoin:round;opacity:.92}
+.chalk-fill{fill:var(--chalk);opacity:.92}
+.goalnet{fill:rgba(255,255,255,.18);stroke:var(--chalk)}
+.subzone{stroke:#ffd84a}
+.tok{cursor:grab}
+.tok:active{cursor:grabbing}
+.tok .nm{paint-order:stroke;stroke:rgba(0,0,0,.65);fill:#fff;font-family:var(--font-body);font-weight:600}
+.tok .num{font-family:var(--font-display);font-weight:800;pointer-events:none}
+svg.drawing .tok{cursor:crosshair}
+svg.drawing{cursor:crosshair}
+#drawings .dr{pointer-events:none}
+svg.erasing #drawings .dr{pointer-events:visiblePainted;cursor:pointer}
+svg.erasing #drawings .dr:hover ellipse{fill-opacity:.35}
+svg.erasing #drawings .dr:hover path,svg.erasing #drawings .dr:hover ellipse{stroke:#ff6b5b}
+.hit{stroke:transparent;fill:none}
+
+/* frames bar */
+.frames{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:8px 10px}
+.frames .lbl{font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:14px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chips button{min-width:34px;height:30px;border-radius:6px;border:1px solid var(--line);background:var(--surface-2);font-weight:700;font-variant-numeric:tabular-nums}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.frames .empty{color:var(--muted);font-size:13px}
+.frames .spacer{flex:1}
+
+/* side panels */
+aside{display:grid;gap:12px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:grid;gap:10px;min-width:0}
+.panel h2{font-family:var(--font-display);font-weight:700;font-size:18px;letter-spacing:.04em;text-transform:uppercase;margin:0;display:flex;align-items:center;gap:8px}
+.panel h2 .dot{width:12px;height:12px;border-radius:50%;flex:none;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line)}
+.row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.row>*{min-width:0}
+.grow{flex:1}
+.hint{color:var(--muted);font-size:12.5px;margin:0}
+.err{color:var(--bad);font-size:12.5px;margin:0}
+.switch{display:inline-flex;gap:6px;align-items:center;font-size:13px;font-weight:600}
+.lib{display:grid;gap:6px}
+.lib .item{display:flex;gap:8px;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--surface-2)}
+.lib .item div{min-width:0}
+.lib .item b{display:block;font-size:13.5px}
+.lib .item small{display:block;color:var(--muted);font-size:12px;line-height:1.35}
+.lib .tag{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
+.lib .acts{display:flex;gap:4px;flex:none}
+.lib .acts button{padding:4px 8px}
+
+/* Roster & bench */
+.roster{display:grid;gap:4px}
+.rsub{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:4px}
+.rrow{display:grid;grid-template-columns:30px 54px minmax(0,1fr) auto;gap:6px;align-items:center;border-radius:8px;padding:1px 2px}
+.rrow.sel{background:var(--accent-soft)}
+.rrow .pos{font-size:11px;font-weight:700;color:var(--muted);text-align:center}
+.rrow input{padding:4px 7px;font-size:13px}
+.rrow .acts{display:flex;gap:4px}
+.rrow .acts .btn{padding:3px 8px}
+#benchBar{display:grid;gap:6px;margin-top:10px}
+#benchBar:empty{display:none}
+.bench{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.bench .blbl{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-size:14px;color:var(--muted);margin-right:2px}
+.bench .blbl i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.bench button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 11px 3px 4px;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.bench button:hover{border-color:var(--muted)}
+.bench button b{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:50%;font-family:var(--font-display);font-size:13px;font-variant-numeric:tabular-nums}
+.bench .none{color:var(--muted);font-size:13px}
+
+/* Rules */
+.rules-head{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin-bottom:14px}
+.rules-head input{max-width:320px}
+.lead{max-width:72ch;color:var(--muted);margin:0 0 14px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);margin-bottom:22px}
+table.cmp{border-collapse:collapse;width:100%;min-width:760px;font-size:13.5px}
+table.cmp th,table.cmp td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+table.cmp thead th{font-family:var(--font-display);text-transform:uppercase;letter-spacing:.05em;font-size:16px;background:var(--surface-2)}
+table.cmp tbody th{font-weight:600;color:var(--muted);width:170px}
+table.cmp tr:last-child td,table.cmp tr:last-child th{border-bottom:0}
+table.cmp td.hl{background:var(--accent-soft)}
+.sec-title{font-family:var(--font-display);font-weight:800;font-size:26px;text-transform:uppercase;letter-spacing:.02em;margin:6px 0 4px;text-wrap:balance}
+.sec-sub{color:var(--muted);margin:0 0 12px;max-width:72ch}
+.laws{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-bottom:26px}
+@media (max-width:420px){.laws{grid-template-columns:minmax(0,1fr)}}
+.law{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;min-width:0}
+.law h3{margin:0 0 6px;font-size:15px;display:flex;gap:8px;align-items:baseline}
+.law h3 .no{font-family:var(--font-display);font-weight:800;color:var(--accent);font-size:20px;min-width:2ch;font-variant-numeric:tabular-nums}
+.law ul{margin:0;padding-left:18px;display:grid;gap:3px}
+.law li{font-size:13.5px}
+.law li strong{color:var(--ink)}
+.law.diff{border-color:var(--mark)}
+.badge{display:inline-block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:1px 6px;border-radius:4px;background:var(--accent-soft);color:var(--accent);margin-left:auto}
+.note-box{border-left:3px solid var(--mark);background:var(--surface);padding:10px 14px;border-radius:0 8px 8px 0;margin:0 0 18px;max-width:80ch;font-size:13.5px}
+mark{background:color-mix(in srgb,var(--mark) 35%,transparent);color:inherit;border-radius:2px}
+
+/* Quiz */
+.quiz{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
+@media (max-width:420px){.quiz{grid-template-columns:minmax(0,1fr)}}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:10px;align-content:start;min-width:0}
+.q .meta{display:flex;justify-content:space-between;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
+.q p.qt{margin:0;font-weight:600}
+.q .opts{display:grid;gap:6px}
+.q .opts button{text-align:left;border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:8px 10px;font-size:13.5px}
+.q .opts button:hover:not(:disabled){border-color:var(--muted)}
+.q .opts button.right{background:var(--ok-soft);border-color:var(--ok);color:var(--ink)}
+.q .opts button.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.q .opts button:disabled{cursor:default}
+.q .exp{margin:0;font-size:13px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+.score{font-family:var(--font-display);font-weight:700;font-size:20px;letter-spacing:.03em;font-variant-numeric:tabular-nums}
+
+/* Kids */
+.kid{display:grid;grid-template-columns:270px minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.kid{grid-template-columns:minmax(0,1fr)}}
+#kLessons{display:grid;gap:6px}
+#kLessons button{display:flex;gap:10px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:8px 10px;width:100%}
+#kLessons button:hover{border-color:var(--muted)}
+#kLessons button[aria-current="true"]{border-color:var(--accent);background:var(--accent-soft)}
+#kLessons .n{font-family:var(--font-display);font-weight:800;font-size:24px;color:var(--accent);width:1.2em;flex:none;font-variant-numeric:tabular-nums}
+#kLessons .t{flex:1;min-width:0;font-weight:600;font-size:13.5px;line-height:1.3}
+#kLessons .t small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+#kLessons .star{font-size:18px;color:var(--line);flex:none}
+#kLessons .star.on{color:var(--mark)}
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:12px;min-width:0}
+.stage:fullscreen{padding:24px 32px;overflow:auto;background:var(--bg);align-content:start}
+.stage:fullscreen #kPitch{max-height:62vh}
+.khead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.khead>div{min-width:0}
+.kno{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.ktitle{font-family:var(--font-display);font-weight:800;font-size:32px;text-transform:uppercase;margin:0;line-height:1.05;text-wrap:balance}
+.krule{margin:6px 0 0;font-size:17px;font-weight:600;color:var(--accent);max-width:60ch}
+.ksay{font-size:20px;line-height:1.45;font-weight:500;margin:0;min-height:2.9em;max-width:62ch}
+.stage:fullscreen .ktitle{font-size:44px}
+.stage:fullscreen .ksay{font-size:28px}
+.kctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.kctrl .btn{font-size:15px;padding:9px 16px}
+.kdots{display:flex;gap:6px;flex:1;justify-content:center;align-items:center;min-width:80px}
+.kdots span{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.kdots span.on{background:var(--accent)}
+.kdots span.ch{width:auto;height:auto;background:none;color:var(--line);font-size:16px;line-height:1}
+.kdots span.ch.on{color:var(--mark)}
+.kfb{border-radius:10px;padding:12px 14px;font-size:17px;font-weight:600;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.kfb .msg{flex:1;min-width:220px}
+.kfb.ok{background:var(--ok-soft);color:var(--ok)}
+.kfb.bad{background:var(--bad-soft);color:var(--bad)}
+.kfb.info{background:var(--accent-soft);color:var(--ink)}
+.kgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-top:16px}
+.kgrid ul{margin:0;padding-left:18px;display:grid;gap:6px}
+.kgrid p{margin:0}
+.ktok .rl{paint-order:stroke;stroke:rgba(0,0,0,.7);fill:#fff;font-family:var(--font-body);font-weight:700}
+.ktok.drag{cursor:grab}
+.pulse{animation:pulse 1.1s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pulse{50%{transform:scale(1.2);opacity:.45}}
+
+/* Pen */
+.swatches{display:inline-flex;gap:4px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:4px 6px}
+.swatches button{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);background:var(--c);padding:0}
+.swatches button[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.btn.pen[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+svg.erasing #drawings .dr:hover line{stroke:#ff6b5b}
+
+/* Zoom */
+.zoomctl{position:absolute;right:calc(10px + env(safe-area-inset-right,0px));bottom:10px;display:flex;align-items:center;gap:2px;background:rgba(10,20,14,.78);border-radius:10px;padding:3px}
+.zoomctl button{width:34px;height:34px;border:0;border-radius:7px;background:none;color:#f4f7f2;font-size:20px;font-weight:700;line-height:1}
+.zoomctl button:hover{background:rgba(255,255,255,.14)}
+.zoomctl span{color:#f4f7f2;font-size:12px;font-weight:600;min-width:42px;text-align:center;font-variant-numeric:tabular-nums}
+svg.zoomed:not(.drawing):not(.erasing){cursor:grab}
+
+/* Full screen (native khi được phép, nếu không thì phủ kín màn hình; điện thoại dọc thì xoay ngang bằng CSS) */
+body.fs-on{overflow:hidden}
+.fs{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;gap:6px;margin:0;border-radius:0;border:0;overflow:hidden;
+  padding:max(8px,env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) max(8px,env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
+.fs.rot{inset:auto;top:0;left:0;width:100vh;width:100dvh;height:100vw;transform-origin:top left;transform:rotate(90deg) translateY(-100%)}
+.fs .pitch-wrap{flex:1;min-height:0}
+.fs #pitch,.fs #kPitch{width:100%;height:100%;max-height:none}
+.fs .toolbar,.fs .frames{margin:0}
+.fs .frames{padding:4px 8px;gap:6px}
+.fs .frames .lbl,.fs .dim,.fs #benchBar,.fs .tools kbd,.fs .tools .lbl,.fs .kno{display:none}
+.fs .ktitle{font-size:24px}
+.fs .krule{font-size:14px;margin-top:2px}
+.fs .ksay{font-size:clamp(15px,2.4vw,26px);min-height:0}
+.fs .khead,.fs .kctrl,.fs .kfb{flex:none}
+.fs .kfb{padding:6px 10px;font-size:15px}
+
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;z-index:20;max-width:calc(100% - 32px)}
+footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="brand">
+    <h1>Sa Bàn <span>Chiến Thuật</span></h1>
+    <p>Bảng vẽ chiến thuật, luật thi đấu và câu hỏi tình huống cho sân 11, 7 và 5 người</p>
+  </div>
+  <nav class="tabs" aria-label="Chuyển mục">
+    <a href="#bang" data-view="bang">Bảng chiến thuật</a>
+    <a href="#luat" data-view="luat">Luật thi đấu</a>
+    <a href="#cau-hoi" data-view="cau-hoi">Tình huống</a>
+    <a href="#be" data-view="be">Cho bé (sân 5)</a>
+  </nav>
+</header>
+
+<!-- ============ BOARD ============ -->
+<section id="v-bang">
+  <div class="board">
+    <div>
+      <div id="boardStage" class="bstage">
+      <div class="toolbar">
+        <div class="seg" role="group" aria-label="Loại sân" id="fmtSeg">
+          <button data-fmt="11">Sân 11</button><button data-fmt="7">Sân 7</button><button data-fmt="5">Sân 5</button>
+        </div>
+        <div class="tools" role="group" aria-label="Công cụ" id="tools">
+          <button data-tool="move" title="Di chuyển cầu thủ / bóng (V)"><svg viewBox="0 0 20 20"><path d="M4 3l11 6-5 1.5L8 16z" fill="currentColor"/></svg><span class="lbl">Kéo thả</span><kbd>V</kbd></button>
+          <button data-tool="run" title="Mũi tên chạy chỗ (R)"><svg viewBox="0 0 20 20"><path d="M3 15L15 5" stroke="currentColor" stroke-width="2"/><path d="M10 4h6v6" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="lbl">Chạy</span><kbd>R</kbd></button>
+          <button data-tool="pass" title="Đường chuyền (P)"><svg viewBox="0 0 20 20"><path d="M3 15L15 5" stroke="currentColor" stroke-width="2" stroke-dasharray="3 2.5"/><path d="M10 4h6v6" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="lbl">Chuyền</span><kbd>P</kbd></button>
+          <button data-tool="dribble" title="Dẫn bóng (D)"><svg viewBox="0 0 20 20"><path d="M2 12q2-5 4 0t4 0 4 0" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14 8l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="lbl">Dẫn bóng</span><kbd>D</kbd></button>
+          <button data-tool="shot" title="Sút bóng (S)"><svg viewBox="0 0 20 20"><path d="M3 15L13 6" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/><path d="M10 3.5h6.5V10z" fill="currentColor"/></svg><span class="lbl">Sút</span><kbd>S</kbd></button>
+          <button data-tool="free" title="Vẽ tay tự do (B)"><svg viewBox="0 0 20 20"><path d="M2.5 14c2-4 4-6 5.5-4.5S7 15 9.5 14s3-6 5-7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M14 4l3 3-1.5 1.5-3-3z" fill="currentColor"/></svg><span class="lbl">Vẽ tay</span><kbd>B</kbd></button>
+          <button data-tool="zone" title="Khoanh vùng (Z)"><svg viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="8" ry="5.5" fill="currentColor" fill-opacity=".25" stroke="currentColor" stroke-width="1.6"/></svg><span class="lbl">Vùng</span><kbd>Z</kbd></button>
+          <button data-tool="line" title="Đường tuyến / hàng phòng ngự (L)"><svg viewBox="0 0 20 20"><path d="M10 2v16" stroke="currentColor" stroke-width="2" stroke-dasharray="4 2"/></svg><span class="lbl">Tuyến</span><kbd>L</kbd></button>
+          <button data-tool="erase" title="Xoá nét vẽ (E)"><svg viewBox="0 0 20 20"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="2"/></svg><span class="lbl">Xoá nét</span><kbd>E</kbd></button>
+        </div>
+        <span class="swatches" id="penColors" role="group" aria-label="Màu nét vẽ tay" hidden>
+          <button data-c="#f4f7f2" aria-pressed="true" title="Trắng" style="--c:#f4f7f2"></button>
+          <button data-c="#ffd84a" aria-pressed="false" title="Vàng" style="--c:#ffd84a"></button>
+          <button data-c="#ff5a3c" aria-pressed="false" title="Đỏ" style="--c:#ff5a3c"></button>
+          <button data-c="#5ab0ff" aria-pressed="false" title="Xanh" style="--c:#5ab0ff"></button>
+          <button data-c="#111111" aria-pressed="false" title="Đen" style="--c:#111111"></button>
+        </span>
+        <button class="btn pen" id="penBtn" aria-pressed="false" title="Bút để vẽ, ngón tay để kéo cầu thủ và phóng to">✎ Chế độ bút</button>
+        <span class="dim" id="dimLabel"></span>
+        <button class="btn" id="fsBtn" title="Xem toàn màn hình, nằm ngang">⛶ Toàn màn hình</button>
+      </div>
+
+      <div class="pitch-wrap">
+        <svg id="pitch" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sân bóng chiến thuật">
+          <g id="field"></g><g id="drawings"></g><g id="preview"></g><g id="tokens"></g>
+        </svg>
+        <div class="caption" id="caption"></div>
+        <div class="zoomctl" role="group" aria-label="Phóng to thu nhỏ">
+          <button id="zOut" title="Thu nhỏ (−)" aria-label="Thu nhỏ">−</button>
+          <span id="zoomLbl">100%</span>
+          <button id="zIn" title="Phóng to (+)" aria-label="Phóng to">+</button>
+          <button id="zReset" title="Vừa khung (0)" aria-label="Xem cả sân">⤢</button>
+        </div>
+      </div>
+      <div id="benchBar"></div>
+
+      <div class="frames">
+        <span class="lbl">Khung hình</span>
+        <div class="chips" id="chips"></div>
+        <button class="btn" id="addFrame" title="Chụp vị trí hiện tại thành một khung mới">+ Thêm khung</button>
+        <button class="btn danger" id="delFrame">Xoá khung</button>
+        <span class="spacer"></span>
+        <select id="speed" aria-label="Tốc độ phát" style="width:auto">
+          <option value="1.6">Chậm</option><option value="1" selected>Vừa</option><option value="0.6">Nhanh</option>
+        </select>
+        <button class="btn primary" id="playBtn">▶ Phát</button>
+      </div>
+      </div>
+      <p class="hint" style="margin-top:8px">Mẹo: chọn <b>Kéo thả</b> để di chuyển cầu thủ, chọn công cụ vẽ rồi kéo trên sân để vẽ (bắt đầu từ một cầu thủ thì mũi tên tự bám vào cầu thủ đó). Mỗi khung lưu vị trí + nét vẽ; nét vẽ ở khung N mô tả chuyển động sang khung N+1. Sửa khung đang chọn sẽ tự lưu.</p>
+    </div>
+
+    <aside>
+      <div class="panel">
+        <h2><span class="dot" id="homeDot"></span>Đội nhà</h2>
+        <div class="row">
+          <label class="f grow">Sơ đồ<select id="homeForm"></select></label>
+          <label class="f">Màu<input type="color" id="homeColor"></label>
+        </div>
+        <div class="row" id="homeCustomRow" hidden>
+          <label class="f grow">Tự nhập sơ đồ<input type="text" id="homeCustom" placeholder="vd 4-1-4-1"></label>
+          <button class="btn" id="homeCustomBtn">Áp dụng</button>
+        </div>
+        <p class="err" id="homeErr" hidden></p>
+      </div>
+
+      <div class="panel">
+        <h2><span class="dot" id="awayDot"></span>Đội khách
+          <label class="switch" style="margin-left:auto;font-family:var(--font-body);text-transform:none;letter-spacing:0"><input type="checkbox" id="showAway"> Hiện</label></h2>
+        <div class="row">
+          <label class="f grow">Sơ đồ<select id="awayForm"></select></label>
+          <label class="f">Màu<input type="color" id="awayColor"></label>
+        </div>
+        <div class="row" id="awayCustomRow" hidden>
+          <label class="f grow">Tự nhập sơ đồ<input type="text" id="awayCustom" placeholder="vd 4-4-2"></label>
+          <button class="btn" id="awayCustomBtn">Áp dụng</button>
+        </div>
+        <p class="err" id="awayErr" hidden></p>
+        <div class="row">
+          <button class="btn" id="resetPos">Xếp lại đội hình</button>
+          <button class="btn" id="clearDr">Xoá mọi nét vẽ</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Danh sách đội</h2>
+        <div class="seg" role="group" aria-label="Chọn đội" id="rosterSeg">
+          <button data-side="home">Đội nhà</button><button data-side="away">Đội khách</button>
+        </div>
+        <div class="roster" id="roster"></div>
+        <div class="row">
+          <button class="btn" id="addBench">+ Thêm dự bị</button>
+          <button class="btn" id="bulkToggle">Nhập nhanh</button>
+        </div>
+        <div id="bulkBox" hidden style="display:grid;gap:6px">
+          <label class="f">Mỗi dòng một cầu thủ: số áo rồi tên<textarea id="bulkText" rows="7" placeholder="1 Hải&#10;4 Dũng&#10;5 Minh&#10;…&#10;(các dòng sau số người đá chính sẽ vào dự bị)"></textarea></label>
+          <div class="row"><button class="btn primary" id="bulkApply">Áp dụng</button><button class="btn" id="bulkCancel">Huỷ</button></div>
+        </div>
+        <p class="hint" id="rosterHint"></p>
+      </div>
+
+      <div class="panel" id="selPanel" hidden>
+        <h2>Cầu thủ đang chọn</h2>
+        <div class="row">
+          <label class="f" style="width:80px">Số áo<input type="number" id="selNum" min="0" max="99"></label>
+          <label class="f grow">Tên / vai trò<input type="text" id="selName" maxlength="18" placeholder="vd Tuấn · CB"></label>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Ghi chú <span class="hint" id="noteFor" style="text-transform:none;letter-spacing:0;font-family:var(--font-body);font-weight:500"></span></h2>
+        <textarea id="note" placeholder="Nhiệm vụ, điểm mấu chốt, lỗi hay gặp…"></textarea>
+      </div>
+
+      <div class="panel">
+        <h2>Thư viện bài</h2>
+        <div class="row">
+          <label class="f grow">Lưu bài hiện tại<input type="text" id="saveName" placeholder="Tên bài, vd Phạt góc cột gần"></label>
+          <button class="btn primary" id="saveBtn">Lưu</button>
+        </div>
+        <p class="hint">Bài lưu nằm trong trình duyệt này.</p>
+        <div class="lib" id="lib"></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ============ RULES ============ -->
+<section id="v-luat" hidden>
+  <div class="rules-head">
+    <div class="seg" role="group" aria-label="Chọn luật" id="ruleSeg">
+      <button data-r="all">So sánh</button><button data-r="11">Sân 11</button><button data-r="7">Sân 7</button><button data-r="5">Sân 5 / Futsal</button>
+    </div>
+    <input type="search" id="ruleSearch" placeholder="Tìm: việt vị, ném biên, thẻ đỏ…" aria-label="Tìm trong luật">
+  </div>
+  <div id="rulesBody"></div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section id="v-cau-hoi" hidden>
+  <div class="rules-head">
+    <div class="seg" role="group" aria-label="Lọc câu hỏi" id="quizSeg">
+      <button data-q="all">Tất cả</button><button data-q="11">Sân 11</button><button data-q="7">Sân 7</button><button data-q="5">Sân 5</button>
+    </div>
+    <span class="score" id="score"></span>
+    <button class="btn" id="quizReset">Làm lại</button>
+  </div>
+  <p class="lead">Tình huống thực tế để cầu thủ và HLV tự kiểm tra hiểu luật. Chọn đáp án để xem giải thích.</p>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<!-- ============ KIDS ============ -->
+<section id="v-be" hidden>
+  <div class="kid">
+    <div class="panel">
+      <h2>Bài học sân 5</h2>
+      <p class="hint">Dành cho học sinh tiểu học (6–11 tuổi). Mỗi bài là một ý, xem hình động rồi làm thử thách kéo thả.</p>
+      <div id="kLessons"></div>
+    </div>
+    <div class="stage" id="kStage">
+      <div class="khead">
+        <div><span class="kno" id="kNo"></span><h2 class="ktitle" id="kTitle"></h2><p class="krule" id="kRule"></p></div>
+        <button class="btn" id="kFull" title="Chiếu lên TV hoặc máy chiếu">Toàn màn hình</button>
+      </div>
+      <div class="pitch-wrap">
+        <svg id="kPitch" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sân futsal bài học">
+          <g id="kField"></g><g id="kDraw"></g><g id="kTok"></g>
+        </svg>
+      </div>
+      <p class="ksay" id="kSay" aria-live="polite"></p>
+      <div class="kfb info" id="kFb" hidden></div>
+      <div class="kctrl">
+        <button class="btn" id="kPrev">◀ Lùi</button>
+        <button class="btn" id="kAuto">Tự chạy</button>
+        <div class="kdots" id="kDots"></div>
+        <button class="btn primary" id="kNext">Tiếp ▶</button>
+      </div>
+    </div>
+  </div>
+  <div class="kgrid">
+    <div class="panel">
+      <h2>Trò chơi tập trên sân</h2>
+      <div id="kCoach"></div>
+    </div>
+    <div class="panel">
+      <h2>Mẹo dạy bé hiểu chiến thuật</h2>
+      <ul>
+        <li><b>Mỗi buổi chỉ một ý.</b> Nói không quá 30 giây rồi cho bé chơi ngay.</li>
+        <li><b>Dùng hình ảnh bé quen:</b> con diều, bàn tay xoè và nắm, sợi dây. Tránh từ chuyên môn như “pressing”, “chuyển trạng thái”.</li>
+        <li><b>Hỏi thay vì ra lệnh:</b> “Chỗ nào đang trống?”, “Con có thấy mắt bạn không?”. Bé tự tìm ra thì nhớ lâu hơn.</li>
+        <li><b>Theo độ tuổi:</b> 6–8 tuổi chỉ cần “Xoè ra – Nắm lại”. 9–11 tuổi thêm vị trí, chuyền rồi chạy, mở đường nhận bóng.</li>
+        <li><b>Trận nhỏ là thầy giỏi nhất:</b> chơi 3 đánh 3 hoặc 4 đánh 4 để bé chạm bóng nhiều và gặp lại tình huống nhiều lần.</li>
+        <li><b>Cho bé đá mọi vị trí,</b> kể cả thủ môn. Đừng gò một bé vào một chỗ quá sớm.</li>
+        <li><b>Khen lựa chọn đúng,</b> không chỉ khen bàn thắng: “Con chạy ra chỗ trống rất đúng!”.</li>
+        <li><b>Chiếu lên TV:</b> bấm Toàn màn hình, xem hình động cùng cả đội, rồi gọi từng bé lên kéo cầu thủ trong phần thử thách.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Nội dung luật sân 11 tóm tắt theo Luật Bóng đá của IFAB (bản 2025/26); sân 5 theo Luật Futsal của FIFA. Luật sân 7 và sân 5 phong trào khác nhau giữa các giải. Luôn đối chiếu điều lệ của giải bạn tham gia. Kích thước sân trên bảng chỉ để minh họa tỉ lệ.
+</footer>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const deep = o => JSON.parse(JSON.stringify(o));
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------------- Formats ---------------- */
+const FMT = {
+  '11': {L:105, W:68, n:11, gk:.035, xr:[.17,.44], r:1.75, gw:7.32, gd:2,   label:'Sân 11 người · minh họa 105 × 68 m',
+         forms:['4-3-3','4-4-2','4-2-3-1','3-5-2','3-4-3','5-3-2','4-1-4-1']},
+  '7':  {L:60,  W:40, n:7,  gk:.04,  xr:[.18,.42], r:1.25, gw:6,    gd:1.5, label:'Sân 7 người · minh họa 60 × 40 m',
+         forms:['2-3-1','3-2-1','3-1-2','2-1-2-1','2-2-2','3-3']},
+  '5':  {L:40,  W:20, n:5,  gk:.05,  xr:[.2,.42],  r:.78,  gw:3,    gd:1,   label:'Sân 5 / futsal · minh họa 40 × 20 m',
+         forms:['1-2-1','2-2','3-1','1-1-2','4-0']}
+};
+const pad = f => FMT[f].L * .045;
+
+function lineX(f, n, i){ const [a,b] = FMT[f].xr; return n === 1 ? (a+b)/2 : a + (b-a)*i/(n-1); }
+function spreadY(k, j){ return k === 1 ? .5 : .08 + .84*(j+.5)/k; }
+function parseForm(f, code){
+  code = String(code).trim();
+  if(!/^\d+(-\d+)*$/.test(code)) return null;
+  const lines = code.split('-').map(Number);
+  if(lines.reduce((a,b)=>a+b,0) !== FMT[f].n - 1) return null;
+  return lines.filter(x => x > 0);
+}
+function formationPos(f, code){
+  const lines = parseForm(f, code) || parseForm(f, FMT[f].forms[0]);
+  const pts = [[FMT[f].gk, .5]];
+  lines.forEach((k,i) => { for(let j=0;j<k;j++) pts.push([lineX(f, lines.length, i), spreadY(k, j)]); });
+  return pts;
+}
+
+/* ---------------- State ---------------- */
+function newState(f, hForm, aForm){
+  const F = FMT[f];
+  const st = {home:{form:hForm||F.forms[0], color:'#d63a3a', players:[], bench:[]},
+              away:{form:aForm||F.forms[0], color:'#2563c9', players:[], bench:[]},
+              showAway:true, pos:{}, dr:[], frames:[], active:-1, note:''};
+  for(let i=0;i<F.n;i++){
+    st.home.players.push({id:'h'+i, num:i+1, name:''});
+    st.away.players.push({id:'a'+i, num:i+1, name:''});
+  }
+  placeTeam(st,'home',f); placeTeam(st,'away',f);
+  st.pos.ball = [.5,.5];
+  return st;
+}
+function placeTeam(st, side, f){
+  const pts = formationPos(f, st[side].form);
+  st[side].players.forEach((p,i) => { const [x,y] = pts[i]; st.pos[p.id] = side === 'home' ? [x,y] : [1-x, 1-y]; });
+}
+function snapshot(st, note){ return {pos:deep(st.pos), dr:deep(st.dr), note:note ?? ''}; }
+function loadFrame(st, i){ const fr = st.frames[i]; st.pos = deep(fr.pos); st.dr = deep(fr.dr); }
+
+/* ---------------- Example scenarios ---------------- */
+// Mỗi khung cộng dồn từ khung trước. h/a: {chỉ số cầu thủ:[x,y]}, hs/as: dịch cả đội theo trục dọc, b: bóng, d: nét vẽ, n: ghi chú
+const SCEN = [
+ {id:'11-counter', fmt:'11', name:'Phản công nhanh 4-3-3', desc:'Đoạt bóng giữa sân, chuyền thẳng ra cánh, căng ngang cho tuyến hai.', home:'4-3-3', away:'4-4-2', frames:[
+  {hs:-.03, as:-.2, b:[.315,.5], h:{6:[.3,.5]}, n:'Tiền vệ trung tâm đoạt bóng khi đối thủ dâng cao. Ngay lập tức nhìn khoảng trống sau lưng hậu vệ biên.',
+   d:[['pass',.315,.5,.6,.84],['run',.41,.78,.6,.84],['run',.41,.5,.62,.5],['run',.41,.22,.6,.2]]},
+  {b:[.6,.84], h:{10:[.6,.84],9:[.62,.5],8:[.6,.2],7:[.45,.7]}, a:{1:[.72,.8],2:[.7,.6],3:[.7,.42],4:[.72,.2]}, n:'Ba tiền đạo chạy cùng lúc, kéo giãn hàng thủ đang lùi về.',
+   d:[['dribble',.6,.84,.8,.82],['run',.62,.5,.86,.45],['run',.6,.2,.84,.3],['run',.45,.7,.7,.62]]},
+  {b:[.8,.82], h:{10:[.8,.82],9:[.86,.45],8:[.84,.3],7:[.7,.62]}, a:{1:[.86,.76],2:[.87,.56],3:[.88,.42],4:[.84,.24]}, n:'Tiền đạo kéo trung vệ về cột gần, tạo khoảng trống ở tuyến hai.',
+   d:[['pass',.8,.82,.79,.6],['run',.7,.62,.79,.6],['zone',.72,.5,.86,.7]]},
+  {b:[.79,.6], h:{7:[.79,.6]}, n:'Cắt ngược (cut-back) cho tiền vệ băng lên dứt điểm một chạm.', d:[['pass',.79,.6,1,.47]]},
+  {b:[1.01,.47], n:'Bàn thắng. Thời gian từ lúc đoạt bóng đến khi dứt điểm nên dưới 10 giây.'}
+ ]},
+ {id:'11-press', fmt:'11', name:'Pressing tầm cao, bẫy biên', desc:'Ép đối thủ triển khai ra biên rồi khoá lại để đoạt bóng.', home:'4-3-3', away:'4-4-2', frames:[
+  {hs:.17, b:[.95,.5], n:'Đối thủ phát bóng ngắn. Cả khối dâng lên, tiền đạo chuẩn bị chạy cong để chặn đường chuyền về thủ môn.',
+   d:[['pass',.95,.5,.83,.605],['run',.61,.5,.78,.56],['run',.61,.78,.76,.78]]},
+  {b:[.83,.605], h:{9:[.78,.56],10:[.76,.78],8:[.72,.3],7:[.62,.62],6:[.6,.5]}, n:'Tiền đạo ép trung vệ bằng đường chạy cong, chỉ để lại hướng chuyền ra biên.',
+   d:[['pass',.83,.605,.83,.815],['run',.76,.78,.82,.8],['run',.34,.815,.62,.82],['run',.62,.62,.7,.68],['run',.78,.56,.8,.66]]},
+  {b:[.83,.815], h:{10:[.82,.8],4:[.62,.82],7:[.7,.68],9:[.8,.66]}, n:'Bẫy pressing: đường biên là "hậu vệ thứ 12". Khoá đường chuyền vào trung lộ và về sau.',
+   d:[['zone',.72,.66,.93,.97]]},
+  {b:[.81,.79], h:{10:[.81,.79]}, n:'Đoạt bóng cách khung thành ~20 m. Chuyền ngay vào trung lộ để dứt điểm.', d:[['pass',.81,.79,.8,.66],['run',.8,.66,.86,.55]]},
+  {b:[.86,.55], h:{9:[.86,.55]}, d:[['pass',.86,.55,1,.5]], n:'Dứt điểm.'}
+ ]},
+ {id:'7-12', fmt:'7', name:'Ban bật 1-2 ở cánh', desc:'Tiền vệ cánh phối hợp tường với tiền đạo để vượt người kèm.', home:'2-3-1', away:'3-2-1', frames:[
+  {hs:.15, b:[.45,.78], n:'Tiền vệ cánh cầm bóng, chuyền vào chân tiền đạo đang lùi về áp sát.', d:[['pass',.45,.78,.57,.5],['run',.45,.78,.68,.82]]},
+  {b:[.57,.5], h:{5:[.68,.82]}, n:'Chuyền xong lập tức tăng tốc vượt qua người kèm.', d:[['pass',.57,.5,.7,.84],['run',.57,.5,.82,.45]]},
+  {b:[.7,.84], h:{5:[.7,.84],6:[.82,.45]}, n:'Tiền đạo trả một chạm vào khoảng trống sau lưng hậu vệ, rồi xâm nhập vòng cấm.', d:[['dribble',.7,.84,.84,.78],['run',.45,.5,.7,.55]]},
+  {b:[.84,.78], h:{5:[.84,.78],4:[.7,.55]}, n:'Căng ngang sệt vào khu vực giữa thủ môn và hậu vệ.', d:[['pass',.84,.78,.83,.46]]},
+  {b:[.83,.46], h:{6:[.83,.46]}, d:[['pass',.83,.46,1,.5]], n:'Dứt điểm một chạm.'},
+  {b:[1.01,.5], n:'Bàn thắng. Điểm mấu chốt: chuyền xong phải chạy ngay, không đứng nhìn.'}
+ ]},
+ {id:'7-zone', fmt:'7', name:'Phòng ngự khu vực 2-3-1', desc:'Cả khối dịch theo bóng, ép ra biên, chặn đường chuyền vào trung lộ.', home:'2-3-1', away:'3-2-1', frames:[
+  {as:-.25, b:[.45,.71], n:'Bóng ở trung lộ của đối thủ: khối đội hình gọn, khoảng cách giữa các tuyến khoảng 8–10 m.', d:[['pass',.45,.71,.45,.29],['line',.18,.1,.18,.9]]},
+  {b:[.45,.29], h:{3:[.33,.18],4:[.3,.38],5:[.3,.6],1:[.18,.24],2:[.17,.5],6:[.4,.42]}, n:'Bóng ra biên: người gần nhất áp sát, cả khối trượt sang, tiền đạo chặn đường chuyền về.',
+   d:[['zone',.24,.06,.48,.5],['pass',.45,.29,.34,.37],['run',.3,.38,.34,.37]]},
+  {b:[.34,.37], h:{4:[.34,.37]}, n:'Đường chuyền vào trung lộ bị cắt. Phản công ngay khi đối thủ chưa kịp chuyển trạng thái.', d:[['dribble',.34,.37,.55,.42],['run',.4,.42,.65,.5],['run',.33,.18,.6,.15]]},
+  {b:[.55,.42], h:{6:[.65,.5],3:[.6,.15],4:[.55,.42]}, n:'Chuyển trạng thái phòng ngự sang tấn công trong 3 giây.'}
+ ]},
+ {id:'5-rot', fmt:'5', name:'Xoay vòng 1-2-1 (fixo chồng biên)', desc:'Fixo chuyền ra cánh rồi chạy chồng, ala đối diện lùi bọc lót.', home:'1-2-1', away:'2-2', frames:[
+  {hs:.12, as:-.08, b:[.32,.5], n:'Fixo cầm bóng, chuyền ra ala trái.', d:[['pass',.32,.5,.43,.29],['run',.32,.5,.6,.12],['run',.43,.71,.34,.5]]},
+  {b:[.43,.29], h:{1:[.6,.12],3:[.34,.5]}, n:'Fixo chạy chồng biên, ala bên kia lùi vào vị trí fixo để giữ cân bằng.', d:[['pass',.43,.29,.6,.12],['run',.43,.29,.62,.4],['run',.54,.5,.78,.6]]},
+  {b:[.6,.12], h:{2:[.62,.4],4:[.78,.6]}, n:'Pivot kéo hậu vệ đi, ala cắt vào khoảng trống giữa.', d:[['pass',.6,.12,.7,.42],['run',.62,.4,.7,.42]]},
+  {b:[.7,.42], h:{2:[.7,.42]}, d:[['pass',.7,.42,1,.45]], n:'Dứt điểm chéo góc.'},
+  {b:[1.01,.45], n:'Bàn thắng. Vai trò luôn được lấp đầy khi xoay vòng: luôn có 1 người ở vị trí cuối.'}
+ ]},
+ {id:'5-block', fmt:'5', name:'Phòng ngự nửa sân 2-2', desc:'Khối 2-2 lùi về nửa sân, áp sát người cầm bóng, chặn đường vào pivot.', home:'2-2', away:'1-2-1', frames:[
+  {as:-.2, b:[.6,.5], n:'Khối 2-2 lùi về nửa sân, khoảng cách hai tuyến 6–8 m.', d:[['pass',.6,.5,.49,.71]]},
+  {b:[.49,.71], h:{4:[.45,.66],3:[.4,.47],2:[.25,.62],1:[.22,.4]}, n:'Bóng ra cánh: người gần nhất áp sát, người còn lại đứng chắn đường chuyền vào pivot.',
+   d:[['zone',.15,.35,.52,.95],['pass',.49,.71,.32,.56],['run',.25,.62,.32,.56]]},
+  {b:[.32,.56], h:{2:[.32,.56]}, n:'Cắt đường chuyền vào pivot, phản công ngay.', d:[['dribble',.32,.56,.62,.6],['run',.4,.47,.72,.4]]},
+  {b:[.62,.6], h:{2:[.62,.6],3:[.72,.4]}, d:[['pass',.62,.6,.72,.4]], n:'2 đánh 1 khi đối thủ chưa kịp lùi.'}
+ ]}
+];
+function buildScenario(sc){
+  const n = FMT[sc.fmt].n;
+  const st = newState(sc.fmt, sc.home, sc.away);
+  const pos = deep(st.pos);
+  sc.frames.forEach(fr => {
+    if(fr.hs) for(let i=1;i<n;i++) pos['h'+i][0] += fr.hs;
+    if(fr.as) for(let i=1;i<n;i++) pos['a'+i][0] += fr.as;
+    for(const [i,v] of Object.entries(fr.h||{})) pos['h'+i] = v.slice();
+    for(const [i,v] of Object.entries(fr.a||{})) pos['a'+i] = v.slice();
+    if(fr.b) pos.ball = fr.b.slice();
+    // mũi tên chuyền đi thẳng vào khung thành = cú sút
+    st.frames.push({pos:deep(pos), dr:(fr.d||[]).map(([t,x1,y1,x2,y2]) => ({t:(t === 'pass' && x2 >= 1) ? 'shot' : t,x1,y1,x2,y2})), note:fr.n||''});
+  });
+  st.active = 0; loadFrame(st, 0);
+  st.note = sc.desc;
+  return st;
+}
+
+/* ---------------- App state ---------------- */
+let fmt = '11';
+let S = {};
+let tool = 'move';
+let selId = null;
+let playing = false, playTok = 0;
+const saved0 = store.get('sbct.work.v1', null);
+if(saved0 && saved0.S && saved0.S['11'] && saved0.S['7'] && saved0.S['5']){ S = saved0.S; fmt = saved0.fmt || '11'; }
+else { S = {'11':buildScenario(SCEN[0]), '7':buildScenario(SCEN[2]), '5':buildScenario(SCEN[4])}; }
+const st = () => S[fmt];
+function persist(){ store.set('sbct.work.v1', {fmt, S}); }
+
+// Danh sách đội sân 5 điền sẵn (áp dụng một lần; sau đó người dùng sửa tự do)
+// [số áo, tên, là thủ môn]. Người đầu tiên đứng khung thành; thủ môn dự bị có cờ TM.
+const TEAM5 = [[2,'Khang Anh',1],[1,'Gia Huy'],[3,'Quang Phúc'],[4,'Lê Minh'],[5,'Minh Quân'],
+  [6,'Phúc Nguyên'],[7,'Tuấn Khoa'],[8,'Hoàng Vinh'],[9,'Trung Tín'],[10,'Minh Đức'],[11,'Minh Khang'],[12,'Nhật Nam',1],[13,'Duy Minh']];
+(function seedTeam5(){
+  if(store.get('sbct.team5.v2', false)) return;
+  const T = S['5'].home;
+  T.players.forEach((p,i) => { p.num = String(TEAM5[i][0]); p.name = TEAM5[i][1]; delete p.gk; });
+  T.bench = TEAM5.slice(T.players.length).map(([n,name,gk]) => gk ? {num:String(n), name, gk:true} : {num:String(n), name});
+  store.set('sbct.team5.v2', true); persist();
+})();
+// Đội đang tập sân 5: mở app vào Sân 5 (một lần; sau đó nhớ lựa chọn của người dùng)
+if(!store.get('sbct.open5.v1', false)){ fmt = '5'; store.set('sbct.open5.v1', true); persist(); }
+// Giữ số áo, tên, màu áo và dự bị khi mở bài mẫu
+function keepRoster(oldS, newS){
+  for(const side of ['home','away']){
+    const o = oldS && oldS[side], n = newS[side]; if(!o) continue;
+    if(o.players.length === n.players.length) n.players.forEach((p,i) => { p.num = o.players[i].num; p.name = o.players[i].name; });
+    n.bench = deep(o.bench || []); n.color = o.color;
+  }
+  return newS;
+}
+
+/* ---------------- Pitch drawing ---------------- */
+const svg = $('#pitch');
+function pitchSVG(f, pre = ''){
+  const {L, W, gw, gd} = FMT[f], P = pad(f);
+  const lw = f === '11' ? .22 : f === '7' ? .16 : .1;
+  const nStr = f === '11' ? 14 : f === '7' ? 10 : 8;
+  let s = `<defs>
+    <marker id="${pre}mw" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="3.6" markerHeight="3.6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#f4f7f2"/></marker>
+    <marker id="${pre}my" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="3.6" markerHeight="3.6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#ffd84a"/></marker>
+    <marker id="${pre}mr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="3" markerHeight="3" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#ff5a3c" stroke="#fff" stroke-width="1"/></marker>
+  </defs>`;
+  s += `<rect class="edge" x="${-P}" y="${-P}" width="${L+2*P}" height="${W+2*P}"/>`;
+  for(let i=0;i<nStr;i++) s += `<rect class="${i%2?'g2':'g1'}" x="${i*L/nStr}" y="0" width="${L/nStr+.01}" height="${W}"/>`;
+  s += `<g class="chalk" stroke-width="${lw}">`;
+  s += `<rect x="0" y="0" width="${L}" height="${W}"/><line x1="${L/2}" y1="0" x2="${L/2}" y2="${W}"/>`;
+  const cy = W/2;
+  const side = (mir) => {
+    const X = x => mir ? L - x : x;
+    let o = '';
+    if(f === '5'){
+      const r = 6, p1 = cy - gw/2, p2 = cy + gw/2, sw = mir ? 0 : 1;
+      o += `<path d="M${X(0)} ${p1-r} A${r} ${r} 0 0 ${sw} ${X(r)} ${p1} L${X(r)} ${p2} A${r} ${r} 0 0 ${sw} ${X(0)} ${p2+r}"/>`;
+      o += `<circle class="chalk-fill" cx="${X(6)}" cy="${cy}" r="${lw*1.4}" stroke="none"/>`;
+      o += `<circle class="chalk-fill" cx="${X(10)}" cy="${cy}" r="${lw*1.4}" stroke="none"/>`;
+      o += `<line x1="${X(5)}" y1="${W}" x2="${X(5)}" y2="${W+.4}"/>`;
+      // khu thay người: 5 m, cách vạch giữa sân 5 m
+      o += `<line class="subzone" x1="${X(L/2-10)}" y1="${W-.6}" x2="${X(L/2-10)}" y2="${W+.6}"/><line class="subzone" x1="${X(L/2-5)}" y1="${W-.6}" x2="${X(L/2-5)}" y2="${W+.6}"/>`;
+    } else {
+      const c = f === '11' ? {pa:16.5, paw:40.32, ga:5.5, gaw:18.32, spot:11, arc:9.15}
+                           : {pa:12, paw:26, ga:4, gaw:12, spot:9, arc:6};
+      o += `<rect x="${mir ? L-c.pa : 0}" y="${cy-c.paw/2}" width="${c.pa}" height="${c.paw}"/>`;
+      o += `<rect x="${mir ? L-c.ga : 0}" y="${cy-c.gaw/2}" width="${c.ga}" height="${c.gaw}"/>`;
+      o += `<circle class="chalk-fill" cx="${X(c.spot)}" cy="${cy}" r="${lw*1.5}" stroke="none"/>`;
+      const dx = c.pa - c.spot, dy = Math.sqrt(c.arc*c.arc - dx*dx);
+      o += `<path d="M${X(c.pa)} ${cy-dy} A${c.arc} ${c.arc} 0 0 ${mir?0:1} ${X(c.pa)} ${cy+dy}"/>`;
+    }
+    o += `<rect class="goalnet" x="${mir ? L : -gd}" y="${cy-gw/2}" width="${gd}" height="${gw}"/>`;
+    return o;
+  };
+  s += side(false) + side(true);
+  const cc = f === '11' ? 9.15 : f === '7' ? 6 : 3;
+  s += `<circle cx="${L/2}" cy="${cy}" r="${cc}"/>`;
+  s += `<circle class="chalk-fill" cx="${L/2}" cy="${cy}" r="${lw*1.5}" stroke="none"/>`;
+  const cr = f === '11' ? 1 : f === '7' ? .8 : .25;
+  s += `<path d="M${cr} 0 A${cr} ${cr} 0 0 1 0 ${cr} M${L-cr} 0 A${cr} ${cr} 0 0 0 ${L} ${cr} M0 ${W-cr} A${cr} ${cr} 0 0 1 ${cr} ${W} M${L} ${W-cr} A${cr} ${cr} 0 0 0 ${L-cr} ${W}"/>`;
+  s += `</g>`;
+  return s;
+}
+/* ---------------- Zoom / pan (đổi viewBox) ---------------- */
+const Z = {z:1, cx:null, cy:null};
+function fullBox(){ const {L, W} = FMT[fmt], P = pad(fmt); return {x:-P, y:-P, w:L+2*P, h:W+2*P}; }
+function applyZoom(){
+  const f = fullBox();
+  Z.z = Math.max(1, Math.min(5, Z.z));
+  const w = f.w/Z.z, h = f.h/Z.z;
+  if(Z.cx == null){ Z.cx = f.x + f.w/2; Z.cy = f.y + f.h/2; }
+  Z.cx = Math.max(f.x + w/2, Math.min(f.x + f.w - w/2, Z.cx));
+  Z.cy = Math.max(f.y + h/2, Math.min(f.y + f.h - h/2, Z.cy));
+  svg.setAttribute('viewBox', `${Z.cx - w/2} ${Z.cy - h/2} ${w} ${h}`);
+  $('#zoomLbl').textContent = Math.round(Z.z*100) + '%';
+  svg.classList.toggle('zoomed', Z.z > 1.01);
+}
+function zoomAt(factor, ax, ay){
+  const old = Z.z; Z.z = Math.max(1, Math.min(5, old*factor));
+  const k = old/Z.z;
+  if(ax != null){ Z.cx = ax + (Z.cx - ax)*k; Z.cy = ay + (Z.cy - ay)*k; }
+  applyZoom();
+}
+function resetZoom(){ Z.z = 1; Z.cx = Z.cy = null; applyZoom(); }
+
+function renderField(){
+  resetZoom();
+  $('#field').innerHTML = pitchSVG(fmt);
+  $('#dimLabel').textContent = FMT[fmt].label;
+}
+
+/* ---------------- Drawings ---------------- */
+const M = (x, y) => [x*FMT[fmt].L, y*FMT[fmt].W];
+function drawingSVG(d, i){
+  const F = FMT[fmt], sw = F.r * .2;
+  const [x1,y1] = M(d.x1,d.y1), [x2,y2] = M(d.x2,d.y2);
+  const di = i == null ? '' : ` data-di="${i}"`;
+  if(d.t === 'free'){   // nét vẽ tay: mỗi đoạn có độ dày riêng theo lực nhấn bút
+    const pts = d.pts.map(([x,y,w]) => [x*F.L, y*F.W, w]);
+    const path = 'M' + pts.map(q => q[0].toFixed(2) + ' ' + q[1].toFixed(2)).join(' L');
+    let segs = '';
+    for(let k=1;k<pts.length;k++){ const a = pts[k-1], b = pts[k];
+      segs += `<line x1="${a[0].toFixed(2)}" y1="${a[1].toFixed(2)}" x2="${b[0].toFixed(2)}" y2="${b[1].toFixed(2)}" stroke-width="${((a[2]+b[2])/2*sw*.9).toFixed(3)}"/>`; }
+    return `<g class="dr"${di}><path class="hit" d="${path}" stroke-width="${F.r*1.2}"/><g stroke="${d.c || '#f4f7f2'}" stroke-linecap="round">${segs}</g></g>`;
+  }
+  if(d.t === 'zone'){
+    const cx=(x1+x2)/2, cy=(y1+y2)/2, rx=Math.abs(x2-x1)/2, ry=Math.abs(y2-y1)/2;
+    return `<g class="dr"${di}><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#ffd84a" fill-opacity=".18" stroke="#ffd84a" stroke-width="${sw*.8}" stroke-dasharray="${sw*2} ${sw*1.5}"/></g>`;
+  }
+  // shorten end so the arrowhead doesn't sit under the token
+  const len = Math.hypot(x2-x1, y2-y1) || .0001, ux=(x2-x1)/len, uy=(y2-y1)/len;
+  let path;
+  if(d.t === 'dribble'){
+    const wl = F.r*1.5, amp = F.r*.4, straight = Math.min(len*.2, F.r*1.6), nx=-uy, ny=ux;
+    const pts = []; const end = Math.max(0, len - straight);
+    for(let t=0; t<=end; t+=wl/10){ const o = amp*Math.sin(2*Math.PI*t/wl); pts.push(`${(x1+ux*t+nx*o).toFixed(2)} ${(y1+uy*t+ny*o).toFixed(2)}`); }
+    pts.push(`${x2} ${y2}`);
+    path = 'M' + pts.join(' L');
+  } else path = `M${x1} ${y1} L${x2} ${y2}`;
+  if(d.t === 'shot') return `<g class="dr"${di}><path class="hit" d="${path}" stroke-width="${F.r*1.2}"/>
+    <path d="${path}" fill="none" stroke="#fff" stroke-width="${sw*2.4}" stroke-linecap="round" stroke-opacity=".9"/>
+    <path d="${path}" fill="none" stroke="#ff5a3c" stroke-width="${sw*1.5}" stroke-linecap="round" marker-end="url(#mr)"/></g>`;
+  const st = d.t === 'pass' ? `stroke="#ffd84a" stroke-dasharray="${sw*2.4} ${sw*1.6}" marker-end="url(#my)"`
+           : d.t === 'line' ? `stroke="#f4f7f2" stroke-dasharray="${sw*3} ${sw*2}" stroke-opacity=".8"`
+           : `stroke="#f4f7f2" marker-end="url(#mw)"`;
+  const w = d.t === 'line' ? sw*.7 : sw;
+  return `<g class="dr"${di}><path class="hit" d="${path}" stroke-width="${F.r*1.2}"/><path d="${path}" fill="none" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" ${st}/></g>`;
+}
+function renderDrawings(list){ $('#drawings').innerHTML = (list||st().dr).map((d,i) => drawingSVG(d,i)).join(''); }
+
+/* ---------------- Tokens ---------------- */
+function textOn(hex){
+  const c = hex.replace('#',''); const r=parseInt(c.slice(0,2),16), g=parseInt(c.slice(2,4),16), b=parseInt(c.slice(4,6),16);
+  return (r*299+g*587+b*114)/1000 > 150 ? '#111' : '#fff';
+}
+function tokenSVG(id, p, pos){
+  const F = FMT[fmt], [x,y] = M(...pos), r = F.r;
+  if(id === 'ball'){
+    return `<g class="tok" data-id="ball" transform="translate(${x} ${y})"><circle r="${r*.85}" fill="transparent"/>
+      <circle r="${r*.48}" fill="#fff" stroke="#111" stroke-width="${r*.09}"/><circle r="${r*.17}" fill="#111"/></g>`;
+  }
+  const isGK = /^[ha]0$/.test(id), side = id[0] === 'h' ? 'home' : 'away';
+  const fill = isGK ? (side === 'home' ? '#f0b429' : '#2bb673') : st()[side].color;
+  const sel = id === selId ? `<circle r="${r*1.38}" fill="none" stroke="#ffd84a" stroke-width="${r*.14}" stroke-dasharray="${r*.4} ${r*.25}"/>` : '';
+  const nm = p.name ? `<text class="nm" y="${r*2}" text-anchor="middle" font-size="${r*.72}" stroke-width="${r*.22}">${esc(p.name)}</text>` : '';
+  return `<g class="tok" data-id="${id}" transform="translate(${x} ${y})">${sel}
+    <circle r="${r}" fill="${fill}" stroke="#fff" stroke-width="${r*.13}"/>
+    <text class="num" y="${r*.38}" text-anchor="middle" font-size="${r*1.08}" fill="${textOn(fill)}">${p.num}</text>${nm}</g>`;
+}
+function renderTokens(pos){
+  const s = st(); pos = pos || s.pos;
+  let out = '';
+  if(s.showAway) s.away.players.forEach(p => out += tokenSVG(p.id, p, pos[p.id]));
+  s.home.players.forEach(p => out += tokenSVG(p.id, p, pos[p.id]));
+  out += tokenSVG('ball', null, pos.ball);
+  $('#tokens').innerHTML = out;
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------------- Caption ---------------- */
+function renderCaption(i, note){
+  const s = st(); const box = $('#caption');
+  if(i < 0 || !s.frames.length){ box.innerHTML = ''; return; }
+  const t = note ?? s.frames[i].note;
+  box.innerHTML = `<div class="chip"><b>Khung ${i+1}/${s.frames.length}</b>${t ? esc(t) : ''}</div>`;
+}
+
+/* ---------------- Panels ---------------- */
+function fillFormSelect(sel, side){
+  const s = st(), F = FMT[fmt];
+  const opts = F.forms.slice(); const cur = s[side].form;
+  if(!opts.includes(cur)) opts.push(cur);
+  sel.innerHTML = opts.map(o => `<option value="${o}">${o}</option>`).join('') + `<option value="__custom">Tự nhập…</option>`;
+  sel.value = cur;
+}
+function renderPanels(){
+  const s = st();
+  fillFormSelect($('#homeForm'), 'home'); fillFormSelect($('#awayForm'), 'away');
+  $('#homeColor').value = s.home.color; $('#awayColor').value = s.away.color;
+  $('#homeDot').style.background = s.home.color; $('#awayDot').style.background = s.away.color;
+  $('#showAway').checked = s.showAway;
+  $('#homeCustomRow').hidden = $('#awayCustomRow').hidden = true;
+  $('#homeErr').hidden = $('#awayErr').hidden = true;
+  $('#homeCustom').placeholder = 'vd ' + FMT[fmt].forms[1];
+  $('#awayCustom').placeholder = 'vd ' + FMT[fmt].forms[2];
+  renderSel(); renderNote(); renderLib(); renderRoster(); renderBench();
+}
+function findPlayer(id){ const s = st(); return [...s.home.players, ...s.away.players].find(p => p.id === id); }
+function renderSel(){
+  const p = selId && selId !== 'ball' ? findPlayer(selId) : null;
+  $('#selPanel').hidden = !p;
+  if(p){ $('#selNum').value = p.num; $('#selName').value = p.name; }
+  $$('#roster .rrow[data-pid]').forEach(r => r.classList.toggle('sel', r.dataset.pid === selId));
+}
+function renderNote(){
+  const s = st();
+  if(s.active >= 0){ $('#note').value = s.frames[s.active].note; $('#noteFor').textContent = `· khung ${s.active+1}`; }
+  else { $('#note').value = s.note; $('#noteFor').textContent = '· cả bài'; }
+}
+function renderChips(){
+  const s = st();
+  $('#chips').innerHTML = s.frames.length
+    ? s.frames.map((_,i) => `<button data-i="${i}" aria-pressed="${i===s.active}" aria-label="Khung ${i+1}">${i+1}</button>`).join('')
+    : `<span class="empty">Chưa có khung. Xếp cầu thủ rồi bấm “+ Thêm khung”.</span>`;
+  $('#delFrame').disabled = s.active < 0;
+  $('#playBtn').disabled = s.frames.length < 2 && !playing;
+}
+function renderAll(){
+  renderTokens(); renderDrawings(); renderChips(); renderCaption(st().active);
+  $$('#fmtSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.fmt === fmt));
+}
+function commit(){
+  const s = st();
+  if(s.active >= 0){ const note = s.frames[s.active].note; s.frames[s.active] = snapshot(s, note); }
+  persist();
+}
+
+/* ---------------- Library ---------------- */
+function renderLib(){
+  const saved = store.get('sbct.saved.v1', []);
+  const mine = saved.filter(x => x.fmt === fmt);
+  const ex = SCEN.filter(x => x.fmt === fmt);
+  let h = ex.map(x => `<div class="item"><div><span class="tag">Mẫu</span><b>${esc(x.name)}</b><small>${esc(x.desc)}</small></div>
+      <div class="acts"><button class="btn" data-ex="${x.id}">Mở</button></div></div>`).join('');
+  h += mine.map(x => `<div class="item"><div><span class="tag">Đã lưu</span><b>${esc(x.name)}</b><small>${x.data.frames.length} khung · ${new Date(x.at).toLocaleDateString('vi-VN')}</small></div>
+      <div class="acts"><button class="btn" data-open="${x.id}">Mở</button><button class="btn danger" data-del="${x.id}" title="Xoá bài">✕</button></div></div>`).join('');
+  $('#lib').innerHTML = h;
+}
+
+/* ---------------- Toast ---------------- */
+let toastT;
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2200); }
+
+/* ---------------- Pointer interaction ---------------- */
+// toạ độ chuột → toạ độ sân (mét), tính từ viewBox + kích thước hiển thị (preserveAspectRatio mặc định: xMidYMid meet)
+function clientToSvg(el, cx, cy){
+  // getScreenCTM tính cả phép xoay CSS (chế độ toàn màn hình nằm ngang)
+  const ctm = el.getScreenCTM && el.getScreenCTM();
+  if(ctm && el.getBoundingClientRect().width){ const p = el.createSVGPoint(); p.x = cx; p.y = cy; const q = p.matrixTransform(ctm.inverse()); return {x:q.x, y:q.y}; }
+  const vb = el.viewBox.baseVal, r = el.getBoundingClientRect();
+  const s = Math.min(r.width/vb.width, r.height/vb.height);
+  const ox = r.left + (r.width - vb.width*s)/2, oy = r.top + (r.height - vb.height*s)/2;
+  return {x: vb.x + (cx-ox)/s, y: vb.y + (cy-oy)/s};
+}
+function toNorm(e){
+  const m = clientToSvg(svg, e.clientX, e.clientY);
+  const F = FMT[fmt], P = pad(fmt);
+  const cx = Math.max(-P*.8, Math.min(F.L + P*.8, m.x)), cy = Math.max(-P*.8, Math.min(F.W + P*.8, m.y));
+  return [cx/F.L, cy/F.W];
+}
+let drag = null, draw = null, pan = null, pinch = null;
+const ptrs = new Map();
+function startPinch(){
+  const [a,b] = [...ptrs.values()];
+  const m = clientToSvg(svg, (a[0]+b[0])/2, (a[1]+b[1])/2);
+  pinch = {d:Math.hypot(a[0]-b[0], a[1]-b[1]) || 1, z:Z.z, ax:m.x, ay:m.y, cx:Z.cx, cy:Z.cy};
+}
+/* Bút cảm ứng: chống chạm lòng bàn tay + chế độ bút (bút vẽ, ngón tay kéo/phóng to) */
+let penMode = store.get('sbct.pen.v1', false), penDown = false, penColor = '#f4f7f2';
+const penW = ev => ev.pointerType === 'pen' ? .35 + (ev.pressure || .5)*1.5 : 1;
+function setPenMode(on){
+  penMode = on; store.set('sbct.pen.v1', on);
+  $('#penBtn').setAttribute('aria-pressed', on);
+  if(on && (tool === 'move' || tool === 'erase')) setTool('free');
+}
+svg.addEventListener('pointerdown', e => {
+  if(e.pointerType === 'pen'){
+    penDown = true;
+    if(!penMode && !store.get('sbct.penAuto.v1', false)){
+      store.set('sbct.penAuto.v1', true); setPenMode(true);
+      toast('Đã bật Chế độ bút: bút để vẽ, ngón tay để kéo cầu thủ và phóng to');
+    }
+  } else if(e.pointerType === 'touch' && penDown) return;   // lòng bàn tay chạm khi đang vẽ: bỏ qua
+  const T = (penMode && e.pointerType === 'touch') ? 'move' : tool;
+  ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+  if(ptrs.size === 2){   // hai ngón: huỷ thao tác đang làm, chuyển sang chụm để phóng to
+    if(drag && drag.moved) commit();
+    drag = null; draw = null; pan = null; $('#preview').innerHTML = '';
+    startPinch(); try{ svg.setPointerCapture(e.pointerId); }catch(_){}
+    return;
+  }
+  if(ptrs.size > 2) return;
+  const tokHit = e.target.closest('.tok');
+  if(Z.z > 1.01 && T === 'move' && !tokHit){   // đã phóng to: kéo vùng trống để di chuyển sân
+    pan = {last:clientToSvg(svg, e.clientX, e.clientY), pid:e.pointerId};
+    try{ svg.setPointerCapture(e.pointerId); }catch(_){}
+    if(selId){ selId = null; renderTokens(); renderSel(); }
+    return;
+  }
+  if(playing) return;
+  const p = toNorm(e);
+  const tokEl = e.target.closest('.tok');
+  if(T === 'move'){
+    if(tokEl){
+      const id = tokEl.dataset.id, cur = st().pos[id];
+      drag = {id, el:tokEl, dx:cur[0]-p[0], dy:cur[1]-p[1], moved:false, pid:e.pointerId};
+      if(selId !== id){ selId = id; renderTokens(); drag.el = $(`#tokens [data-id="${id}"]`); renderSel(); }
+      try{ svg.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault();
+    } else if(selId){ selId = null; renderTokens(); renderSel(); }
+  } else if(T === 'erase'){
+    const d = e.target.closest('.dr');
+    if(d){ st().dr.splice(+d.dataset.di, 1); renderDrawings(); commit(); }
+  } else if(T === 'free'){
+    draw = {t:'free', c:penColor, pts:[[p[0], p[1], penW(e)]], pid:e.pointerId};
+    try{ svg.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault();
+  } else {
+    const start = tokEl ? st().pos[tokEl.dataset.id].slice() : p;
+    draw = {t:T, x1:start[0], y1:start[1], x2:start[0], y2:start[1], pid:e.pointerId};
+    try{ svg.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault();
+  }
+});
+svg.addEventListener('pointermove', e => {
+  if(ptrs.has(e.pointerId)) ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+  if(pinch && ptrs.size >= 2){
+    const [a,b] = [...ptrs.values()];
+    Z.z = Math.max(1, Math.min(5, pinch.z * Math.hypot(a[0]-b[0], a[1]-b[1]) / pinch.d));
+    const k = pinch.z / Z.z;
+    Z.cx = pinch.ax + (pinch.cx - pinch.ax)*k; Z.cy = pinch.ay + (pinch.cy - pinch.ay)*k;
+    applyZoom(); return;
+  }
+  if(pan){
+    if(e.pointerId !== pan.pid) return;
+    const q = clientToSvg(svg, e.clientX, e.clientY);
+    Z.cx -= q.x - pan.last.x; Z.cy -= q.y - pan.last.y; applyZoom(); return;
+  }
+  if(drag){
+    if(e.pointerId !== drag.pid) return;
+    const p = toNorm(e), s = st();
+    s.pos[drag.id] = [p[0]+drag.dx, p[1]+drag.dy]; drag.moved = true;
+    const [x,y] = M(...s.pos[drag.id]);
+    drag.el.setAttribute('transform', `translate(${x} ${y})`);
+  } else if(draw){
+    if(e.pointerId !== draw.pid) return;
+    if(draw.t === 'free'){
+      const F = FMT[fmt], evs = (e.getCoalescedEvents && e.getCoalescedEvents().length) ? e.getCoalescedEvents() : [e];
+      for(const ev of evs){
+        const p = toNorm(ev), last = draw.pts[draw.pts.length-1];
+        if(Math.hypot((p[0]-last[0])*F.L, (p[1]-last[1])*F.W) > F.L*.0018) draw.pts.push([p[0], p[1], penW(ev)]);
+      }
+    } else { const p = toNorm(e); draw.x2 = p[0]; draw.y2 = p[1]; }
+    $('#preview').innerHTML = drawingSVG(draw);
+  }
+});
+function endPointer(){
+  if(drag){ if(drag.moved) commit(); drag = null; }
+  if(draw){
+    const F = FMT[fmt];
+    if(draw.t === 'free'){
+      if(draw.pts.length >= 2){
+        st().dr.push({t:'free', c:draw.c, pts:draw.pts.map(([x,y,w]) => [+x.toFixed(4), +y.toFixed(4), +w.toFixed(2)])});
+        renderDrawings(); commit();
+      }
+    } else {
+      const len = Math.hypot((draw.x2-draw.x1)*F.L, (draw.y2-draw.y1)*F.W);
+      if(len > F.r*1.2){
+        const d = {t:draw.t};
+        for(const k of ['x1','y1','x2','y2']) d[k] = +draw[k].toFixed(4);
+        st().dr.push(d); renderDrawings(); commit();
+      }
+    }
+    draw = null; $('#preview').innerHTML = '';
+  }
+}
+function upPointer(e){
+  if(e.pointerType === 'pen') penDown = false;
+  ptrs.delete(e.pointerId);
+  if(pinch){ if(ptrs.size < 2) pinch = null; return; }
+  if(pan){ if(e.pointerId === pan.pid) pan = null; return; }
+  if(!((draw && draw.pid === e.pointerId) || (drag && drag.pid === e.pointerId))) return;   // ngón/lòng bàn tay khác nhấc lên: không cắt nét đang vẽ
+  endPointer();
+}
+svg.addEventListener('pointerup', upPointer);
+svg.addEventListener('pointercancel', upPointer);
+// Lăn chuột: Ctrl + lăn (hoặc chụm 2 ngón trên touchpad) để phóng to; ở toàn màn hình thì lăn thường cũng được
+svg.addEventListener('wheel', e => {
+  if(!(e.ctrlKey || e.metaKey || fsEl)) return;
+  e.preventDefault();
+  const m = clientToSvg(svg, e.clientX, e.clientY);
+  zoomAt(Math.exp(-e.deltaY * (e.ctrlKey ? .01 : .0018)), m.x, m.y);
+}, {passive:false});
+$('#zIn').addEventListener('click', () => zoomAt(1.4));
+$('#zOut').addEventListener('click', () => zoomAt(1/1.4));
+$('#zReset').addEventListener('click', resetZoom);
+
+/* ---------------- Tools ---------------- */
+function setTool(t){
+  tool = t;
+  $('#penColors').hidden = t !== 'free';
+  $$('#tools button').forEach(b => b.setAttribute('aria-pressed', b.dataset.tool === t));
+  svg.classList.toggle('drawing', !['move','erase'].includes(t));
+  svg.classList.toggle('erasing', t === 'erase');
+}
+$('#tools').addEventListener('click', e => { const b = e.target.closest('button'); if(b) setTool(b.dataset.tool); });
+$('#penColors').addEventListener('click', e => {
+  const b = e.target.closest('button[data-c]'); if(!b) return;
+  penColor = b.dataset.c;
+  $$('#penColors button').forEach(x => x.setAttribute('aria-pressed', x === b));
+});
+$('#penBtn').addEventListener('click', () => {
+  setPenMode(!penMode);
+  toast(penMode ? 'Chế độ bút: bút để vẽ, ngón tay để kéo cầu thủ và phóng to' : 'Đã tắt Chế độ bút');
+});
+$('#penBtn').setAttribute('aria-pressed', penMode);
+document.addEventListener('keydown', e => {
+  if(e.target.matches('input,textarea,select') || e.metaKey || e.ctrlKey || e.altKey) return;
+  if($('#v-bang').hidden) return;
+  const map = {v:'move', r:'run', p:'pass', d:'dribble', s:'shot', b:'free', z:'zone', l:'line', e:'erase'};
+  const t = map[e.key.toLowerCase()]; if(t){ setTool(t); return; }
+  if(e.key === '+' || e.key === '='){ zoomAt(1.4); return; }
+  if(e.key === '-'){ zoomAt(1/1.4); return; }
+  if(e.key === '0'){ resetZoom(); return; }
+  if(e.key === ' '){ e.preventDefault(); togglePlay(); }
+  if(e.key === 'ArrowRight' || e.key === 'ArrowLeft'){
+    const s = st(); if(!s.frames.length) return;
+    const i = Math.max(0, Math.min(s.frames.length-1, s.active + (e.key === 'ArrowRight' ? 1 : -1)));
+    selectFrame(i);
+  }
+});
+
+/* ---------------- Format switch ---------------- */
+function setFormat(f){ stopPlay(); fmt = f; selId = null; renderField(); renderPanels(); renderAll(); persist(); }
+$('#fmtSeg').addEventListener('click', e => { const b = e.target.closest('button'); if(b) setFormat(b.dataset.fmt); });
+
+/* ---------------- Team panels ---------------- */
+function bindTeam(side){
+  const sel = $(`#${side}Form`), row = $(`#${side}CustomRow`), inp = $(`#${side}Custom`), err = $(`#${side}Err`);
+  sel.addEventListener('change', () => {
+    if(sel.value === '__custom'){ row.hidden = false; inp.focus(); return; }
+    row.hidden = true; err.hidden = true; applyForm(side, sel.value);
+  });
+  const apply = () => {
+    const v = inp.value.trim();
+    if(!parseForm(fmt, v)){ err.textContent = `Sơ đồ phải gồm các số cách nhau bởi dấu “-”, tổng bằng ${FMT[fmt].n-1} cầu thủ (không tính thủ môn).`; err.hidden = false; return; }
+    err.hidden = true; applyForm(side, v); renderPanels();
+  };
+  $(`#${side}CustomBtn`).addEventListener('click', apply);
+  inp.addEventListener('keydown', e => { if(e.key === 'Enter') apply(); });
+  $(`#${side}Color`).addEventListener('input', e => { st()[side].color = e.target.value; $(`#${side}Dot`).style.background = e.target.value; renderTokens(); renderBench(); persist(); });
+}
+function applyForm(side, code){
+  const s = st(); s[side].form = code; placeTeam(s, side, fmt);
+  if(side === 'away') s.showAway = true;
+  renderAll(); renderRoster(); renderBench(); commit(); toast(`${side === 'home' ? 'Đội nhà' : 'Đội khách'}: sơ đồ ${code}`);
+  $('#showAway').checked = s.showAway;
+}
+bindTeam('home'); bindTeam('away');
+$('#showAway').addEventListener('change', e => { st().showAway = e.target.checked; renderTokens(); renderBench(); persist(); });
+$('#resetPos').addEventListener('click', () => { const s = st(); placeTeam(s,'home',fmt); placeTeam(s,'away',fmt); s.pos.ball = [.5,.5]; renderAll(); commit(); toast('Đã xếp lại đội hình ở khung hiện tại'); });
+$('#clearDr').addEventListener('click', () => { st().dr = []; renderDrawings(); commit(); toast('Đã xoá nét vẽ ở khung hiện tại'); });
+
+$('#selNum').addEventListener('input', e => { const p = findPlayer(selId); if(!p) return; p.num = String(e.target.value).slice(0,2); renderTokens(); renderRoster(); persist(); });
+$('#selName').addEventListener('input', e => { const p = findPlayer(selId); if(!p) return; p.name = e.target.value; renderTokens(); renderRoster(); persist(); });
+
+/* ---------------- Roster & bench ---------------- */
+let rosterSide = 'home';
+const SIDE_VN = {home:'đội nhà', away:'đội khách'};
+function normTeams(s){ for(const side of ['home','away']) if(!Array.isArray(s[side].bench)) s[side].bench = []; }
+function roleLabels(side){
+  const lines = parseForm(fmt, st()[side].form) || [FMT[fmt].n-1];
+  const out = ['TM'];
+  lines.forEach((k,i) => { const l = lines.length === 1 ? 'TV' : i === 0 ? 'HV' : i === lines.length-1 ? 'TĐ' : 'TV'; for(let j=0;j<k;j++) out.push(l); });
+  return out;
+}
+function renderRoster(){
+  const s = st(); normTeams(s);
+  const T = s[rosterSide], roles = roleLabels(rosterSide);
+  $$('#rosterSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.side === rosterSide));
+  let h = `<div class="rsub">Đá chính (${T.players.length})</div>`;
+  h += T.players.map((p,i) => `<div class="rrow${p.id === selId ? ' sel' : ''}" data-pid="${p.id}"><span class="pos" title="${roles[i] === 'TM' ? 'Thủ môn' : roles[i] === 'HV' ? 'Hậu vệ' : roles[i] === 'TĐ' ? 'Tiền đạo' : 'Tiền vệ'}">${roles[i]||''}</span>
+    <input type="number" min="0" max="99" value="${esc(p.num)}" data-f="num" data-pid="${p.id}" aria-label="Số áo">
+    <input type="text" maxlength="18" value="${esc(p.name)}" data-f="name" data-pid="${p.id}" placeholder="Tên cầu thủ" aria-label="Tên cầu thủ số ${esc(p.num)}"><span></span></div>`).join('');
+  h += `<div class="rsub">Dự bị (${T.bench.length})</div>`;
+  h += T.bench.length ? T.bench.map((b,i) => `<div class="rrow"><span class="pos" title="${b.gk ? 'Thủ môn dự bị' : 'Dự bị'}">${b.gk ? 'TM' : 'DB'}</span>
+    <input type="number" min="0" max="99" value="${esc(b.num)}" data-f="num" data-bi="${i}" aria-label="Số áo dự bị">
+    <input type="text" maxlength="18" value="${esc(b.name)}" data-f="name" data-bi="${i}" placeholder="Tên cầu thủ" aria-label="Tên dự bị">
+    <span class="acts"><button class="btn" data-sub="${i}" title="Thay vào sân cho cầu thủ đang chọn">⇄</button><button class="btn danger" data-rm="${i}" title="Xoá khỏi danh sách">✕</button></span></div>`).join('')
+    : `<p class="hint">Chưa có cầu thủ dự bị.</p>`;
+  $('#roster').innerHTML = h;
+  $('#rosterHint').innerHTML = 'Thay người: chọn cầu thủ trên sân, rồi bấm ⇄ ở người dự bị (hoặc bấm tên dự bị dưới sân). '
+    + {'11':'Giải chính thức thường đăng ký 7–12 dự bị, thay tối đa 5 người.','7':'Sân 7 thường thay không giới hạn.','5':'Futsal: tối đa 9 dự bị, thay không giới hạn.'}[fmt];
+}
+function renderBench(){
+  const s = st(); normTeams(s);
+  const sides = s.showAway ? ['home','away'] : ['home'];
+  const any = sides.some(x => s[x].bench.length);
+  $('#benchBar').innerHTML = !any ? '' : sides.map(side => {
+    const T = s[side], fg = textOn(T.color);
+    return `<div class="bench"><span class="blbl"><i style="background:${T.color}"></i>Dự bị ${SIDE_VN[side]}</span>` +
+      (T.bench.length ? T.bench.map((b,i) => `<button data-bside="${side}" data-bi="${i}" title="Thay ${esc(b.name || 'số ' + b.num)} vào cho cầu thủ đang chọn"><b style="background:${T.color};color:${fg}">${esc(b.num)}</b>${esc(b.name || 'Chưa có tên')}${b.gk ? ' <small style="color:var(--muted);font-weight:700">TM</small>' : ''}</button>`).join('')
+        : `<span class="none">Chưa có</span>`) + `</div>`;
+  }).join('');
+}
+function doSub(side, i){
+  const s = st(), b = s[side].bench[i];
+  const p = selId && selId !== 'ball' && selId[0] === side[0] ? findPlayer(selId) : null;
+  if(!b) return;
+  if(!p){ toast(`Chọn trên sân cầu thủ ${SIDE_VN[side]} sẽ ra sân trước, rồi bấm thay người`); setTool('move'); return; }
+  const outName = p.name || 'số ' + p.num, inName = b.name || 'số ' + b.num;
+  [p.num, b.num] = [b.num, p.num]; [p.name, b.name] = [b.name, p.name];
+  // cờ thủ môn đi theo người: người rời khung thành mang cờ TM xuống ghế dự bị
+  const pGK = /^[ha]0$/.test(p.id) || !!p.gk, bGK = !!b.gk;
+  if(bGK) p.gk = true; else delete p.gk;
+  if(pGK) b.gk = true; else delete b.gk;
+  const warn = /^[ha]0$/.test(p.id) && !bGK ? ` (lưu ý: ${inName} không phải thủ môn)` : '';
+  renderTokens(); renderRoster(); renderBench(); renderSel(); persist();
+  toast(`Thay người: ${inName} vào, ${outName} ra${warn}`);
+}
+$('#rosterSeg').addEventListener('click', e => { const b = e.target.closest('button'); if(b){ rosterSide = b.dataset.side; renderRoster(); } });
+$('#roster').addEventListener('input', e => {
+  const t = e.target, T = st()[rosterSide];
+  const item = t.dataset.pid ? T.players.find(p => p.id === t.dataset.pid) : T.bench[+t.dataset.bi];
+  if(!item) return;
+  item[t.dataset.f] = t.dataset.f === 'num' ? String(t.value).slice(0,2) : t.value;
+  renderTokens(); renderBench(); if(t.dataset.pid === selId) renderSel(); persist();
+});
+$('#roster').addEventListener('focusin', e => {
+  const pid = e.target.dataset.pid; if(!pid || pid === selId) return;
+  if(rosterSide === 'away' && !st().showAway) return;
+  selId = pid; renderTokens(); renderSel();
+});
+$('#roster').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  if(b.dataset.sub != null) doSub(rosterSide, +b.dataset.sub);
+  if(b.dataset.rm != null){ st()[rosterSide].bench.splice(+b.dataset.rm, 1); renderRoster(); renderBench(); persist(); }
+});
+$('#benchBar').addEventListener('click', e => { const b = e.target.closest('button[data-bside]'); if(b) doSub(b.dataset.bside, +b.dataset.bi); });
+$('#addBench').addEventListener('click', () => {
+  const T = st()[rosterSide];
+  const used = [...T.players, ...T.bench].map(x => +x.num || 0);
+  let n = FMT[fmt].n + 1; while(used.includes(n) && n < 99) n++;
+  T.bench.push({num:String(n), name:''});
+  renderRoster(); renderBench(); persist();
+  const ins = $$('#roster input[data-bi][data-f="name"]'); ins[ins.length-1]?.focus();
+});
+$('#bulkToggle').addEventListener('click', () => {
+  const T = st()[rosterSide];
+  $('#bulkText').value = [...T.players, ...T.bench].map(x => `${x.num} ${x.name}`.trim()).join('\n');
+  $('#bulkBox').hidden = false; $('#bulkText').focus();
+});
+$('#bulkCancel').addEventListener('click', () => { $('#bulkBox').hidden = true; });
+$('#bulkApply').addEventListener('click', () => {
+  const T = st()[rosterSide];
+  const rows = $('#bulkText').value.split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+    const m = l.match(/^(\d{1,2})?[\s.\-–:)]*(.*)$/); return {num:m[1] || '', name:(m[2] || '').slice(0,18)};
+  });
+  if(!rows.length){ toast('Danh sách đang trống'); return; }
+  T.players.forEach((p,i) => { if(rows[i]){ if(rows[i].num) p.num = rows[i].num; p.name = rows[i].name; } });
+  T.bench = rows.slice(T.players.length).map(r => ({num:r.num, name:r.name}));
+  const used = [...T.players, ...T.bench].map(x => +x.num).filter(Boolean);
+  let nx = 1;
+  T.bench.forEach(b => { if(!b.num){ while(used.includes(nx)) nx++; b.num = String(nx); used.push(nx); } });
+  $('#bulkBox').hidden = true;
+  renderTokens(); renderRoster(); renderBench(); renderSel(); persist();
+  toast(`Đã nhập ${Math.min(rows.length, T.players.length)} đá chính, ${T.bench.length} dự bị cho ${SIDE_VN[rosterSide]}`);
+});
+$('#note').addEventListener('input', e => {
+  const s = st();
+  if(s.active >= 0){ s.frames[s.active].note = e.target.value; renderCaption(s.active); } else s.note = e.target.value;
+  persist();
+});
+
+/* ---------------- Frames ---------------- */
+function selectFrame(i){ stopPlay(); const s = st(); s.active = i; loadFrame(s, i); renderAll(); renderNote(); }
+$('#chips').addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if(b) selectFrame(+b.dataset.i); });
+$('#addFrame').addEventListener('click', () => {
+  stopPlay();
+  const s = st(); const at = s.active < 0 ? s.frames.length : s.active + 1;
+  s.frames.splice(at, 0, snapshot(s, ''));
+  s.active = at; s.dr = [];   // khung mới bắt đầu không có nét vẽ
+  s.frames[at].dr = [];
+  renderAll(); renderNote(); persist();
+  toast(`Đã thêm khung ${at+1}. Kéo cầu thủ tới vị trí mới.`);
+});
+let delArm = null;
+$('#delFrame').addEventListener('click', () => {
+  const s = st(), b = $('#delFrame'); if(s.active < 0) return;
+  if(!delArm){ b.classList.add('armed'); b.textContent = 'Bấm lần nữa để xoá'; delArm = setTimeout(disarm, 2500); return; }
+  disarm();
+  s.frames.splice(s.active, 1);
+  if(!s.frames.length) s.active = -1;
+  else { s.active = Math.min(s.active, s.frames.length-1); loadFrame(s, s.active); }
+  renderAll(); renderNote(); persist();
+});
+function disarm(){ clearTimeout(delArm); delArm = null; const b = $('#delFrame'); b.classList.remove('armed'); b.textContent = 'Xoá khung'; }
+
+const wait = ms => new Promise(r => setTimeout(r, ms));
+function tween(a, b, dur, tok){
+  return new Promise(res => {
+    if(reduceMotion){ renderTokens(b.pos); return res(); }
+    const t0 = performance.now();
+    const step = now => {
+      if(tok !== playTok) return res();
+      const t = Math.min(1, (now - t0)/dur), e = t < .5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2;
+      const pos = {};
+      for(const id in b.pos){ const p = a.pos[id] || b.pos[id], q = b.pos[id]; pos[id] = [p[0]+(q[0]-p[0])*e, p[1]+(q[1]-p[1])*e]; }
+      renderTokens(pos);
+      t < 1 ? requestAnimationFrame(step) : res();
+    };
+    requestAnimationFrame(step);
+  });
+}
+async function play(){
+  const s = st(); if(s.frames.length < 2){ toast('Cần ít nhất 2 khung để phát'); return; }
+  const tok = ++playTok; playing = true; selId = null; renderSel();
+  $('#playBtn').textContent = '■ Dừng';
+  const k = +$('#speed').value;
+  for(let i=0; i<s.frames.length-1; i++){
+    if(tok !== playTok) return;
+    const a = s.frames[i], b = s.frames[i+1];
+    renderTokens(a.pos); renderDrawings(a.dr); renderCaption(i);
+    markChip(i);
+    await wait(1300*k); if(tok !== playTok) return;
+    await tween(a, b, 1100*k, tok);
+  }
+  if(tok !== playTok) return;
+  const last = s.frames.length-1;
+  s.active = last; loadFrame(s, last);
+  playing = false; $('#playBtn').textContent = '▶ Phát';
+  renderAll(); renderNote();
+}
+function markChip(i){ $$('#chips button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.i === i)); }
+function stopPlay(){
+  if(!playing) return;
+  playTok++; playing = false; $('#playBtn').textContent = '▶ Phát';
+  const s = st(); if(s.active >= 0) loadFrame(s, s.active);
+  renderAll();
+}
+function togglePlay(){ playing ? stopPlay() : play(); }
+$('#playBtn').addEventListener('click', togglePlay);
+
+/* ---------------- Save / load ---------------- */
+$('#saveBtn').addEventListener('click', () => {
+  const name = $('#saveName').value.trim();
+  if(!name){ $('#saveName').focus(); toast('Nhập tên bài trước khi lưu'); return; }
+  const saved = store.get('sbct.saved.v1', []);
+  saved.unshift({id:'s'+Date.now(), name, fmt, at:Date.now(), data:deep(st())});
+  store.set('sbct.saved.v1', saved);
+  $('#saveName').value = ''; renderLib(); toast(`Đã lưu “${name}”`);
+});
+$('#lib').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  if(b.dataset.ex){ const sc = SCEN.find(x => x.id === b.dataset.ex); stopPlay(); S[fmt] = keepRoster(S[fmt], buildScenario(sc)); selId = null; renderPanels(); renderAll(); persist(); toast(`Đã mở “${sc.name}”. Bấm ▶ Phát để xem.`); }
+  if(b.dataset.open){ const x = store.get('sbct.saved.v1', []).find(x => x.id === b.dataset.open); if(x){ stopPlay(); S[fmt] = deep(x.data); selId = null; renderPanels(); renderAll(); persist(); toast(`Đã mở “${x.name}”`); } }
+  if(b.dataset.del){
+    if(b.dataset.armed !== '1'){ b.dataset.armed = '1'; b.classList.add('armed'); b.textContent = 'Xoá?'; setTimeout(() => { if(b.isConnected){ b.dataset.armed=''; b.classList.remove('armed'); b.textContent='✕'; } }, 2500); return; }
+    store.set('sbct.saved.v1', store.get('sbct.saved.v1', []).filter(x => x.id !== b.dataset.del)); renderLib(); toast('Đã xoá bài');
+  }
+});
+
+/* =================== RULES =================== */
+const COMPARE = {
+  cols:['Sân 11 (IFAB)','Sân 7 (phong trào, tham khảo)','Sân 5 (Futsal FIFA)'],
+  rows:[
+    ['Số người mỗi đội','11 (1 thủ môn). Dưới 7 người thì không được thi đấu tiếp.','7 (1 thủ môn). Số tối thiểu theo điều lệ, thường 5.','5 (1 thủ môn). Dưới 3 người thì trận đấu bị dừng.'],
+    ['Kích thước sân','Dài 90–120 m, rộng 45–90 m. Quốc tế: 100–110 × 64–75 m.','Thường 50–75 × 30–55 m; sân cỏ nhân tạo phong trào nhỏ hơn.','Dài 25–42 m, rộng 16–25 m. Quốc tế: 38–42 × 20–25 m.'],
+    ['Khung thành','7,32 × 2,44 m','Khoảng 6 × 2 m (tùy giải)','3 × 2 m'],
+    ['Bóng','Số 5','Số 4 hoặc 5','Số 4, độ nảy thấp'],
+    ['Thời gian','2 hiệp × 45 phút, nghỉ tối đa 15 phút','Thường 2 hiệp × 25–30 phút','2 hiệp × 20 phút đồng hồ dừng (tính giờ thực), mỗi đội 1 hội ý 1 phút/hiệp'],
+    ['Thay người','Tối đa 5 người trong 3 lần (không tính giờ nghỉ). Có thể thêm thay người do chấn động não nếu giải áp dụng.','Thường không giới hạn, được vào lại sân','Không giới hạn, thay “bay” tại khu thay người, được vào lại'],
+    ['Việt vị','Có','Thường không có, hoặc chỉ tính ở 1/3 cuối sân (tùy điều lệ)','Không có'],
+    ['Bóng ra biên dọc','Ném biên bằng hai tay','Ném biên hoặc đá biên (tùy giải)','Đá biên, phải thực hiện trong 4 giây'],
+    ['Bóng ra biên ngang (đội tấn công chạm cuối)','Phát bóng lên bằng chân, đặt bóng trong khu cầu môn','Phát bóng bằng chân hoặc tay (tùy giải)','Thủ môn ném bóng từ khu phạt đền trong 4 giây'],
+    ['Thủ môn','Không giữ bóng quá 8 giây, nếu vi phạm đối phương được phạt góc','Không bắt bóng bằng tay khi đồng đội chủ động chuyền về bằng chân','Kiểm soát bóng ở nửa sân nhà tối đa 4 giây; không được chạm lại bóng ở nửa sân nhà sau khi chuyền đi nếu đối phương chưa chạm'],
+    ['Lỗi tích lũy','Không áp dụng','Tùy điều lệ','Từ lỗi thứ 6 mỗi hiệp: đá phạt trực tiếp không hàng rào từ chấm 10 m'],
+    ['Thẻ đỏ','Đội chơi thiếu người đến hết trận','Tùy điều lệ (thường thiếu người hết trận hoặc vài phút)','Thiếu người 2 phút hoặc đến khi bị thủng lưới, rồi được bổ sung người khác'],
+    ['Khoảng cách khi đá phạt','9,15 m','Thường 6–7 m','5 m'],
+    ['Chấm phạt đền','11 m','Thường 9 m','6 m (thêm chấm phạt đền thứ hai ở 10 m)']
+  ]
+};
+const LAWS = {
+ '11': {title:'Luật bóng đá sân 11 người', sub:'Tóm tắt 17 điều luật của IFAB, bản áp dụng 2025/26. Các ý in đậm là chỗ cầu thủ hay hiểu sai.', laws:[
+  [1,'Sân thi đấu',['Dài 90–120 m, rộng 45–90 m; quốc tế 100–110 × 64–75 m.','Khu phạt đền sâu <strong>16,5 m</strong>, khu cầu môn sâu 5,5 m, chấm phạt đền cách khung thành <strong>11 m</strong>.','Vòng tròn giữa sân và cung phạt đền bán kính 9,15 m; cung phạt góc bán kính 1 m.','Vạch vôi thuộc về khu vực mà nó bao quanh.']],
+  [2,'Bóng',['Bóng số 5: chu vi 68–70 cm, nặng 410–450 g.','Bóng hỏng trong trận: dừng trận và bắt đầu lại bằng bóng chạm đất.']],
+  [3,'Cầu thủ',['11 người, trong đó 1 thủ môn; dưới 7 người thì không được bắt đầu hoặc tiếp tục trận.','Giải chính thức: thay tối đa <strong>5 người trong 3 lần</strong>, thay ở giờ nghỉ không tính là một lần.','Người đã thay ra không được vào lại (trừ giải cho phép thay quay vòng ở cấp phong trào).','Bàn thắng ghi khi có thêm người trên sân mà trọng tài chưa phát hiện sẽ không được công nhận.']],
+  [4,'Trang phục',['Bắt buộc: áo, quần, tất, bọc ống đồng, giày.','Thủ môn mặc màu khác với cả hai đội và trọng tài.','Không đeo trang sức hay vật dụng nguy hiểm.']],
+  [5,'Trọng tài',['Quyết định của trọng tài về sự việc trên sân là cuối cùng.','Luật lợi thế: cho trận đấu tiếp tục khi đội bị phạm lỗi có lợi hơn; có thể phạt lại nếu lợi thế không đến ngay.','Chỉ đội trưởng được tiếp cận trọng tài để hỏi về quyết định.']],
+  [6,'Các trọng tài khác',['Trợ lý trọng tài, trọng tài thứ tư, trợ lý bổ sung.','VAR chỉ can thiệp khi có sai sót rõ ràng ở 4 tình huống: <strong>bàn thắng, phạt đền, thẻ đỏ trực tiếp, nhầm người</strong>.']],
+  [7,'Thời gian thi đấu',['2 hiệp × 45 phút, nghỉ giữa giờ tối đa 15 phút.','Bù giờ cho thời gian thay người, chấn thương, VAR, ăn mừng, câu giờ…','Hiệp phụ (nếu có): 2 × 15 phút.']],
+  [8,'Bắt đầu và bắt đầu lại trận',['Giao bóng: bóng vào cuộc khi được đá và di chuyển rõ ràng, có thể đá về sau; <strong>được ghi bàn trực tiếp vào lưới đối phương</strong>.','Bóng chạm đất: trao cho thủ môn nếu bóng dừng trong khu phạt đền, còn lại trao cho đội chạm bóng cuối; cầu thủ khác đứng cách ít nhất 4 m.']],
+  [9,'Bóng trong và ngoài cuộc',['Bóng ra ngoài khi <strong>lăn hết qua vạch</strong> biên dọc hoặc biên ngang, trên mặt đất hay trên không.','Bóng chạm trọng tài rồi đổi quyền kiểm soát, mở ra pha tấn công hứa hẹn hoặc đi thẳng vào lưới: bóng chạm đất.']],
+  [10,'Xác định kết quả',['Bàn thắng khi toàn bộ quả bóng đi qua vạch vôi giữa hai cột dọc và dưới xà ngang.','Hòa: hiệp phụ hoặc đá luân lưu 11 m tùy điều lệ.']],
+  [11,'Việt vị',['Ở vị trí việt vị khi bất kỳ phần nào của đầu, thân, chân ở phần sân đối phương và <strong>gần đường biên ngang hơn cả bóng lẫn cầu thủ đối phương đứng thứ hai từ cuối</strong>.','Tay và cánh tay không tính khi xác định việt vị.','Chỉ bị phạt khi tham gia tình huống: chơi bóng, cản đối phương, hoặc hưởng lợi từ vị trí đó.','<strong>Không có việt vị</strong> khi nhận bóng trực tiếp từ phát bóng lên, ném biên, phạt góc.','Phạt: đá phạt gián tiếp tại nơi vi phạm.']],
+  [12,'Lỗi và hành vi sai trái',['Phạt trực tiếp: đá, ngáng, xô, đẩy, nhảy vào người, tắc bóng một cách bất cẩn, liều lĩnh hoặc dùng sức quá mức; giữ người; cản người có va chạm; cắn, nhổ nước bọt; chạm tay cố ý.','Phạt gián tiếp: chơi nguy hiểm, cản đường không va chạm, ngăn thủ môn phát bóng.','Thủ môn <strong>giữ bóng quá 8 giây</strong>: đối phương được đá phạt góc (luật mới 2025/26, thay cho phạt gián tiếp trước đây).','Thủ môn bắt bóng bằng tay khi đồng đội chủ động đá về hoặc ném biên cho: phạt gián tiếp.','Lỗi ngăn cản cơ hội ghi bàn rõ ràng (DOGSO) trong vòng cấm mà có cố gắng chơi bóng: phạt đền và thẻ vàng thay vì thẻ đỏ.']],
+  [13,'Đá phạt',['Trực tiếp: được ghi bàn thẳng. Gián tiếp: bóng phải chạm thêm một người khác (trọng tài giơ tay lên cao).','Đối phương đứng cách bóng 9,15 m.','Khi hàng rào có từ 3 người trở lên, cầu thủ đội tấn công phải đứng cách hàng rào ít nhất 1 m.']],
+  [14,'Phạt đền',['Bóng đặt trên chấm 11 m; thủ môn phải còn ít nhất một phần chân chạm hoặc ngang vạch vôi khi bóng được đá.','Các cầu thủ khác ở ngoài vòng cấm, sau chấm phạt đền và cách chấm 9,15 m.','Người sút không được chạm bóng lần hai trước khi người khác chạm.']],
+  [15,'Ném biên',['Hai tay, đưa bóng từ sau ra qua đầu, hai chân chạm đất trên hoặc ngoài vạch biên.','Không được ghi bàn trực tiếp. Đối phương đứng cách ít nhất 2 m.','Ném sai kỹ thuật: quyền ném biên chuyển cho đội kia.']],
+  [16,'Phát bóng lên',['Bóng đặt ở bất kỳ điểm nào trong khu cầu môn.','Bóng vào cuộc khi được đá và di chuyển rõ ràng, <strong>không cần ra khỏi vòng cấm</strong>; đồng đội được nhận bóng trong vòng cấm.','Đối phương phải ở ngoài vòng cấm cho tới khi bóng vào cuộc.']],
+  [17,'Phạt góc',['Bóng đặt trong cung phạt góc; đối phương cách 9,15 m.','Được ghi bàn trực tiếp vào lưới đối phương.','Không có việt vị khi nhận bóng trực tiếp từ quả phạt góc.']]
+ ]},
+ '7': {title:'Luật bóng đá sân 7 người', sub:'Ở Việt Nam có văn bản luật bóng đá 7 người do VFF ban hành, nhưng mỗi giải phong trào thường sửa đổi theo điều lệ riêng. Dưới đây là những điểm khác sân 11 hay gặp nhất. Điều gì không ghi ở đây thì áp dụng như sân 11.', laws:[
+  [1,'Sân & khung thành',['Sân nhỏ hơn, thường là sân cỏ nhân tạo; khu phạt đền sâu khoảng 12 m.','Chấm phạt đền thường cách khung thành 9 m.','Khung thành khoảng 6 × 2 m.']],
+  [3,'Cầu thủ & thay người',['7 người, trong đó 1 thủ môn.','Thay người <strong>không giới hạn</strong>, cầu thủ đã ra được vào lại; thường phải thay ở khu vực quy định và khi trọng tài cho phép.']],
+  [7,'Thời gian',['Thường 2 hiệp × 25 hoặc 30 phút, nghỉ 5–10 phút.','Giải đá loại trực tiếp hay vào thẳng đá luân lưu, ít khi có hiệp phụ.']],
+  [11,'Việt vị',['Nhiều giải <strong>bỏ việt vị</strong>.','Một số giải chỉ tính việt vị trong 1/3 sân cuối hoặc trong khu phạt đền. Hỏi ban tổ chức trước khi đá.']],
+  [12,'Lỗi & thủ môn',['Lỗi phạt trực tiếp và gián tiếp giống sân 11.','Nhiều giải <strong>cấm xoạc bóng</strong> để tránh chấn thương trên sân cỏ nhân tạo.','Thủ môn không bắt bóng bằng tay khi đồng đội chủ động chuyền về bằng chân.']],
+  [13,'Đá phạt',['Hàng rào thường cách bóng 6–7 m.','Đá phạt trực tiếp/gián tiếp như sân 11.']],
+  [15,'Biên & phát bóng',['Bóng ra biên dọc: ném biên hoặc đá biên tùy giải.','Phát bóng lên: tùy giải, thủ môn được ném tay hoặc đá từ khu phạt đền; nhiều giải không cho phát bóng thẳng qua giữa sân.']],
+  [16,'Thẻ phạt',['Thẻ vàng, đỏ như sân 11; một số giải dùng thẻ phạt tạm thời (ra sân vài phút).','Đội bị thẻ đỏ thường thi đấu thiếu người, thời gian thiếu người theo điều lệ.']]
+ ]},
+ '5': {title:'Luật sân 5 người (Futsal)', sub:'Tóm tắt Luật Futsal của FIFA. Sân 5 cỏ nhân tạo phong trào ở Việt Nam thường dùng bản rút gọn của luật này (ví dụ ném biên thay vì đá biên, không tính lỗi tích lũy). Hãy kiểm tra điều lệ giải.', laws:[
+  [1,'Sân thi đấu',['Dài 25–42 m, rộng 16–25 m (quốc tế 38–42 × 20–25 m), mặt sân phẳng, không dùng cỏ.','Khu phạt đền là hai cung bán kính 6 m quanh hai cột dọc nối với nhau bằng đoạn thẳng.','<strong>Chấm phạt đền 6 m</strong> và <strong>chấm phạt đền thứ hai 10 m</strong>.','Khu thay người dài 5 m mỗi đội, trước khu ghế ngồi, cách vạch giữa sân 5 m.']],
+  [2,'Bóng',['Bóng số 4: chu vi 62–64 cm, nặng 400–440 g, độ nảy thấp.']],
+  [3,'Cầu thủ & thay người',['5 người, trong đó 1 thủ môn; tối đa 9 người dự bị.','Thay người <strong>không giới hạn số lần</strong>, thay “bay” khi bóng đang lăn; người ra phải rời sân trước, cả hai đi qua khu thay người của đội mình.','Dưới 3 người trên sân thì trận đấu bị dừng.']],
+  [7,'Thời gian',['2 hiệp × 20 phút, <strong>đồng hồ dừng</strong> mỗi khi bóng ngoài cuộc.','Mỗi đội được 1 lần hội ý 1 phút mỗi hiệp.']],
+  [8,'Quy tắc 4 giây',['Đá biên, phạt góc, đá phạt, thủ môn ném bóng: phải thực hiện <strong>trong 4 giây</strong> kể từ khi sẵn sàng, nếu không đối phương được hưởng quyền.','Thủ môn được kiểm soát bóng tối đa 4 giây ở nửa sân nhà.']],
+  [11,'Việt vị',['<strong>Không có việt vị</strong> trong futsal.']],
+  [12,'Lỗi tích lũy',['Mỗi lỗi phạt trực tiếp được tính là một lỗi tích lũy của đội.','Từ <strong>lỗi tích lũy thứ 6</strong> trong một hiệp: đá phạt trực tiếp <strong>không có hàng rào</strong>, từ chấm 10 m (hoặc tại vị trí phạm lỗi nếu gần khung thành hơn).','Thủ môn sau khi chuyền bóng đi không được chạm lại bóng ở nửa sân nhà cho đến khi đối phương chạm bóng: phạt gián tiếp.']],
+  [13,'Đá phạt',['Đối phương đứng cách bóng ít nhất <strong>5 m</strong>.','Phải đá trong 4 giây.']],
+  [15,'Đá biên',['Bóng đặt trên vạch biên hoặc ngoài sân sát vạch, đá vào sân trong 4 giây.','Không ghi bàn trực tiếp từ đá biên; đối phương cách 5 m.']],
+  [16,'Thủ môn ném bóng',['Thay cho phát bóng lên: thủ môn ném bóng bằng tay từ trong khu phạt đền, trong 4 giây.','Không ghi bàn trực tiếp từ quả ném bóng.']],
+  [17,'Thẻ đỏ',['Cầu thủ bị đuổi không được trở lại, cũng không được ngồi ghế dự bị.','Đội thiếu người được bổ sung một người khác sau <strong>2 phút</strong> thi đấu, hoặc sớm hơn nếu bị đội đông người hơn ghi bàn.']]
+ ]}
+};
+let ruleSel = 'all';
+function hl(text, q){
+  if(!q) return text;
+  const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+  return text.split(/(<[^>]+>)/).map(part => part.startsWith('<') ? part : part.replace(re, '<mark>$1</mark>')).join('');
+}
+function renderRules(){
+  const q = $('#ruleSearch').value.trim();
+  const qn = q.toLowerCase();
+  $$('#ruleSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.r === ruleSel));
+  let h = '';
+  if(ruleSel === 'all'){
+    h += `<p class="lead">Khác biệt chính giữa ba loại sân. Cột sân 7 ghi theo cách các giải phong trào hay áp dụng, vì mỗi giải có điều lệ riêng.</p>`;
+    const rows = COMPARE.rows.filter(r => !qn || r.join(' ').toLowerCase().includes(qn));
+    h += `<div class="tbl-wrap"><table class="cmp"><thead><tr><th>Nội dung</th>${COMPARE.cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>`;
+    h += rows.map(r => `<tr><th scope="row">${hl(esc(r[0]),q)}</th>${r.slice(1).map(c => `<td>${hl(esc(c),q)}</td>`).join('')}</tr>`).join('');
+    if(!rows.length) h += `<tr><td colspan="4">Không có dòng nào khớp “${esc(q)}”.</td></tr>`;
+    h += `</tbody></table></div>`;
+  }
+  const keys = ruleSel === 'all' ? (qn ? ['11','7','5'] : []) : [ruleSel];
+  keys.forEach(k => {
+    const R = LAWS[k];
+    const laws = R.laws.filter(([no,t,pts]) => !qn || (t + ' ' + pts.join(' ')).toLowerCase().replace(/<[^>]+>/g,'').includes(qn));
+    if(qn && !laws.length && ruleSel === 'all') return;
+    h += `<h2 class="sec-title">${R.title}</h2><p class="sec-sub">${R.sub}</p>`;
+    if(k === '5') h += `<p class="note-box">Trên bảng chiến thuật, sân 5 được vẽ theo chuẩn futsal: cung khu phạt đền 6 m, hai chấm phạt đền 6 m và 10 m, vạch vàng đánh dấu khu thay người.</p>`;
+    h += `<div class="laws">` + (laws.length ? laws.map(([no,t,pts]) =>
+      `<article class="law${k!=='11'?' diff':''}"><h3><span class="no">${no}</span>${hl(esc(t),q)}${k!=='11'?'<span class="badge">Khác sân 11</span>':''}</h3><ul>${pts.map(p=>`<li>${hl(p,q)}</li>`).join('')}</ul></article>`).join('')
+      : `<p class="hint">Không có điều luật nào khớp “${esc(q)}”.</p>`) + `</div>`;
+  });
+  if(ruleSel === 'all' && !qn) h += `<p class="hint">Chọn Sân 11, Sân 7 hoặc Sân 5 để xem chi tiết từng điều luật, hoặc gõ từ khoá để tìm trong cả ba bộ luật.</p>`;
+  $('#rulesBody').innerHTML = h;
+}
+$('#ruleSeg').addEventListener('click', e => { const b = e.target.closest('button'); if(b){ ruleSel = b.dataset.r; renderRules(); } });
+$('#ruleSearch').addEventListener('input', renderRules);
+
+/* =================== QUIZ =================== */
+const QUIZ = [
+ {f:'11', q:'Tiền đạo đứng ở vị trí việt vị và nhận bóng trực tiếp từ quả ném biên của đồng đội. Trọng tài xử lý thế nào?', o:['Thổi phạt việt vị','Cho trận đấu tiếp tục','Ném biên lại'], a:1, e:'Không có việt vị khi nhận bóng trực tiếp từ ném biên, phát bóng lên hoặc phạt góc (Luật 11).'},
+ {f:'11', q:'Thủ môn ôm bóng trong tay hơn 8 giây. Đội đối phương được hưởng gì?', o:['Phạt gián tiếp trong vòng cấm','Phạt góc','Không gì cả, chỉ nhắc nhở'], a:1, e:'Từ mùa 2025/26, IFAB đổi hình phạt thành phạt góc cho đối phương. Trọng tài đếm ngược 5 giây cuối bằng tay.'},
+ {f:'11', q:'Khi phát bóng lên, trung vệ đứng trong vòng cấm nhận bóng từ thủ môn. Có hợp lệ không?', o:['Hợp lệ','Phải phát lại vì bóng chưa ra khỏi vòng cấm','Phạt gián tiếp'], a:0, e:'Bóng vào cuộc ngay khi được đá và di chuyển rõ ràng, không cần ra khỏi vòng cấm (Luật 16). Đây là cơ sở cho lối triển khai bóng ngắn từ thủ môn.'},
+ {f:'11', q:'Cầu thủ đá phạt gián tiếp thẳng vào lưới đối phương, không ai chạm bóng. Kết quả?', o:['Bàn thắng hợp lệ','Đá lại quả phạt','Phát bóng lên cho đối phương'], a:2, e:'Đá phạt gián tiếp phải chạm thêm một cầu thủ khác. Bóng đi thẳng vào lưới đối phương thì đối phương được phát bóng lên.'},
+ {f:'11', q:'Hậu vệ cố gắng chơi bóng nhưng phạm lỗi trong vòng cấm, ngăn cản một cơ hội ghi bàn rõ ràng. Hình phạt?', o:['Phạt đền + thẻ đỏ','Phạt đền + thẻ vàng','Phạt đền, không thẻ'], a:1, e:'Lỗi DOGSO trong vòng cấm mà có cố gắng chơi bóng được giảm xuống thẻ vàng. Nếu kéo áo, xô đẩy, không cố gắng chơi bóng thì vẫn là thẻ đỏ.'},
+ {f:'11', q:'Đội A được hưởng phạt đền. Khi bóng được đá, thủ môn đội B đã bước hẳn hai chân lên trước vạch vôi và cản được bóng. Xử lý?', o:['Công nhận cản phá','Đá lại phạt đền','Thẻ đỏ thủ môn'], a:1, e:'Thủ môn phải còn ít nhất một phần chân chạm hoặc ngang vạch vôi. Vi phạm mà bóng không vào lưới thì đá lại (Luật 14).'},
+ {f:'7', q:'Ở hầu hết giải bóng đá 7 người phong trào, cầu thủ đã bị thay ra có được vào sân lại không?', o:['Không bao giờ','Có, thay người thường không giới hạn','Chỉ được vào lại 1 lần'], a:1, e:'Phần lớn giải sân 7 cho thay người không giới hạn và được vào lại. Vẫn phải xem điều lệ của giải bạn tham gia.'},
+ {f:'7', q:'Hậu vệ chủ động chuyền bóng về bằng chân, thủ môn sân 7 dùng tay bắt bóng. Xử lý thế nào?', o:['Hợp lệ vì sân nhỏ','Phạt gián tiếp cho đối phương','Phạt đền'], a:1, e:'Quy định về chuyền về cho thủ môn được giữ nguyên như sân 11: phạt gián tiếp tại nơi thủ môn chạm bóng.'},
+ {f:'7', q:'Trước giải sân 7, HLV nên hỏi ban tổ chức điều gì đầu tiên để xây dựng chiến thuật?', o:['Có tính việt vị không và tính ở đâu','Màu bóng','Giờ ăn trưa'], a:0, e:'Việt vị quyết định cách bố trí hàng thủ. Không có việt vị thì đội bạn có thể cài tiền đạo cao, hàng thủ phải lùi sâu hơn.'},
+ {f:'5', q:'Đội B đã phạm 5 lỗi tích lũy trong hiệp 1. Lỗi thứ 6 xảy ra ở giữa sân. Đội A được hưởng gì?', o:['Đá phạt trực tiếp tại chỗ, có hàng rào','Đá phạt trực tiếp từ chấm 10 m, không hàng rào','Phạt đền 6 m'], a:1, e:'Từ lỗi tích lũy thứ 6 trong hiệp, đội bị phạm lỗi được đá phạt không hàng rào từ chấm phạt đền thứ hai (10 m).'},
+ {f:'5', q:'Cầu thủ chuẩn bị đá biên nhưng chần chừ hơn 4 giây. Kết quả?', o:['Trọng tài nhắc nhở','Quyền đá biên chuyển cho đội kia','Thẻ vàng'], a:1, e:'Quy tắc 4 giây áp dụng cho đá biên, phạt góc, đá phạt và thủ môn ném bóng.'},
+ {f:'5', q:'Thủ môn ném bóng cho đồng đội, đồng đội chuyền ngay lại cho thủ môn đang ở nửa sân nhà, đối phương chưa chạm bóng. Xử lý?', o:['Hợp lệ','Phạt gián tiếp cho đối phương','Phạt đền'], a:1, e:'Trong futsal, sau khi đưa bóng đi, thủ môn không được chạm lại bóng ở nửa sân nhà cho đến khi đối phương chạm bóng.'},
+ {f:'5', q:'Futsal có luật việt vị không?', o:['Có, như sân 11','Chỉ trong khu phạt đền','Không'], a:2, e:'Futsal không có việt vị. Vì vậy pivot được đứng cao sát hàng thủ đối phương.'},
+ {f:'5', q:'Một cầu thủ đội A bị thẻ đỏ. Sau bao lâu đội A được bổ sung người?', o:['Không được bổ sung','Sau 2 phút, hoặc sớm hơn nếu bị đội B ghi bàn','Ngay lập tức'], a:1, e:'Người bị thẻ đỏ không được trở lại, nhưng đội được bổ sung người khác sau 2 phút hoặc khi đội đông người hơn ghi bàn.'}
+];
+let quizSel = 'all';
+const answers = {};
+function renderQuiz(){
+  $$('#quizSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.q === quizSel));
+  const list = QUIZ.map((q,i) => ({...q, i})).filter(q => quizSel === 'all' || q.f === quizSel);
+  $('#quiz').innerHTML = list.map(q => {
+    const ans = answers[q.i];
+    const tag = q.f === '5' ? 'Sân 5 / Futsal' : 'Sân ' + q.f;
+    return `<article class="q"><div class="meta"><span>${tag}</span><span>Câu ${q.i+1}</span></div><p class="qt">${esc(q.q)}</p>
+      <div class="opts">${q.o.map((o,j) => {
+        let c = ''; if(ans != null){ if(j === q.a) c = 'right'; else if(j === ans) c = 'wrong'; }
+        return `<button class="${c}" data-qi="${q.i}" data-j="${j}" ${ans != null ? 'disabled' : ''}>${String.fromCharCode(65+j)}. ${esc(o)}</button>`;
+      }).join('')}</div>${ans != null ? `<p class="exp"><b>${ans === q.a ? 'Đúng.' : 'Chưa đúng.'}</b> ${esc(q.e)}</p>` : ''}</article>`;
+  }).join('');
+  const done = list.filter(q => answers[q.i] != null), right = done.filter(q => answers[q.i] === q.a).length;
+  $('#score').textContent = `Đúng ${right}/${done.length} · còn ${list.length - done.length} câu`;
+}
+$('#quiz').addEventListener('click', e => { const b = e.target.closest('button[data-qi]'); if(!b || b.disabled) return; answers[+b.dataset.qi] = +b.dataset.j; renderQuiz(); });
+$('#quizSeg').addEventListener('click', e => { const b = e.target.closest('button'); if(b){ quizSel = b.dataset.q; renderQuiz(); } });
+$('#quizReset').addEventListener('click', () => { for(const k in answers) delete answers[k]; renderQuiz(); });
+
+/* =================== KIDS (sân 5) =================== */
+const KL_ = 40, KW_ = 20, KP = 40*.045;
+const KROLE = ['Gác đền','Chốt chặn','Cánh trái','Cánh phải','Mũi nhọn'];
+const KBASE = {h0:[.05,.5],h1:[.25,.5],h2:[.42,.2],h3:[.42,.8],h4:[.62,.5],a0:[.95,.5],a1:[.8,.5],a2:[.66,.75],a3:[.66,.25],a4:[.5,.5],ball:[.28,.5]};
+const AWAY = ['a1','a2','a3','a4'];
+const kmet = p => [p[0]*KL_, p[1]*KW_];
+const dm = (p,q) => Math.hypot((p[0]-q[0])*KL_, (p[1]-q[1])*KW_);
+function segD(c, a, b){
+  const [cx,cy] = kmet(c), [ax,ay] = kmet(a), [bx,by] = kmet(b);
+  const vx = bx-ax, vy = by-ay, l2 = vx*vx + vy*vy || 1e-6;
+  const t = Math.max(0, Math.min(1, ((cx-ax)*vx + (cy-ay)*vy)/l2));
+  return Math.hypot(cx-(ax+t*vx), cy-(ay+t*vy));
+}
+const inEll = (p, t) => ((p[0]-t[0])/t[2])**2 + ((p[1]-t[1])/t[3])**2 <= 1;
+const KITE = [['line',.25,.5,.42,.2],['line',.42,.2,.62,.5],['line',.62,.5,.42,.8],['line',.42,.8,.25,.5]];
+
+const KL = [
+ {id:'k1', title:'Đội của em có 5 bạn', rule:'Bốn bạn trên sân đứng thành hình con diều.', showA:false,
+  steps:[
+   {say:'Đội futsal có 5 bạn. Bạn Gác đền ở trong khung thành, bốn bạn còn lại đứng thành hình con diều.', d:KITE},
+   {hl:['h0'], say:'Bạn Gác đền canh khung thành. Chỉ bạn ấy được bắt bóng bằng tay, và chỉ trong vòng cấm.', z:[[0,.18,.17,.82,'tip']]},
+   {hl:['h1'], say:'Bạn Chốt chặn đứng sau cùng, giống người giữ cửa nhà. Bạn ấy nói to để nhắc cả đội.', d:KITE},
+   {hl:['h2','h3'], say:'Hai bạn Cánh chạy dọc hai bên sân. Lúc thì lên tấn công, lúc thì về phòng thủ.', d:KITE},
+   {hl:['h4'], say:'Bạn Mũi nhọn ở đầu con diều, gần khung thành đối phương nhất. Nhiệm vụ: giữ bóng chờ bạn và ghi bàn.', d:KITE},
+   {say:'Ai cũng phải học đá mọi vị trí. Hôm nay em làm Cánh, mai em làm Chốt chặn!', d:KITE}
+  ],
+  ch:{h:{4:[.3,.66]}, who:'h4', d:KITE, target:[.62,.5,.1,.2],
+   say:'Bạn Mũi nhọn bị lạc rồi! Em kéo bạn ấy về đúng đầu con diều nhé.',
+   check:p => inEll(p, [.62,.5,.1,.2]),
+   ok:'Đúng rồi! Mũi nhọn đứng cao nhất, gần khung thành đối phương.',
+   hint:'Mũi nhọn ở đầu con diều, phía khung thành bên phải.'},
+  game:['Gọi tên vị trí','Đặt 4 nấm thành hình con diều. HLV hô tên vị trí, bé chạy tới đúng nấm. Sau mỗi lượt đổi vị trí cho nhau.','Bạn nào đứng gần khung thành mình nhất? Bạn nào gần khung thành đối phương nhất?']},
+
+ {id:'k2', title:'Có bóng thì xoè tay ra', rule:'Đội mình có bóng: toả rộng ra như bàn tay xoè.', showA:true,
+  steps:[
+   {h:{1:[.3,.5],2:[.36,.38],3:[.36,.62],4:[.42,.5]}, b:[.31,.5], a:{4:[.47,.44],3:[.5,.3],2:[.5,.66]},
+    say:'Nhìn này: cả đội đứng chụm lại như bàn tay nắm. Đối thủ chỉ cần vài bạn là chặn hết đường chuyền.', z:[[.24,.28,.5,.72,'bad']]},
+   {say:'Xoè tay ra! Hai bạn Cánh chạy sát đường biên, Mũi nhọn chạy lên cao.', d:[['run',.36,.38,.48,.1],['run',.36,.62,.48,.9],['run',.42,.5,.72,.5]]},
+   {h:{2:[.48,.1],3:[.48,.9],4:[.72,.5]}, say:'Sân rộng ra, bạn có bóng có rất nhiều chỗ để chuyền. Đối thủ phải chạy mệt!',
+    d:[['pass',.31,.5,.48,.12],['pass',.31,.5,.48,.88],['pass',.31,.5,.7,.5]]}
+  ],
+  ch:{h:{1:[.3,.5],2:[.48,.1],3:[.36,.62],4:[.72,.5]}, b:[.31,.5], who:'h3', target:[.5,.88,.16,.1],
+   say:'Đội mình đang có bóng. Em kéo bạn Cánh phải ra chỗ thật rộng nhé!',
+   check:p => p[1] > .76 && p[0] > .3 && p[0] < .75,
+   ok:'Giỏi quá! Có bóng thì toả ra sát đường biên.',
+   hint:'Có bóng thì xoè tay ra: chạy về phía đường biên dưới.'},
+  game:['Xoè – Nắm','HLV hô “Xoè!”, cả nhóm chạy ra 4 góc ô vuông 12 × 12 m. Hô “Nắm!”, chạy về giữa. Sau đó chơi 4 đánh 1 giữ bóng trong ô: phải xoè ra mới dễ chuyền.','Khi các con đứng xa nhau, bạn có bóng có nhiều chỗ chuyền hơn hay ít hơn?']},
+
+ {id:'k3', title:'Mất bóng thì nắm tay lại', rule:'Đối thủ có bóng: chạy về đứng giữa quả bóng và khung thành mình.', showA:true,
+  steps:[
+   {h:{1:[.4,.5],2:[.6,.12],3:[.6,.88],4:[.75,.5]}, a:{3:[.55,.3],4:[.33,.58],2:[.62,.72]}, b:[.56,.31],
+    say:'Ôi, đối thủ cướp được bóng! Đội mình còn đang xoè rộng, khung thành bị bỏ trống.'},
+   {say:'Tưởng tượng có một sợi dây nối quả bóng với khung thành của mình.', d:[['line',.56,.31,0,.5]]},
+   {say:'Nắm tay lại! Mọi bạn chạy về phía sợi dây, đứng giữa bóng và khung thành.',
+    d:[['line',.56,.31,0,.5],['run',.4,.5,.22,.46],['run',.6,.12,.42,.3],['run',.6,.88,.3,.62],['run',.75,.5,.5,.4]]},
+   {h:{1:[.22,.46],2:[.42,.3],3:[.3,.62],4:[.5,.4]}, d:[['line',.56,.31,0,.5]], z:[[.14,.22,.56,.72,'ok']],
+    say:'Bây giờ đối thủ rất khó sút. Khi lấy lại được bóng, mình lại xoè tay ra!'}
+  ],
+  ch:{h:{1:[.5,.86]}, who:'h1', d:[['line',.56,.31,0,.5]], target:[.28,.4,.1,.13],
+   say:'Bạn Chốt chặn đang đứng sai chỗ. Em kéo bạn ấy lên sợi dây, giữa bóng và khung thành!',
+   check:(p,pos) => segD(p, pos.ball, [0,.5]) < 2.2 && p[0] < pos.ball[0] && p[0] > .06,
+   ok:'Tuyệt! Đứng trên sợi dây thì đối thủ sút sẽ bị em chặn.',
+   hint:'Nhìn sợi dây trắng nối quả bóng với khung thành mình. Đứng lên sợi dây đó.'},
+  game:['Sợi dây vô hình','Xếp một hàng nấm từ quả bóng tới khung thành. HLV dời bóng sang chỗ khác, bé chạy đứng lên hàng nấm mới. Sau đó đá 3 đánh 3, mỗi khi mất bóng HLV hô “Sợi dây!”.','Nếu con đứng ngoài sợi dây, cú sút của đối thủ có bị con chặn không?']},
+
+ {id:'k4', title:'Chuyền rồi chạy', rule:'Chuyền bóng xong, chạy ngay tới chỗ trống để nhận lại.', showA:true,
+  steps:[
+   {b:[.44,.22], a:{3:[.5,.27],4:[.7,.55],1:[.82,.5],2:[.65,.78]},
+    say:'Bạn Cánh trái có bóng nhưng bị một bạn áo xanh chặn trước mặt.'},
+   {say:'Chuyền cho Mũi nhọn, rồi CHẠY NGAY ra sau lưng bạn áo xanh.', d:[['pass',.44,.22,.62,.5],['run',.42,.2,.72,.18]]},
+   {b:[.62,.5], h:{2:[.72,.18]}, say:'Mũi nhọn chuyền trả lại. Bạn áo xanh chỉ kịp đứng nhìn!', d:[['pass',.62,.5,.72,.2]]},
+   {b:[.73,.2], say:'Bạn Cánh trái sút!', d:[['shot',.73,.2,1,.45]]},
+   {b:[1.01,.45], say:'Vào! Chuyền – Chạy – Nhận lại: ba bước để vượt qua đối thủ.'}
+  ],
+  ch:{h:{2:[.42,.2]}, b:[.62,.5], who:'h2', target:[.75,.18,.11,.13],
+   say:'Bạn Cánh trái vừa chuyền cho Mũi nhọn. Em kéo bạn ấy chạy tới chỗ trống để nhận lại bóng!',
+   check:(p,pos) => p[0] > .6 && p[1] < .42 && AWAY.every(id => dm(p, pos[id]) > 3),
+   ok:'Chính xác! Chuyền xong chạy lên chỗ trống, Mũi nhọn sẽ trả bóng cho em.',
+   hint:'Chỗ trống là chỗ không có áo xanh ở gần. Chạy lên phía trước, sát đường biên trên.'},
+  game:['Chuyền – Chạy – Nhận','3 bé đứng thành tam giác cách nhau 6–8 m. Chuyền xong phải chạy tới một nấm mới. Khó hơn: thêm 1 bạn áo xanh đứng giữa tam giác.','Sau khi chuyền, con chạy đi đâu? Tại sao không đứng yên?']},
+
+ {id:'k5', title:'Đứng chỗ bạn nhìn thấy em', rule:'Muốn nhận bóng, đừng để áo xanh đứng giữa em và quả bóng.', showA:true,
+  steps:[
+   {b:[.27,.5], a:{4:[.45,.55],3:[.5,.22],2:[.52,.8],1:[.8,.5]},
+    say:'Mũi nhọn đang trốn sau lưng áo xanh. Bạn Chốt chặn chuyền thì bóng sẽ bị cắt!', d:[['bad',.27,.5,.62,.5]]},
+   {say:'Bước sang ngang 2–3 bước. Em đã nhìn thấy mắt bạn cầm bóng chưa?', d:[['run',.62,.5,.6,.28]]},
+   {h:{4:[.6,.28]}, say:'Đường chuyền mở rồi. Chuyền!', d:[['pass',.27,.5,.6,.28]]},
+   {b:[.6,.28], say:'Nhớ nhé: em không nhìn thấy quả bóng thì bạn cũng không chuyền cho em được.'}
+  ],
+  ch:{h:{4:[.62,.5]}, b:[.27,.5], who:'h4', target:[.6,.28,.08,.1],
+   say:'Em kéo bạn Mũi nhọn tới chỗ bạn Chốt chặn chuyền được, không bị áo xanh chắn đường.',
+   check:(p,pos) => p[0] > .45 && AWAY.every(id => segD(pos[id], pos.ball, p) > 1.8 && dm(p, pos[id]) > 1.5),
+   ok:'Đúng rồi! Đường chuyền giờ đã thông, không còn ai chắn.',
+   hint:'Tưởng tượng đường thẳng từ quả bóng tới em. Nếu áo xanh đứng trên đường đó thì bước sang ngang.'},
+  game:['Trốn tìm ngược','Một bạn áo xanh (hoặc một cọc cao) đứng giữa. Bé muốn nhận bóng phải bước ra để nhìn thấy mặt người chuyền. Hai bạn nhìn thấy mắt nhau mới được chuyền.','Con có nhìn thấy mắt bạn cầm bóng không? Nếu không thấy thì phải làm gì?']}
+];
+
+const kDone = store.get('sbct.kid.v1', {});
+const K = {li:0, step:0, mode:'learn', pos:null, fails:0, reveal:false, solved:false, tok:0, auto:false};
+const ksvg = $('#kPitch');
+ksvg.setAttribute('viewBox', `${-KP} ${-KP} ${KL_+2*KP} ${KW_+2*KP}`);
+$('#kField').innerHTML = pitchSVG('5', 'k');
+
+function kApply(pos, o){
+  for(const [i,v] of Object.entries(o.h||{})) pos['h'+i] = v.slice();
+  for(const [i,v] of Object.entries(o.a||{})) pos['a'+i] = v.slice();
+  if(o.b) pos.ball = o.b.slice();
+  return pos;
+}
+function kPosAt(L, upto){ const pos = deep(KBASE); for(let i=0;i<=upto;i++) kApply(pos, L.steps[i]); return pos; }
+function kChPos(L){ return kApply(kPosAt(L, L.steps.length-1), L.ch); }
+
+function kLine(d){
+  const [t,x1n,y1n,x2n,y2n] = d, [x1,y1] = kmet([x1n,y1n]), [x2,y2] = kmet([x2n,y2n]), sw = .2;
+  const p = `M${x1} ${y1} L${x2} ${y2}`;
+  if(t === 'pass') return `<path d="${p}" fill="none" stroke="#ffd84a" stroke-width="${sw}" stroke-dasharray=".5 .35" stroke-linecap="round" marker-end="url(#kmy)"/>`;
+  if(t === 'shot') return `<path d="${p}" fill="none" stroke="#fff" stroke-width="${sw*2.3}" stroke-linecap="round" stroke-opacity=".9"/><path d="${p}" fill="none" stroke="#ff5a3c" stroke-width="${sw*1.5}" stroke-linecap="round" marker-end="url(#kmr)"/>`;
+  if(t === 'run')  return `<path d="${p}" fill="none" stroke="#f4f7f2" stroke-width="${sw}" stroke-linecap="round" marker-end="url(#kmw)"/>`;
+  if(t === 'line') return `<path d="${p}" fill="none" stroke="#f4f7f2" stroke-width="${sw*.8}" stroke-dasharray=".7 .45" stroke-opacity=".85"/>`;
+  const mx = (x1+x2)/2, my = (y1+y2)/2, s = .7;
+  return `<path d="${p}" fill="none" stroke="#ff6b5b" stroke-width="${sw}" stroke-dasharray=".5 .35"/>
+    <path d="M${mx-s} ${my-s} L${mx+s} ${my+s} M${mx+s} ${my-s} L${mx-s} ${my+s}" stroke="#ff6b5b" stroke-width="${sw*1.6}" stroke-linecap="round"/>`;
+}
+function kZone(z){
+  const [x1,y1] = kmet([z[0],z[1]]), [x2,y2] = kmet([z[2],z[3]]);
+  const c = z[4] === 'bad' ? '#ff6b5b' : z[4] === 'ok' ? '#7dffa8' : '#ffd84a';
+  return `<ellipse cx="${(x1+x2)/2}" cy="${(y1+y2)/2}" rx="${Math.abs(x2-x1)/2}" ry="${Math.abs(y2-y1)/2}" fill="${c}" fill-opacity=".2" stroke="${c}" stroke-width=".15" stroke-dasharray=".5 .35"/>`;
+}
+function kScene(){
+  const L = KL[K.li];
+  if(K.mode === 'learn'){ const s = L.steps[K.step]; return {d:s.d, z:s.z, hl:s.hl||[], showA:L.showA}; }
+  return {d:L.ch.d, hl:[L.ch.who], who:L.ch.who, target:K.reveal ? L.ch.target : null, showA:L.showA};
+}
+function kDrawScene(pos, sc, bare){
+  let s = '';
+  if(!bare){
+    (sc.z||[]).forEach(z => s += kZone(z));
+    if(sc.target){ const t = sc.target; s += kZone([t[0]-t[2], t[1]-t[3], t[0]+t[2], t[1]+t[3], 'ok']); }
+    (sc.d||[]).forEach(d => s += kLine(d));
+  }
+  $('#kDraw').innerHTML = s;
+  const r = .95; let t = '';
+  if(sc.showA) ['a0',...AWAY].forEach(id => {
+    const [x,y] = kmet(pos[id]);
+    t += `<g class="ktok" transform="translate(${x} ${y})"><circle r="${r*.9}" fill="${id === 'a0' ? '#2bb673' : '#2563c9'}" stroke="#fff" stroke-width=".12"/></g>`;
+  });
+  for(let i=0;i<5;i++){
+    const id = 'h'+i, [x,y] = kmet(pos[id]), hl = sc.hl.includes(id), drag = sc.who === id;
+    t += `<g class="ktok${drag ? ' drag' : ''}" data-id="${id}" transform="translate(${x} ${y})">
+      ${hl ? `<circle class="pulse" r="${r*1.45}" fill="#ffd84a" fill-opacity=".35" stroke="#ffd84a" stroke-width=".15"/>` : ''}
+      <circle r="${r}" fill="${i === 0 ? '#f0b429' : '#e4512b'}" stroke="#fff" stroke-width=".14"/>
+      <text class="rl" y="${r*2.15}" text-anchor="middle" font-size="${r*.8}" stroke-width="${r*.25}">${KROLE[i]}</text></g>`;
+  }
+  const [bx,by] = kmet(pos.ball);
+  t += `<g transform="translate(${bx} ${by})"><circle r=".5" fill="#fff" stroke="#111" stroke-width=".09"/><circle r=".18" fill="#111"/></g>`;
+  $('#kTok').innerHTML = t;
+}
+function kFeedback(kind, msg, actions){
+  const fb = $('#kFb');
+  if(!kind){ fb.hidden = true; return; }
+  fb.className = 'kfb ' + kind; fb.hidden = false;
+  fb.innerHTML = `<span class="msg">${msg}</span>` + (actions||'');
+}
+function kRender(){
+  const L = KL[K.li];
+  $('#kNo').textContent = `Bài ${K.li+1} / ${KL.length}`;
+  $('#kTitle').textContent = L.title; $('#kRule').textContent = L.rule;
+  $('#kSay').textContent = K.mode === 'learn' ? L.steps[K.step].say : L.ch.say;
+  kDrawScene(K.pos, kScene());
+  $('#kDots').innerHTML = L.steps.map((_,i) => `<span class="${K.mode === 'learn' && i === K.step ? 'on' : ''}"></span>`).join('')
+    + `<span class="ch${K.mode === 'ch' ? ' on' : ''}" title="Thử thách">★</span>`;
+  $('#kPrev').disabled = K.mode === 'learn' && K.step === 0;
+  $('#kNext').textContent = K.mode === 'learn' ? (K.step === L.steps.length-1 ? 'Thử thách ★' : 'Tiếp ▶') : (K.li < KL.length-1 ? 'Bài tiếp ▶' : 'Về bài 1');
+  $('#kAuto').textContent = K.auto ? '■ Dừng' : 'Tự chạy';
+  $('#kAuto').disabled = K.mode === 'ch';
+  $('#kLessons').innerHTML = KL.map((l,i) => `<button data-li="${i}" aria-current="${i === K.li}"><span class="n">${i+1}</span>
+    <span class="t">${esc(l.title)}<small>${esc(l.rule)}</small></span><span class="star${kDone[l.id] ? ' on' : ''}" title="${kDone[l.id] ? 'Đã vượt thử thách' : 'Chưa làm thử thách'}">★</span></button>`).join('');
+  const g = L.game;
+  $('#kCoach').innerHTML = `<p><b>${esc(g[0])}.</b> ${esc(g[1])}</p><p class="hint"><b>Câu hỏi gợi mở cho bé:</b> ${esc(g[2])}</p>`;
+}
+function kTween(from, to, dur, tok){
+  return new Promise(res => {
+    if(reduceMotion){ K.pos = to; return res(); }
+    const t0 = performance.now(), sc = kScene();
+    const step = now => {
+      if(tok !== K.tok) return res();
+      const t = Math.min(1, (now-t0)/dur), e = t < .5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2, pos = {};
+      for(const id in to){ const p = from[id], q = to[id]; pos[id] = [p[0]+(q[0]-p[0])*e, p[1]+(q[1]-p[1])*e]; }
+      K.pos = pos; kDrawScene(pos, sc, true);
+      t < 1 ? requestAnimationFrame(step) : (K.pos = to, res());
+    };
+    requestAnimationFrame(step);
+  });
+}
+async function kGo(step, animate){
+  const L = KL[K.li], tok = ++K.tok, from = K.pos, wasCh = K.mode === 'ch';
+  K.mode = 'learn'; K.step = step; kFeedback(null);
+  const to = kPosAt(L, step);
+  if(animate && from && !wasCh){ $('#kSay').textContent = L.steps[step].say; await kTween(from, to, 800, tok); if(tok !== K.tok) return; }
+  K.pos = to; kRender();
+}
+function kStartCh(){
+  const L = KL[K.li]; K.tok++; K.auto = false;
+  K.mode = 'ch'; K.fails = 0; K.reveal = false; K.solved = false; K.pos = kChPos(L);
+  kRender();
+  kFeedback('info', 'Thử thách: em đứng đâu? Kéo cầu thủ đang nhấp nháy tới chỗ đúng.', `<button class="btn" data-k="answer">Xem đáp án</button>`);
+}
+function kLesson(i){ K.tok++; K.auto = false; K.li = i; K.pos = null; kGo(0, false); }
+async function kAutoPlay(){
+  if(K.auto){ K.auto = false; K.tok++; kRender(); return; }
+  const L = KL[K.li]; K.auto = true;
+  if(K.step >= L.steps.length-1) await kGo(0, false);
+  K.auto = true; kRender();
+  while(K.auto && K.step < L.steps.length-1){
+    const tok = K.tok; await wait(3200);
+    if(!K.auto || tok !== K.tok) return;
+    await kGo(K.step+1, true);
+  }
+  K.auto = false; kRender();
+}
+$('#kNext').addEventListener('click', () => {
+  const L = KL[K.li]; K.auto = false;
+  if(K.mode === 'learn'){ K.step < L.steps.length-1 ? kGo(K.step+1, true) : kStartCh(); }
+  else kLesson((K.li+1) % KL.length);
+});
+$('#kPrev').addEventListener('click', () => {
+  const L = KL[K.li]; K.auto = false;
+  if(K.mode === 'ch') kGo(L.steps.length-1, false); else if(K.step > 0) kGo(K.step-1, false);
+});
+$('#kAuto').addEventListener('click', kAutoPlay);
+$('#kLessons').addEventListener('click', e => { const b = e.target.closest('button[data-li]'); if(b) kLesson(+b.dataset.li); });
+$('#kFull').addEventListener('click', () => toggleFull($('#kStage')));
+$('#kFb').addEventListener('click', e => {
+  const b = e.target.closest('button[data-k]'); if(!b) return;
+  const L = KL[K.li], c = L.ch;
+  if(b.dataset.k === 'answer'){
+    K.pos[c.who] = [c.target[0], c.target[1]]; K.reveal = true; kRender();
+    kFeedback('info', 'Chỗ đúng là vùng xanh. ' + esc(c.ok), `<button class="btn" data-k="retry">Thử lại</button>`);
+  }
+  if(b.dataset.k === 'retry') kStartCh();
+});
+function kNorm(e){
+  const m = clientToSvg(ksvg, e.clientX, e.clientY);
+  return [Math.max(-.02, Math.min(1.02, m.x/KL_)), Math.max(-.04, Math.min(1.04, m.y/KW_))];
+}
+let kDrag = null;
+ksvg.addEventListener('pointerdown', e => {
+  if(K.mode !== 'ch') return;
+  const g = e.target.closest('.ktok.drag'); if(!g) return;
+  const p = kNorm(e), cur = K.pos[g.dataset.id];
+  kDrag = {id:g.dataset.id, el:g, dx:cur[0]-p[0], dy:cur[1]-p[1]};
+  try{ ksvg.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault();
+});
+ksvg.addEventListener('pointermove', e => {
+  if(!kDrag) return;
+  const p = kNorm(e); K.pos[kDrag.id] = [p[0]+kDrag.dx, p[1]+kDrag.dy];
+  const [x,y] = kmet(K.pos[kDrag.id]); kDrag.el.setAttribute('transform', `translate(${x} ${y})`);
+});
+function kDrop(){
+  if(!kDrag) return; kDrag = null;
+  const L = KL[K.li], c = L.ch, p = K.pos[c.who];
+  if(c.check(p, K.pos)){
+    K.solved = true; K.reveal = true; kDone[L.id] = true; store.set('sbct.kid.v1', kDone); kRender();
+    const more = K.li < KL.length-1;
+    kFeedback('ok', '★ ' + esc(c.ok), `<button class="btn" data-k="retry">Làm lại</button>`);
+    $('#kNext').textContent = more ? 'Bài tiếp ▶' : 'Về bài 1';
+  } else {
+    K.fails++;
+    if(K.fails >= 2) K.reveal = true;
+    kRender();
+    kFeedback('bad', 'Chưa đúng, thử lại nhé! ' + esc(c.hint) + (K.reveal ? ' Gợi ý: vùng xanh là chỗ đúng.' : ''), `<button class="btn" data-k="answer">Xem đáp án</button>`);
+  }
+}
+ksvg.addEventListener('pointerup', kDrop);
+ksvg.addEventListener('pointercancel', kDrop);
+kLesson(0);
+
+/* =================== Full screen nằm ngang =================== */
+let fsEl = null;
+const portraitMQ = window.matchMedia('(orientation: portrait)');
+function updRot(){ if(fsEl) fsEl.classList.toggle('rot', portraitMQ.matches && window.innerWidth < 900); }
+function setFsLabels(){
+  $('#fsBtn').textContent = fsEl && fsEl.id === 'boardStage' ? '✕ Thoát' : '⛶ Toàn màn hình';
+  $('#kFull').textContent = fsEl && fsEl.id === 'kStage' ? '✕ Thoát' : 'Toàn màn hình';
+}
+function toggleFull(el){
+  if(fsEl){ exitFull(); return; }
+  fsEl = el; el.classList.add('fs'); document.body.classList.add('fs-on');
+  updRot(); setFsLabels();
+  // Thử toàn màn hình thật + khoá ngang (Android, máy tính). iPhone không hỗ trợ: đã có lớp phủ + xoay CSS.
+  try{
+    const p = el.requestFullscreen && el.requestFullscreen({navigationUI:'hide'});
+    if(p && p.then) p.then(() => { try{ const l = screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape'); if(l && l.catch) l.catch(() => {}); }catch(e){} }).catch(() => {});
+  }catch(e){}
+}
+function exitFull(){
+  if(!fsEl) return;
+  const el = fsEl; fsEl = null;
+  el.classList.remove('fs','rot'); document.body.classList.remove('fs-on');
+  try{ screen.orientation && screen.orientation.unlock && screen.orientation.unlock(); }catch(e){}
+  if(document.fullscreenElement){ try{ const p = document.exitFullscreen(); if(p && p.catch) p.catch(() => {}); }catch(e){} }
+  setFsLabels();
+}
+$('#fsBtn').addEventListener('click', () => toggleFull($('#boardStage')));
+document.addEventListener('fullscreenchange', () => { if(!document.fullscreenElement && fsEl) exitFull(); else updRot(); });
+portraitMQ.addEventListener ? portraitMQ.addEventListener('change', updRot) : portraitMQ.addListener(updRot);
+window.addEventListener('resize', updRot);
+document.addEventListener('keydown', e => { if(e.key === 'Escape' && fsEl) exitFull(); });
+
+/* =================== Routing =================== */
+const VIEWS = ['bang','luat','cau-hoi','be'];
+function route(){
+  const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'bang';
+  VIEWS.forEach(x => $('#v-' + x).hidden = x !== v);
+  $$('nav.tabs a').forEach(a => { if(a.dataset.view === v) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
+  if(v !== 'bang') stopPlay();
+  exitFull();
+}
+window.addEventListener('hashchange', route);
+
+/* =================== Boot =================== */
+setTool('move');
+renderField(); renderPanels(); renderAll();
+renderRules(); renderQuiz(); route();
+})();
+</script>
