@@ -4,7 +4,14 @@ Bảng chiến thuật bóng đá cho sân 11, 7 và 5 người (futsal), có lu
 
 **Dùng ngay:** https://dungntpvi-art.github.io
 
-Tiếng Việt, miễn phí, chạy trên trình duyệt (máy tính, điện thoại, iPad). Không cần cài đặt, không cần tài khoản.
+Tiếng Việt, miễn phí, chạy trên trình duyệt (máy tính, điện thoại, iPad). Không cần tài khoản.
+
+## Cài như app trên điện thoại
+
+- **iPhone / iPad:** mở link bằng **Safari**, bấm nút **Chia sẻ** (hình vuông có mũi tên lên), chọn **Thêm vào MH chính**, rồi bấm **Thêm**.
+- **Android:** mở bằng **Chrome**, bấm menu **⋮**, chọn **Cài đặt ứng dụng** (hoặc **Thêm vào màn hình chính**).
+
+App có icon riêng, mở toàn màn hình không có thanh trình duyệt, và vẫn dùng được khi mất mạng (sau lần mở đầu tiên).
 
 ## Tính năng
 
@@ -48,8 +55,11 @@ Tiếng Việt, miễn phí, chạy trên trình duyệt (máy tính, điện th
 
 ```
 src/sa-ban-chien-thuat.html   Mã nguồn duy nhất: HTML + CSS + JavaScript, không dùng thư viện ngoài
-build.sh                      Tạo index.html từ mã nguồn
+build.sh                      Tạo index.html từ mã nguồn (thêm manifest, icon, service worker)
 index.html                    Trang chạy trên GitHub Pages (do build.sh tạo, không sửa tay)
+manifest.webmanifest          Thông tin để cài như app (tên, icon, màu)
+sw.js                         Service worker: chạy offline
+icons/                        Icon app (icon.svg là bản gốc, các PNG xuất từ đó)
 ```
 
 Mã nguồn trong `src/` không có `<!doctype>` và `<head>` vì cùng file được dùng làm Artifact trên claude.ai. `build.sh` bọc thêm phần đầu trang chuẩn.
