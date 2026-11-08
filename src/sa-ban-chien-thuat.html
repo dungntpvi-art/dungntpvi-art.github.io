@@ -1026,7 +1026,7 @@ function drawingSVG(d, i){
     let segs = '';
     for(let k=1;k<pts.length;k++){ const a = pts[k-1], b = pts[k];
       segs += `<line x1="${a[0].toFixed(2)}" y1="${a[1].toFixed(2)}" x2="${b[0].toFixed(2)}" y2="${b[1].toFixed(2)}" stroke-width="${((a[2]+b[2])/2*sw*.9).toFixed(3)}"/>`; }
-    return `<g class="dr"${di}><path class="hit" d="${path}" stroke-width="${F.r*1.2}"/><g stroke="${d.c || '#f4f7f2'}" stroke-linecap="round">${segs}</g></g>`;
+    return `<g class="dr"${di}><path class="hit" d="${path}" stroke-width="${F.r*1.2}"/><g stroke="${safeColor(d.c, '#f4f7f2')}" stroke-linecap="round">${segs}</g></g>`;
   }
   if(d.t === 'zone'){
     const cx=(x1+x2)/2, cy=(y1+y2)/2, rx=Math.abs(x2-x1)/2, ry=Math.abs(y2-y1)/2;
@@ -1070,6 +1070,8 @@ function renderDrawings(list){
 }
 
 /* ---------------- Tokens ---------------- */
+// Chỉ nhận mã màu hợp lệ: dữ liệu bài tải từ máy chủ không được chèn được mã lạ vào hình vẽ
+const safeColor = (c, d = '#888888') => /^#[0-9a-fA-F]{3,8}$/.test(String(c || '')) ? c : d;
 function textOn(hex){
   const c = hex.replace('#',''); const r=parseInt(c.slice(0,2),16), g=parseInt(c.slice(2,4),16), b=parseInt(c.slice(4,6),16);
   return (r*299+g*587+b*114)/1000 > 150 ? '#111' : '#fff';
@@ -1081,12 +1083,12 @@ function tokenSVG(id, p, pos){
       <circle r="${r*.48}" fill="#fff" stroke="#111" stroke-width="${r*.09}"/><circle r="${r*.17}" fill="#111"/></g>`;
   }
   const isGK = /^[ha]0$/.test(id), side = id[0] === 'h' ? 'home' : 'away';
-  const fill = isGK ? (side === 'home' ? '#f0b429' : '#2bb673') : st()[side].color;
+  const fill = isGK ? (side === 'home' ? '#f0b429' : '#2bb673') : safeColor(st()[side].color, side === 'home' ? '#d63a3a' : '#2563c9');
   const sel = id === selId ? `<circle r="${r*1.38}" fill="none" stroke="#ffd84a" stroke-width="${r*.14}" stroke-dasharray="${r*.4} ${r*.25}"/>` : '';
   const nm = p.name ? `<text class="nm" y="${r*2}" text-anchor="middle" font-size="${r*.72}" stroke-width="${r*.22}">${esc(p.name)}</text>` : '';
-  return `<g class="tok" data-id="${id}" transform="translate(${x} ${y})">${sel}
+  return `<g class="tok" data-id="${esc(id)}" transform="translate(${x} ${y})">${sel}
     <circle r="${r}" fill="${fill}" stroke="#fff" stroke-width="${r*.13}"/>
-    <text class="num" y="${r*.38}" text-anchor="middle" font-size="${r*1.08}" fill="${textOn(fill)}">${p.num}</text>${nm}</g>`;
+    <text class="num" y="${r*.38}" text-anchor="middle" font-size="${r*1.08}" fill="${textOn(fill)}">${esc(p.num)}</text>${nm}</g>`;
 }
 const EQ = {
   cone:  {name:'Nấm', hit:.65, svg:u => `<circle r="${u*.42}" fill="#ff8a1f" stroke="#fff" stroke-width="${u*.07}"/><circle r="${u*.14}" fill="#ffd2a6"/>`},
@@ -1100,9 +1102,9 @@ const EQ = {
 };
 function eqSVG(q, pos){
   if(!pos) return '';
-  const u = FMT[fmt].r, [x,y] = M(...pos), E = EQ[q.k] || EQ.cone, rot = q.rot || 0;
+  const u = FMT[fmt].r, [x,y] = M(...pos), E = EQ[q.k] || EQ.cone, rot = (+q.rot || 0) % 360;
   const sel = q.id === selId ? `<circle r="${u*Math.max(E.hit,.75)*1.15}" fill="none" stroke="#ffd84a" stroke-width="${u*.1}" stroke-dasharray="${u*.3} ${u*.2}"/>` : '';
-  return `<g class="tok eq" data-id="${q.id}" data-rot="${rot}" transform="translate(${x} ${y})${rot ? ` rotate(${rot})` : ''}"><circle r="${u*E.hit}" fill="transparent"/>${E.svg(u)}${sel}</g>`;
+  return `<g class="tok eq" data-id="${esc(q.id)}" data-rot="${rot}" transform="translate(${x} ${y})${rot ? ` rotate(${rot})` : ''}"><circle r="${u*E.hit}" fill="transparent"/>${E.svg(u)}${sel}</g>`;
 }
 function normState(s){
   if(!s) return;
@@ -1211,7 +1213,7 @@ function renderInfo(){
   box.hidden = false;
   box.innerHTML = `<h3>${esc(i.name)}</h3><div class="tags"><span>${esc(i.cat)}</span><span>${esc(i.time)}</span><span>${esc(i.n)}</span></div>
     <div class="sub">Bố trí</div><p>${esc(i.setup)}</p>
-    <div class="sub">Điểm cần nhắc bé</div><ul>${i.points.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+    <div class="sub">Điểm cần nhắc bé</div><ul>${(Array.isArray(i.points) ? i.points : []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>
     ${i.vary ? `<div class="sub">Biến thể</div><p>${esc(i.vary)}</p>` : ''}`;
 }
 
@@ -1500,7 +1502,7 @@ function renderBench(){
   $('#benchBar').innerHTML = !any ? '' : sides.map(side => {
     const T = s[side], fg = textOn(T.color);
     return `<div class="bench"><span class="blbl"><i style="background:${T.color}"></i>Dự bị ${SIDE_VN[side]}</span>` +
-      (T.bench.length ? T.bench.map((b,i) => `<button data-bside="${side}" data-bi="${i}" title="Thay ${esc(b.name || 'số ' + b.num)} vào cho cầu thủ đang chọn"><b style="background:${T.color};color:${fg}">${esc(b.num)}</b>${esc(b.name || 'Chưa có tên')}${b.gk ? ' <small style="color:var(--muted);font-weight:700">TM</small>' : ''}</button>`).join('')
+      (T.bench.length ? T.bench.map((b,i) => `<button data-bside="${side}" data-bi="${i}" title="Thay ${esc(b.name || 'số ' + b.num)} vào cho cầu thủ đang chọn"><b style="background:${safeColor(T.color)};color:${fg}">${esc(b.num)}</b>${esc(b.name || 'Chưa có tên')}${b.gk ? ' <small style="color:var(--muted);font-weight:700">TM</small>' : ''}</button>`).join('')
         : `<span class="none">Chưa có</span>`) + `</div>`;
   }).join('');
 }
@@ -2455,6 +2457,8 @@ function fbErr(e){
     'auth/operation-not-allowed':'Cách đăng nhập này chưa được bật trong Firebase (Authentication → Sign-in method).',
     'auth/unauthorized-domain':'Trang này chưa được phép đăng nhập. Admin cần thêm dungntpvi-art.github.io vào Firebase → Authentication → Settings → Authorized domains.',
     'auth/popup-closed-by-user':'Đã đóng cửa sổ đăng nhập Google.', 'auth/cancelled-popup-request':'Đã huỷ đăng nhập Google.',
+    'auth/operation-not-supported-in-this-environment':'Đăng nhập Google không chạy trong app cài ở màn hình chính. Hãy đăng nhập bằng email + mật khẩu, hoặc mở trang bằng Safari / Chrome.',
+    'auth/web-storage-unsupported':'Trình duyệt đang chặn lưu dữ liệu đăng nhập. Tắt chế độ ẩn danh hoặc cho phép cookie rồi thử lại.',
     'auth/popup-blocked':'Trình duyệt chặn cửa sổ đăng nhập Google. Cho phép cửa sổ bật lên rồi thử lại.',
     'auth/network-request-failed':'Không có mạng. Kiểm tra kết nối rồi thử lại.',
     'permission-denied':'Không có quyền. Tài khoản chưa được cấp quyền, hoặc Admin chưa dán luật bảo mật Firestore.',
@@ -2627,7 +2631,7 @@ function applyRoster(r){
     for(const side of ['home','away']){
       const R = r[f][side]; if(!R) continue;
       const T0 = s[side];
-      if(R.color) T0.color = R.color;
+      if(R.color) T0.color = safeColor(R.color, T0.color);
       if(Array.isArray(R.players) && R.players.length === T0.players.length)
         R.players.forEach((p, i) => { T0.players[i].num = p.num; T0.players[i].name = p.name; if(p.gk) T0.players[i].gk = true; else delete T0.players[i].gk; });
       T0.bench = (R.bench || []).map(b => ({...b}));
@@ -2738,6 +2742,7 @@ async function openShared(id){
     const snap = await withTimeout(fs.getDoc(fs.doc(db, 'boards', id)));
     if(!snap.exists()) throw {code:'not-found'};
     const b = snap.data();
+    if(!FMT[b.fmt]) throw {code:'not-found'};
     fmt = b.fmt; S[fmt] = JSON.parse(b.data); normState(S[fmt]); selId = null;
     setTool('move'); renderField(); renderPanels(); renderAll();
     banner(`<span class="grow">Đang xem: <b>${esc(b.name)}</b> (chỉ xem). Bấm ▶ Phát để xem hình động, ⛶ để xem toàn màn hình.</span><a href="${location.pathname}">Về trang chính</a>`);
