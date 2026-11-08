@@ -1226,13 +1226,39 @@ function toast(msg){ const t = $('#toast'); t.textContent = msg; t.hidden = fals
 /* ---------------- Pointer interaction ---------------- */
 // toạ độ chuột → toạ độ sân (mét), tính từ viewBox + kích thước hiển thị (preserveAspectRatio mặc định: xMidYMid meet)
 function clientToSvg(el, cx, cy){
-  // getScreenCTM tính cả phép xoay CSS (chế độ toàn màn hình nằm ngang)
-  const ctm = el.getScreenCTM && el.getScreenCTM();
-  if(ctm && el.getBoundingClientRect().width){ const p = el.createSVGPoint(); p.x = cx; p.y = cy; const q = p.matrixTransform(ctm.inverse()); return {x:q.x, y:q.y}; }
-  const vb = el.viewBox.baseVal, r = el.getBoundingClientRect();
-  const s = Math.min(r.width/vb.width, r.height/vb.height);
-  const ox = r.left + (r.width - vb.width*s)/2, oy = r.top + (r.height - vb.height*s)/2;
-  return {x: vb.x + (cx-ox)/s, y: vb.y + (cy-oy)/s};
+  // Tự tính toạ độ (không dùng getScreenCTM: Safari iPhone tính sai khi sân bị xoay bằng CSS ở chế độ toàn màn hình)
+  const vb = el.viewBox.baseVal, rot = el.closest('.fs.rot');
+  let sx, sy, w, h;
+  if(rot){
+    // .fs.rot: transform-origin góc trên-trái, rotate(90deg) translateY(-100%) → điểm (lx, ly) trong khung hiện ở (H − ly, lx) trên màn hình
+    const H = rot.offsetHeight, lx = cy, ly = H - cx;
+    let ox = 0, oy = 0, n = el.parentElement;
+    while(n && n !== rot){ ox += n.offsetLeft; oy += n.offsetTop; n = n.offsetParent; }
+    sx = lx - ox; sy = ly - oy; w = el.clientWidth; h = el.clientHeight;
+  } else {
+    const r = el.getBoundingClientRect();
+    sx = cx - r.left; sy = cy - r.top; w = r.width; h = r.height;
+  }
+  const s = Math.min(w/vb.width, h/vb.height) || 1;
+  return {x: vb.x + (sx - (w - vb.width*s)/2)/s, y: vb.y + (sy - (h - vb.height*s)/2)/s};
+}
+// Chẩn đoán cảm ứng: mở trang với ?debug=touch để xem điện thoại gửi sự kiện gì
+if(new URLSearchParams(location.search).get('debug') === 'touch'){
+  const box = document.createElement('pre');
+  box.style.cssText = 'position:fixed;left:6px;right:6px;bottom:calc(6px + env(safe-area-inset-bottom,0px));z-index:99;max-height:38vh;overflow:auto;margin:0;padding:6px 8px;background:rgba(0,0,0,.82);color:#9ef59e;font:11px/1.35 ui-monospace,Menlo,monospace;border-radius:8px;white-space:pre-wrap;pointer-events:none';
+  const lines = [], moves = {};
+  const head = () => `UA: ${navigator.userAgent.slice(0,110)}\nPointerEvent: ${!!window.PointerEvent} · touch-action: ${CSS.supports && CSS.supports('touch-action','none')} · màn hình ${innerWidth}×${innerHeight}`;
+  const show = () => { box.textContent = head() + '\n' + lines.slice(-10).join('\n'); };
+  const tgt = t => t && t.closest ? ((t.closest('.tok') && 'cầu thủ/' + t.closest('.tok').dataset.id) || (t.closest('#pitch') && 'sân') || t.tagName.toLowerCase()) : '?';
+  const log = e => {
+    if(e.type === 'pointermove'){ moves[e.pointerId] = (moves[e.pointerId] || 0) + 1; if(moves[e.pointerId] % 15) return; }
+    let extra = '';
+    if(e.type === 'pointerdown' || e.type === 'pointerup'){ try{ const m = clientToSvg($('#pitch'), e.clientX, e.clientY); extra = ` → sân(${m.x.toFixed(1)}, ${m.y.toFixed(1)})`; }catch(_){} }
+    lines.push(`${e.type}${e.pointerType ? ' ' + e.pointerType : ''}${e.pointerId != null ? ' #' + e.pointerId : ''}${e.isPrimary ? ' chính' : ''} [${tgt(e.target)}] công cụ=${typeof tool !== 'undefined' ? tool : '?'} kéo=${typeof drag !== 'undefined' && drag ? drag.id : '-'}${document.querySelector('.fs.rot') ? ' XOAY' : ''}${extra}`);
+    show();
+  };
+  ['pointerdown','pointermove','pointerup','pointercancel','touchstart','touchend','touchcancel','lostpointercapture'].forEach(t => document.addEventListener(t, log, {capture:true, passive:true}));
+  addEventListener('load', () => { document.body.appendChild(box); show(); });
 }
 function toNorm(e){
   const m = clientToSvg(svg, e.clientX, e.clientY);
