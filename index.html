@@ -373,6 +373,23 @@ body.fs-on{overflow:hidden}
 .fs .ksay{font-size:clamp(15px,2.4vw,26px);min-height:0}
 .fs .khead,.fs .kctrl,.fs .kfb{flex:none}
 .fs .kfb{padding:6px 10px;font-size:15px}
+/* Bảng chiến thuật ở chế độ toàn màn hình: sân tối đa, cột công cụ icon bên trái, hàng khung hình gọn bên dưới */
+#boardStage.fs{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:6px 8px}
+#boardStage.fs .toolbar{display:contents}
+#boardStage.fs .toolbar > *{display:none}
+#boardStage.fs .toolbar > #tools{display:flex;flex-direction:column;flex-wrap:nowrap;grid-column:1;grid-row:1;align-self:center;max-height:100%;overflow-y:auto;padding:3px;gap:2px}
+#boardStage.fs .toolbar > #tools button{padding:5px 6px;justify-content:center}
+#boardStage.fs .toolbar > #tools button svg{width:20px;height:20px}
+#boardStage.fs .toolbar > #penColors:not([hidden]){display:inline-flex;position:absolute;z-index:6;left:calc(64px + env(safe-area-inset-left,0px));top:calc(10px + env(safe-area-inset-top,0px))}
+#boardStage.fs .toolbar > #fsBtn,#boardStage.fs .toolbar > #shareBtn{display:inline-flex;position:absolute;z-index:6;top:calc(8px + env(safe-area-inset-top,0px));padding:6px 10px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+#boardStage.fs .toolbar > #fsBtn{right:calc(10px + env(safe-area-inset-right,0px))}
+#boardStage.fs .toolbar > #shareBtn{right:calc(88px + env(safe-area-inset-right,0px))}
+#boardStage.fs .pitch-wrap{grid-column:2;grid-row:1;min-height:0}
+#boardStage.fs .caption{right:auto;max-width:min(60%,520px)}
+#boardStage.fs .frames{grid-column:1 / -1;grid-row:2;flex-wrap:nowrap;overflow-x:auto;padding:4px 8px;gap:6px}
+#boardStage.fs .frames .chips{flex-wrap:nowrap}
+#boardStage.fs .frames .btn,#boardStage.fs .frames select{padding:5px 9px;white-space:nowrap}
+#boardStage.fs #exportPng,#boardStage.fs #exportVid,#boardStage.fs #exportGif,#boardStage.fs .frames .spacer{display:none}
 
 .toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;z-index:20;max-width:calc(100% - 32px)}
 footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
@@ -3137,11 +3154,13 @@ const portraitMQ = window.matchMedia('(orientation: portrait)');
 function updRot(){ if(fsEl) fsEl.classList.toggle('rot', portraitMQ.matches && window.innerWidth < 900); }
 function setFsLabels(){
   $('#fsBtn').textContent = fsEl && fsEl.id === 'boardStage' ? '✕ Thoát' : '⛶ Toàn màn hình';
+  $('#shareBtn').textContent = fsEl && fsEl.id === 'boardStage' ? '⤓ Gửi' : '⤓ Xuất / Gửi bài';
   $('#kFull').textContent = fsEl && fsEl.id === 'kStage' ? '✕ Thoát' : 'Toàn màn hình';
 }
 function toggleFull(el){
   if(fsEl){ exitFull(); return; }
   fsEl = el; el.classList.add('fs'); document.body.classList.add('fs-on');
+  if(el.id === 'boardStage'){ selId = null; resetZoom(); renderTokens(); }
   updRot(); setFsLabels();
   // Thử toàn màn hình thật + khoá ngang (Android, máy tính). iPhone không hỗ trợ: đã có lớp phủ + xoay CSS.
   try{
