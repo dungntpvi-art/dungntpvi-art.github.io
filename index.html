@@ -65,6 +65,7 @@ nav.tabs a{font-family:var(--font-display);font-weight:700;font-size:17px;letter
   text-decoration:none;color:var(--muted);padding:6px 14px;border-radius:999px;border:1px solid transparent}
 nav.tabs a:hover{color:var(--ink);border-color:var(--line)}
 nav.tabs a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+nav.tabs .ni,nav.tabs .ns{display:none}
 
 /* Generic controls */
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface);gap:2px}
@@ -588,6 +589,77 @@ body.fs-on{overflow:hidden}
 
 .toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;z-index:20;max-width:calc(100% - 32px)}
 footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
+/* ===== Điện thoại: thanh tab dưới đáy, đầu trang gọn, chạm dễ ===== */
+@media (max-width:760px){
+  body{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
+  header.top{flex-wrap:nowrap;align-items:center;gap:10px;padding-block:calc(10px + env(safe-area-inset-top,0px)) 10px;margin-bottom:12px}
+  .brand{min-width:0;flex:1}
+  .brand h1{font-size:23px;white-space:nowrap}
+  .brand p{display:none}
+  header.top:has(.acct.on) .brand h1 span{display:none}
+  .acct.on .teamsel{max-width:150px}
+  .acct{flex:none}
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;flex-wrap:nowrap;gap:0;background:color-mix(in srgb,var(--surface) 94%,transparent);
+    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:4px 2px calc(4px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 16px rgba(0,0,0,.06)}
+  nav.tabs a{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 0 3px;border:0;border-radius:10px;
+    font-family:var(--font-body);font-size:10.5px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--muted);position:relative;-webkit-tap-highlight-color:transparent}
+  nav.tabs a:hover{border-color:transparent}
+  nav.tabs a[hidden]{display:none}
+  nav.tabs a[aria-current="page"]{background:none;color:var(--accent)}
+  nav.tabs a[aria-current="page"] .ni{background:var(--accent-soft)}
+  nav.tabs .ni{display:block;width:44px;height:28px;padding:3px 10px;border-radius:999px;stroke-width:1.9}
+  nav.tabs .nl{display:none}
+  nav.tabs .ns{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  nav.tabs .nbadge{position:absolute;top:0;left:calc(50% + 8px);margin:0}
+  body.fs-on nav.tabs,body.readonly nav.tabs{display:none}
+  body.readonly{padding-bottom:0}
+  #toast{bottom:calc(76px + env(safe-area-inset-bottom,0px))!important}
+  .cbanner{font-size:13px;padding:8px 12px;margin-bottom:12px}
+  .cbanner .grow{min-width:0}
+  .panel{padding:12px}
+  /* iPhone tự phóng to khi chữ trong ô nhập nhỏ hơn 16px */
+  input[type=text],input[type=number],input[type=email],input[type=password],input[type=search],input[type=date],input[type=time],select,textarea,
+  .pblk select,.pblk input,.pblk textarea,.srow input,.tmem select{font-size:16px}
+  input[type=date],input[type=time]{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:7px 9px;width:100%;min-height:40px;color:var(--ink)}
+  /* Giáo án: mỗi phần gọn trên 3 hàng */
+  .pblk .r1{grid-template-columns:minmax(0,1fr) 76px!important}
+  .pblk .r1 > [data-f="ref"]{grid-column:1/-1;grid-row:2}
+  .pblk .r1 .acts{grid-column:1/-1}
+  /* Trận đấu: nút to bấm ngoài sân */
+  .score{padding:12px 10px;gap:12px 8px}
+  .sbtn{gap:6px;width:100%}
+  .sbtn .btn{flex:1;justify-content:center;min-height:52px;font-size:18px;padding:6px 8px}
+  .sbtn .btn.primary{flex:2}
+  .mid .row .btn{min-height:46px;font-size:15px;padding:6px 16px}
+  .frow{display:grid;grid-template-columns:minmax(0,1fr) 44px 34px 44px;gap:6px}
+  .frow span{min-width:0;font-size:13.5px}
+  .frow .btn{min-height:42px;justify-content:center}
+  .frow [data-to]{grid-column:1/-1;grid-row:2}
+  .mpanel .mtop .row .btn{min-height:42px}
+  #v-bang .dim{display:none}
+  table.cmp:not(.utable){min-width:0;display:block}
+  .tbl-wrap:has(> table.cmp:not(.utable)){border:0;background:none;overflow:visible}
+  table.cmp:not(.utable) thead{display:none}
+  table.cmp:not(.utable) tbody{display:grid;gap:8px}
+  table.cmp:not(.utable) tr{display:grid;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+  table.cmp:not(.utable) tbody th{width:auto;background:var(--surface-2);color:var(--ink);font-family:var(--font-display);font-size:16px;letter-spacing:.03em;text-transform:uppercase;padding:7px 12px}
+  table.cmp:not(.utable) td{display:grid;grid-template-columns:62px minmax(0,1fr);gap:8px;padding:7px 12px}
+  table.cmp:not(.utable) td::before{content:attr(data-col);font-weight:700;color:var(--accent);font-size:12.5px}
+  table.cmp:not(.utable) tr:last-child td{border-bottom:1px solid var(--line)}
+  table.cmp:not(.utable) tr td:last-child{border-bottom:0}
+  .row{flex-wrap:wrap}
+  .row > label.f{min-width:0;max-width:100%}
+  .row > label.f:has(input[type=date]){flex:1 1 150px;width:auto!important}
+  input[type=date]{min-width:0;max-width:100%}
+  .zoomctl{transform:scale(.8);transform-origin:bottom right}
+}
+@media (pointer:coarse){
+  .btn{min-height:40px;padding:8px 13px}
+  .seg button{min-height:34px;padding:6px 13px}
+  button,a,label,select,input{touch-action:manipulation}
+  .pchips button,.kpick button,.cpick button{min-height:38px}
+}
+
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 
@@ -598,14 +670,14 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
     <p>Bảng vẽ chiến thuật, luật thi đấu và câu hỏi tình huống cho sân 11, 7 và 5 người</p>
   </div>
   <nav class="tabs" aria-label="Chuyển mục">
-    <a href="#lich" data-view="lich">Lịch &amp; tin<span class="nbadge" id="newsDot" hidden></span></a>
-    <a href="#bang" data-view="bang">Bảng chiến thuật</a>
-    <a href="#luat" data-view="luat">Luật thi đấu</a>
-    <a href="#cau-hoi" data-view="cau-hoi">Tình huống</a>
-    <a href="#giao-an" data-view="giao-an">Giáo án</a>
-    <a href="#tran" data-view="tran">Trận đấu</a>
-    <a href="#ho-so" data-view="ho-so">Hồ sơ</a>
-    <a href="#quan-ly" data-view="quan-ly" id="navAdmin" hidden>Quản lý</a>
+    <a href="#lich" data-view="lich"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span class="nl">Lịch &amp; tin</span><span class="ns">Lịch</span><span class="nbadge" id="newsDot" hidden></span></a>
+    <a href="#bang" data-view="bang"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="1.5"/><path d="M12 5v14"/><circle cx="12" cy="12" r="3"/></svg><span class="nl">Bảng chiến thuật</span><span class="ns">Sa bàn</span></a>
+    <a href="#luat" data-view="luat"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h5a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4z"/><path d="M20 4h-5a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h6z"/></svg><span class="nl">Luật thi đấu</span><span class="ns">Luật</span></a>
+    <a href="#cau-hoi" data-view="cau-hoi"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 .5c0 1.5-2.5 2-2.5 3.5"/><path d="M12 17h.01"/></svg><span class="nl">Tình huống</span><span class="ns">Hỏi đáp</span></a>
+    <a href="#giao-an" data-view="giao-an"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/></svg><span class="nl">Giáo án</span><span class="ns">Giáo án</span></a>
+    <a href="#tran" data-view="tran"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M10 2h4"/></svg><span class="nl">Trận đấu</span><span class="ns">Trận</span></a>
+    <a href="#ho-so" data-view="ho-so"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="nl">Hồ sơ</span><span class="ns">Hồ sơ</span></a>
+    <a href="#quan-ly" data-view="quan-ly" id="navAdmin" hidden><svg class="ni" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg><span class="nl">Quản lý</span><span class="ns">Quản lý</span></a>
   </nav>
   <div class="acct" id="acct"></div>
 </header>
@@ -3946,7 +4018,7 @@ function renderRules(){
     h += `<p class="lead">Khác biệt chính giữa ba loại sân. Cột sân 7 ghi theo cách các giải phong trào hay áp dụng, vì mỗi giải có điều lệ riêng.</p>`;
     const rows = COMPARE.rows.filter(r => !qn || r.join(' ').toLowerCase().includes(qn));
     h += `<div class="tbl-wrap"><table class="cmp"><thead><tr><th>Nội dung</th>${COMPARE.cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>`;
-    h += rows.map(r => `<tr><th scope="row">${hl(esc(r[0]),q)}</th>${r.slice(1).map(c => `<td>${hl(esc(c),q)}</td>`).join('')}</tr>`).join('');
+    h += rows.map(r => `<tr><th scope="row">${hl(esc(r[0]),q)}</th>${r.slice(1).map((c, ci) => `<td data-col="${esc((COMPARE.cols[ci] || '').split(' (')[0])}">${hl(esc(c),q)}</td>`).join('')}</tr>`).join('');
     if(!rows.length) h += `<tr><td colspan="4">Không có dòng nào khớp “${esc(q)}”.</td></tr>`;
     h += `</tbody></table></div>`;
   }
