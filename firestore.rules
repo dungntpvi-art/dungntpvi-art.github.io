@@ -35,8 +35,9 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-      // HLV / Trợ lý xem được danh sách tài khoản để thêm người vào đội
-      allow read: if signedIn() && (request.auth.uid == uid || canEdit());
+      // HLV / Trợ lý xem được HLV, Trợ lý, Cầu thủ để thêm vào đội; tài khoản Admin và người chờ duyệt được giấu
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin()
+        || (canEdit() && resource.data.role in ['coach', 'assistant', 'viewer']));
       // Tự đăng ký: chỉ được tạo hồ sơ của mình với vai trò "pending". Admin tạo được cho người khác.
       allow create: if isAdmin()
         || (signedIn() && request.auth.uid == uid && request.resource.data.role == 'pending');

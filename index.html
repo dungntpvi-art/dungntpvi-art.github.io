@@ -3007,7 +3007,9 @@ function startSync(){
   uploadLocalPriv();
   if(!isMember()){ loadTeamLocal(); renderAuth(); return; }
   if(canEditCloud()){
-    CLOUD.dataUnsub.push(fs.onSnapshot(fs.collection(db, 'users'), q => { CLOUD.users = q.docs.map(d => ({uid:d.id, ...d.data()})); if(CLOUD.role === 'admin') renderAdmin(); renderToi(); }, warn));
+    // Admin thấy mọi tài khoản; HLV / Trợ lý chỉ thấy HLV, Trợ lý, Cầu thủ (tài khoản Admin được giấu)
+    const uq = CLOUD.role === 'admin' ? fs.collection(db, 'users') : fs.query(fs.collection(db, 'users'), fs.where('role', 'in', ['coach', 'assistant', 'viewer']));
+    CLOUD.dataUnsub.push(fs.onSnapshot(uq, q => { CLOUD.users = q.docs.map(d => ({uid:d.id, ...d.data()})); if(CLOUD.role === 'admin') renderAdmin(); renderToi(); }, warn));
   }
   (async () => {
     try{ const m = await withTimeout(fs.getDoc(fs.doc(db, 'meta', 'migrated'))); CLOUD.migratedTid = m.exists() ? m.data().tid : null; }catch(_){ CLOUD.migratedTid = null; }
@@ -3658,8 +3660,10 @@ function renderTeamPanel(){
   const box = $('#teamBody'), uid = CLOUD.user.uid;
   if(!isMember()){ box.innerHTML = '<p class="hint">Tài khoản đang chờ Admin duyệt. Sau khi có vai trò, bạn sẽ thấy đội của mình ở đây.</p>'; return; }
   const cur = CLOUD.teams.find(t => t.id === CLOUD.team);
+  const seen = new Set((CLOUD.users || []).map(u => u.uid)), isA = CLOUD.role === 'admin';
+  const visMem = t => (t.members || []).filter(m => isA || m === uid || seen.has(m));   // HLV không thấy Admin trong đội
   let h = CLOUD.teams.length ? `<div class="tcards">${CLOUD.teams.map(t => { const on = t.id === CLOUD.team, n = t.name || 'Đội';
-      return `<div class="tcard${on ? ' cur' : ''}"><span class="tb" style="background:${avatarColor(n)}">${esc(initials(n))}</span><div class="tn"><b>${esc(n)}</b><small>${(t.members || []).length} thành viên</small></div>${on ? '<span class="curtag">Đang chọn</span>' : `<button class="btn" data-tsel="${esc(t.id)}">Chọn</button>`}</div>`; }).join('')}</div>`
+      return `<div class="tcard${on ? ' cur' : ''}"><span class="tb" style="background:${avatarColor(n)}">${esc(initials(n))}</span><div class="tn"><b>${esc(n)}</b><small>${visMem(t).length} thành viên</small></div>${on ? '<span class="curtag">Đang chọn</span>' : `<button class="btn" data-tsel="${esc(t.id)}">Chọn</button>`}</div>`; }).join('')}</div>`
     : `<p class="hint">${canEditCloud() ? 'Đang tạo đội đầu tiên…' : 'Bạn chưa thuộc đội nào. Nhờ HLV thêm bạn vào đội.'}</p>`;
   if(canEditCloud()){
     h += `<details class="tnew"><summary>+ Tạo đội mới</summary>
@@ -3667,7 +3671,7 @@ function renderTeamPanel(){
       <label class="switch"><input type="checkbox" id="tCopy"> Chép danh sách cầu thủ của đội đang chọn</label></details>`;
     if(cur){
       const users = CLOUD.users || [], byId = Object.fromEntries(users.map(u => [u.uid, u]));
-      const mem = (cur.members || []).map(m => byId[m] || {uid:m, name:'(tài khoản)', role:''});
+      const mem = visMem(cur).map(m => byId[m] || (m === uid ? {uid, name:(CLOUD.profile && CLOUD.profile.name) || CLOUD.user.email, role:CLOUD.role} : {uid:m, name:'(tài khoản)', role:''}));
       const addable = users.filter(u => !(cur.members || []).includes(u.uid) && !['pending','disabled'].includes(u.role));
       h += `<div class="tbox"><div class="sub-h">Đội đang chọn</div>
         <div class="pname"><label class="f">Tên đội<input type="text" id="tRename" maxlength="40" value="${esc(cur.name || '')}"></label><button class="btn" data-tren="1">Đổi tên</button></div>
