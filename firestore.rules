@@ -18,6 +18,9 @@ service cloud.firestore {
     function canEdit() { return role() in ['admin', 'coach', 'assistant']; }
     function member() { return role() in ['admin', 'coach', 'assistant', 'viewer']; }
     function adminPath() { return /databases/$(database)/documents/meta/admin; }
+    function teamPath(tid) { return /databases/$(database)/documents/teams/$(tid); }
+    // Thuộc đội: Admin thuộc mọi đội; người khác phải có tên trong danh sách thành viên của đội
+    function inTeam(tid) { return isAdmin() || (member() && exists(teamPath(tid)) && request.auth.uid in get(teamPath(tid)).data.members); }
 
     // Người đầu tiên bấm "Nhận quyền Admin" trở thành Admin. Sau đó không ai tạo lại được.
     match /meta/admin {
@@ -25,8 +28,15 @@ service cloud.firestore {
       allow create: if signedIn() && !exists(adminPath()) && request.resource.data.uid == request.auth.uid;
     }
 
+    // Đánh dấu đã chuyển dữ liệu cũ sang đội đầu tiên (chỉ tạo một lần)
+    match /meta/migrated {
+      allow read: if signedIn();
+      allow create: if canEdit();
+    }
+
     match /users/{uid} {
-      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      // HLV / Trợ lý xem được danh sách tài khoản để thêm người vào đội
+      allow read: if signedIn() && (request.auth.uid == uid || canEdit());
       // Tự đăng ký: chỉ được tạo hồ sơ của mình với vai trò "pending". Admin tạo được cho người khác.
       allow create: if isAdmin()
         || (signedIn() && request.auth.uid == uid && request.resource.data.role == 'pending');
@@ -36,7 +46,35 @@ service cloud.firestore {
         || (signedIn() && request.auth.uid == uid && request.resource.data.role == 'admin'
             && getAfter(adminPath()).data.uid == request.auth.uid);
       allow delete: if isAdmin();
+
+      // Kho riêng: chỉ chủ tài khoản đọc / ghi
+      match /private/{doc} {
+        allow read, write: if signedIn() && request.auth.uid == uid;
+      }
     }
+
+    // Nhiều đội: mỗi đội có thành viên riêng, bài, giáo án và dữ liệu (danh sách, điểm danh, trận, sao)
+    match /teams/{tid} {
+      allow read: if isAdmin() || (member() && request.auth.uid in resource.data.members);
+      allow create: if canEdit() && request.auth.uid in request.resource.data.members;
+      allow update: if canEdit() && inTeam(tid) && request.resource.data.members is list;
+      allow delete: if isAdmin();
+
+      match /boards/{id} {
+        allow read: if inTeam(tid) || resource.data.public == true;
+        allow create, update, delete: if canEdit() && inTeam(tid);
+      }
+      match /plans/{id} {
+        allow read: if inTeam(tid);
+        allow create, update, delete: if canEdit() && inTeam(tid);
+      }
+      match /data/{doc} {
+        allow read: if inTeam(tid);
+        allow write: if canEdit() && inTeam(tid);
+      }
+    }
+
+    // ---- Dữ liệu cũ (trước khi có nhiều đội); app tự chép sang đội đầu tiên ----
 
     // Bài chiến thuật / bài tập của đội. public == true: ai có link cũng xem được (chỉ xem).
     match /boards/{id} {

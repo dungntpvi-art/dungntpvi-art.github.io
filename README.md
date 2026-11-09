@@ -54,6 +54,13 @@ App có icon riêng, mở toàn màn hình không có thanh trình duyệt, và 
 - Luật bảo mật nằm ở `firestore.rules`, dán vào Firebase Console → Firestore Database → Rules.
 - Người đầu tiên bấm “Nhận quyền Admin” trở thành Admin của đội.
 
+### Của tôi
+- Hồ sơ: đổi tên hiển thị, đổi mật khẩu (gửi email), thống kê bài / giáo án / trận của mình.
+- Nhiều đội cho một HLV: chọn đội ở góc trên, tạo đội mới (có thể chép danh sách cầu thủ), đổi tên, thêm / bỏ thành viên. Mỗi đội có bài, giáo án, danh sách, điểm danh, trận và sao riêng. Lần đầu đăng nhập, dữ liệu cũ được chép sang “Đội sân 5”.
+- Kho riêng: “Lưu riêng” cho bài chiến thuật và giáo án (chỉ mình thấy), “→ Riêng” để chép bài của đội về, “Lên đội” để chia sẻ.
+- Đội hình yêu thích: ở khung Đội nhà bấm “★ Lưu” để lưu vị trí hiện tại, chọn lại để xếp nhanh.
+- Cài đặt mặc định theo tài khoản: sân mở app, màu áo hai đội, tốc độ phát, bật sẵn chế độ bút.
+
 ### Luật thi đấu
 - Bảng so sánh sân 11 / 7 / 5.
 - Tóm tắt 17 điều luật IFAB 2025/26 (sân 11), luật Futsal FIFA (sân 5), các điểm khác biệt thường gặp của sân 7 phong trào.
