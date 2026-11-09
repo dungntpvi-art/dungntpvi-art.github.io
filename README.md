@@ -22,11 +22,14 @@ App có icon riêng, mở toàn màn hình không có thanh trình duyệt, và 
 - Công cụ vẽ: chạy chỗ, chuyền, dẫn bóng, sút, vẽ tay tự do, khoanh vùng, kẻ tuyến, xoá nét.
 - Khung hình và hình động: xếp vị trí từng bước rồi bấm ▶ Phát, mỗi khung có ghi chú riêng.
 - Danh sách đội: tên, số áo, người đá chính và dự bị, thay người, nhập nhanh cả đội.
+- Hoàn tác / làm lại (↶ ↷, Ctrl+Z / Ctrl+Shift+Z).
+- Chữ ghi chú trên sân (công cụ Chữ, phím T): chạm để gõ, chạm chữ cũ để sửa.
 - Toàn màn hình nằm ngang (điện thoại dọc tự xoay), phóng to và thu nhỏ (chụm 2 ngón, nút + / −, Ctrl + lăn chuột).
 - Bút cảm ứng (Apple Pencil, S Pen): nét vẽ theo lực nhấn, chống chạm lòng bàn tay, Chế độ bút (bút để vẽ, ngón tay để kéo và phóng to).
 - Khung nhìn cả sân, nửa sân, 1/3 sân để vẽ bài tập.
 - Mũi tên uốn cong (kéo tay nắm vàng ở giữa mũi tên). Khi phát, cầu thủ và bóng chạy theo đúng mũi tên đã vẽ.
 - Nút **Xuất / Gửi bài**: video MP4, ảnh PNG hoặc GIF động để gửi Zalo (trên điện thoại có nút Chia sẻ).
+- **Video có giọng HLV**: app phát hình động và thu tiếng HLV giảng giải cùng lúc.
 - Thư viện: 6 bài chiến thuật mẫu, 16 bài tập sân 5 (khởi động, kỹ thuật, giữ bóng, tấn công – phòng ngự, thủ môn, tình huống cố định), lọc theo nhóm, lưu bài của mình.
 
 ### Giáo án buổi tập
@@ -35,12 +38,19 @@ App có icon riêng, mở toàn màn hình không có thanh trình duyệt, và 
 - In 1 trang A4 (hoặc lưu PDF) kèm hình các bài tập để mang ra sân.
 - Lưu nhiều giáo án.
 
+### Trận đấu
+- Điều khiển trận futsal: đồng hồ dừng theo hiệp, tỉ số, ai ghi bàn, lỗi tích lũy (cảnh báo từ lỗi thứ 5), hội ý 1 phút, thay người.
+- Tự tính phút thi đấu từng bé, đánh dấu 3 bé ít phút nhất; lưu lịch sử trận, tổng phút và bàn thắng cả mùa.
+- Điểm danh theo ngày, tỉ lệ đi tập của từng bé.
+- Chia đội đá tập ngẫu nhiên (2–4 đội), cân bằng số người, mỗi đội 1 thủ môn.
+
 ### Tài khoản và đồng bộ (Firebase)
 - Đăng ký, đăng nhập bằng email hoặc Google. Người tự đăng ký chờ Admin duyệt.
 - Vai trò: Admin, HLV, Trợ lý, Cầu thủ / phụ huynh (chỉ xem), Chờ duyệt, Đã khoá.
 - Trang Quản lý (Admin): tạo tài khoản cho người khác, đổi vai trò, khoá tài khoản.
 - Bài chiến thuật, giáo án và danh sách đội lưu online, mở trên mọi máy.
 - Link chỉ xem cho từng bài (`?xem=<mã bài>`), tắt được bất cứ lúc nào.
+- Điểm danh, lịch sử trận và sao của từng bé cũng được đồng bộ cho cả đội.
 - Luật bảo mật nằm ở `firestore.rules`, dán vào Firebase Console → Firestore Database → Rules.
 - Người đầu tiên bấm “Nhận quyền Admin” trở thành Admin của đội.
 
@@ -53,7 +63,7 @@ App có icon riêng, mở toàn màn hình không có thanh trình duyệt, và 
 14 câu hỏi trắc nghiệm có giải thích.
 
 ### Cho bé (sân 5)
-5 bài học có hình động, lời giải thích đơn giản ("xoè tay ra", "nắm tay lại", "sợi dây"…). Mỗi bài có một thử thách kéo thả, trò chơi để tập trên sân và câu hỏi gợi mở cho HLV.
+9 bài học có hình động, lời giải thích đơn giản ("xoè tay ra", "nắm tay lại", "sợi dây"…). Mỗi bài có một thử thách kéo thả, trò chơi để tập trên sân và câu hỏi gợi mở cho HLV.
 
 ## Phím tắt (bảng chiến thuật)
 
@@ -62,6 +72,8 @@ App có icon riêng, mở toàn màn hình không có thanh trình duyệt, và 
 | V | Kéo thả |
 | R / P / D / S | Chạy / Chuyền / Dẫn bóng / Sút |
 | B | Vẽ tay |
+| T | Chữ ghi chú |
+| Ctrl+Z / Ctrl+Shift+Z | Hoàn tác / làm lại |
 | Z / L | Vùng / Tuyến |
 | E | Xoá nét |
 | Space | Phát / dừng |

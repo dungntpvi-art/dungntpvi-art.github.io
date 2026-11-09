@@ -114,6 +114,10 @@ svg.drawing .tok{cursor:crosshair}
 svg.drawing{cursor:crosshair}
 #drawings .dr{pointer-events:none}
 svg.erasing #drawings .dr{pointer-events:visiblePainted;cursor:pointer}
+svg.texting #drawings .dr.txt{pointer-events:visiblePainted;cursor:text}
+#txtInput{position:fixed;z-index:80;width:min(240px,70vw);padding:8px 10px;font:600 16px var(--font-body);border-radius:8px;border:2px solid var(--accent);background:var(--surface);color:var(--ink);box-shadow:0 6px 20px rgba(0,0,0,.3)}
+#voiceRow .btn{font-size:15px;padding:9px 14px}
+#expCanvas{display:block;max-width:100%;max-height:58vh;margin:0 auto;border-radius:8px}
 svg.erasing #drawings .dr:hover ellipse{fill-opacity:.35}
 svg.erasing #drawings .dr:hover path,svg.erasing #drawings .dr:hover ellipse{stroke:#ff6b5b}
 .hit{stroke:transparent;fill:none}
@@ -271,6 +275,52 @@ a.btn{text-decoration:none;color:inherit}
 a.btn.primary{color:var(--accent-ink)}
 .fs .drillinfo{display:none}
 
+/* Trận đấu */
+.mpanel{margin-bottom:16px}
+.mtop{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:flex-end}
+.mtop .row{flex:1;justify-content:flex-end;min-width:260px}
+.score{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;background:var(--surface-2);border-radius:12px;padding:12px}
+.side{display:grid;justify-items:center;gap:4px;min-width:0}
+.sname{font-weight:700;font-size:14px;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.snum{font-family:var(--font-display);font-weight:800;font-size:clamp(48px,10vw,76px);line-height:1;font-variant-numeric:tabular-nums}
+.sbtn{display:flex;gap:4px}
+.sbtn .btn{padding:6px 10px}
+.mid{display:grid;justify-items:center;gap:6px}
+.mhalf{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+.mclock{font-family:var(--font-display);font-weight:800;font-size:clamp(44px,9vw,68px);line-height:1;font-variant-numeric:tabular-nums}
+.mclock.run{color:var(--accent)}
+.mclock.end{color:var(--bad)}
+.mto{font-weight:700;color:var(--bad)}
+@media (max-width:520px){.score{grid-template-columns:1fr 1fr}.mid{grid-column:1/-1;grid-row:1}}
+.scorer{display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:var(--accent-soft);border-radius:10px;padding:8px 10px}
+.fouls{display:grid;gap:6px}
+.frow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.frow span{flex:1;min-width:150px;font-weight:600}
+.frow b{font-family:var(--font-display);font-size:24px;min-width:28px;text-align:center;font-variant-numeric:tabular-nums}
+.frow b.hot{color:var(--bad)}
+.frow .btn{padding:5px 10px}
+.fwarn{margin:0;color:var(--bad);font-weight:700;font-size:13.5px}
+.pchips{display:flex;flex-wrap:wrap;gap:6px}
+.pchips button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px 5px 5px;font-size:13.5px;display:inline-flex;gap:6px;align-items:center;color:var(--ink)}
+.pchips button b{display:inline-grid;place-items:center;min-width:24px;height:24px;border-radius:50%;background:var(--line);font-family:var(--font-display);font-size:13px}
+.pchips.court button{background:var(--accent-soft);border-color:var(--accent)}
+.pchips button[aria-pressed="true"]{outline:3px solid var(--mark);outline-offset:1px}
+.pchips button.on{background:var(--ok-soft);border-color:var(--ok)}
+.pchips button.on b{background:var(--ok);color:#fff}
+.mins{display:grid;gap:4px}
+.mrow{display:grid;grid-template-columns:minmax(80px,140px) minmax(0,1fr) 60px;gap:8px;align-items:center;font-size:13px}
+.mrow .bar{height:10px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.mrow .bar i{display:block;height:100%;background:var(--accent);border-radius:999px}
+.mrow.low .bar i{background:var(--mark)}
+.mrow span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.mlog{margin:0;padding-left:20px;display:grid;gap:2px;font-size:13px;max-height:180px;overflow:auto}
+.tran{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;align-items:start}
+.teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.team{border-radius:10px;padding:8px 10px;border:2px solid var(--tc);background:var(--surface-2)}
+.team h3{margin:0 0 4px;font-family:var(--font-display);text-transform:uppercase;font-size:17px;color:var(--tc)}
+.team ul{margin:0;padding-left:16px;font-size:13.5px}
+.hist .item{display:block}
+
 /* Accounts */
 .acct{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .acct .who{display:grid;line-height:1.25;text-align:right}
@@ -380,7 +430,7 @@ body.fs-on{overflow:hidden}
 #boardStage.fs.rot{padding:max(4px,env(safe-area-inset-right,0px)) max(6px,env(safe-area-inset-bottom,0px)) max(4px,env(safe-area-inset-left,0px)) max(6px,env(safe-area-inset-top,0px))}
 #boardStage.fs .toolbar{display:contents}
 #boardStage.fs .toolbar > *{display:none}
-#boardStage.fs .toolbar > #tools{display:flex;flex-direction:column;flex-wrap:nowrap;grid-column:1;grid-row:1;align-self:center;max-height:100%;overflow-y:auto;padding:3px;gap:2px}
+#boardStage.fs .toolbar > #tools{display:grid;grid-template-columns:repeat(2,auto);grid-auto-rows:min-content;grid-column:1;grid-row:1;align-self:center;max-height:100%;overflow-y:auto;padding:3px;gap:2px}
 #boardStage.fs .toolbar > #tools button{padding:5px 6px;justify-content:center}
 #boardStage.fs .toolbar > #tools button svg{width:20px;height:20px}
 #boardStage.fs .toolbar > #penColors:not([hidden]){display:inline-flex;position:absolute;z-index:6;left:calc(64px + env(safe-area-inset-left,0px));top:calc(10px + env(safe-area-inset-top,0px))}
@@ -419,6 +469,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
     <a href="#luat" data-view="luat">Luật thi đấu</a>
     <a href="#cau-hoi" data-view="cau-hoi">Tình huống</a>
     <a href="#giao-an" data-view="giao-an">Giáo án</a>
+    <a href="#tran" data-view="tran">Trận đấu</a>
     <a href="#be" data-view="be">Cho bé (sân 5)</a>
     <a href="#quan-ly" data-view="quan-ly" id="navAdmin" hidden>Quản lý</a>
   </nav>
@@ -445,6 +496,9 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
           <button data-tool="zone" title="Khoanh vùng (Z)"><svg viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="8" ry="5.5" fill="currentColor" fill-opacity=".25" stroke="currentColor" stroke-width="1.6"/></svg><span class="lbl">Vùng</span><kbd>Z</kbd></button>
           <button data-tool="line" title="Đường tuyến / hàng phòng ngự (L)"><svg viewBox="0 0 20 20"><path d="M10 2v16" stroke="currentColor" stroke-width="2" stroke-dasharray="4 2"/></svg><span class="lbl">Tuyến</span><kbd>L</kbd></button>
           <button data-tool="erase" title="Xoá nét vẽ (E)"><svg viewBox="0 0 20 20"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="2"/></svg><span class="lbl">Xoá nét</span><kbd>E</kbd></button>
+          <button data-tool="text" title="Chữ ghi chú trên sân (T)"><svg viewBox="0 0 20 20"><path d="M4 4h12M10 4v12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span class="lbl">Chữ</span><kbd>T</kbd></button>
+          <button data-act="undo" id="undoBtn" title="Hoàn tác (Ctrl+Z)" disabled><svg viewBox="0 0 20 20"><path d="M7 5L3 9l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 9H12a5 5 0 010 10H9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="lbl">Hoàn tác</span></button>
+          <button data-act="redo" id="redoBtn" title="Làm lại (Ctrl+Shift+Z)" disabled><svg viewBox="0 0 20 20"><path d="M13 5l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.5 9H8a5 5 0 000 10h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="lbl">Làm lại</span></button>
         </div>
         <div class="seg" role="group" aria-label="Khung nhìn" id="viewSeg">
           <button data-view="full">Cả sân</button><button data-view="half">Nửa sân</button><button data-view="third">1/3 sân</button>
@@ -604,6 +658,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
     <div class="panel">
       <h2>Bài học sân 5</h2>
       <p class="hint">Dành cho học sinh tiểu học (6–11 tuổi). Mỗi bài là một ý, xem hình động rồi làm thử thách kéo thả.</p>
+      <label class="f">Bé đang học<select id="kKid"></select></label>
       <div id="kLessons"></div>
     </div>
     <div class="stage" id="kStage">
@@ -628,6 +683,11 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
   </div>
   <div class="kgrid">
     <div class="panel">
+      <h2>Bảng sao của các bé</h2>
+      <p class="hint">Chọn “Bé đang học” rồi làm thử thách: bé làm đúng được 1 sao cho bài đó.</p>
+      <div class="mins" id="kStars"></div>
+    </div>
+    <div class="panel">
       <h2>Trò chơi tập trên sân</h2>
       <div id="kCoach"></div>
     </div>
@@ -643,6 +703,78 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
         <li><b>Khen lựa chọn đúng,</b> không chỉ khen bàn thắng: “Con chạy ra chỗ trống rất đúng!”.</li>
         <li><b>Chiếu lên TV:</b> bấm Toàn màn hình, xem hình động cùng cả đội, rồi gọi từng bé lên kéo cầu thủ trong phần thử thách.</li>
       </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRẬN ĐẤU, ĐIỂM DANH, CHIA ĐỘI ============ -->
+<section id="v-tran" hidden>
+  <div class="panel mpanel" id="matchPanel">
+    <div class="mtop">
+      <h2>Trận đấu futsal</h2>
+      <div class="row">
+        <label class="f grow" style="min-width:140px">Đối thủ<input type="text" id="mOpp" maxlength="40" placeholder="vd Lớp 5B"></label>
+        <label class="f" style="width:110px">Phút / hiệp<select id="mHalfMin"><option>10</option><option>15</option><option selected>20</option><option>25</option></select></label>
+        <button class="btn" id="mNew">Trận mới</button>
+      </div>
+    </div>
+    <div class="score">
+      <div class="side"><div class="sname">Đội nhà</div><div class="snum" id="sHome">0</div><div class="sbtn"><button class="btn" data-sc="0:-1" aria-label="Bớt bàn đội nhà">−</button><button class="btn primary" data-sc="0:1" aria-label="Thêm bàn đội nhà">+ Bàn</button></div></div>
+      <div class="mid">
+        <div class="mhalf" id="mHalf">Hiệp 1</div>
+        <div class="mclock" id="mClock">20:00</div>
+        <div class="row" style="justify-content:center">
+          <button class="btn primary" id="mRun">▶ Chạy</button>
+          <button class="btn" id="mEndHalf">Hết hiệp</button>
+        </div>
+        <div class="mto" id="mTo" hidden></div>
+      </div>
+      <div class="side"><div class="sname" id="sOppName">Đối thủ</div><div class="snum" id="sAway">0</div><div class="sbtn"><button class="btn" data-sc="1:-1" aria-label="Bớt bàn đối thủ">−</button><button class="btn primary" data-sc="1:1" aria-label="Thêm bàn đối thủ">+ Bàn</button></div></div>
+    </div>
+    <div class="scorer" id="mScorer" hidden></div>
+    <div class="fouls">
+      <div class="frow"><span>Lỗi tích lũy đội nhà</span><button class="btn" data-fo="0:-1">−</button><b id="fHome">0</b><button class="btn" data-fo="0:1">+</button><button class="btn" data-to="0" id="toHome">Hội ý</button></div>
+      <div class="frow"><span>Lỗi tích lũy đối thủ</span><button class="btn" data-fo="1:-1">−</button><b id="fAway">0</b><button class="btn" data-fo="1:1">+</button><button class="btn" data-to="1" id="toAway">Hội ý</button></div>
+      <p class="fwarn" id="fWarn" hidden></p>
+    </div>
+    <div class="sub-h">Trên sân <span class="hint" style="text-transform:none;letter-spacing:0">— chạm 1 bé trên sân rồi 1 bé dự bị để thay người</span></div>
+    <div class="pchips court" id="mCourt"></div>
+    <div class="sub-h">Dự bị</div>
+    <div class="pchips" id="mBench"></div>
+    <div class="sub-h">Phút thi đấu</div>
+    <div class="mins" id="mMins"></div>
+    <div class="sub-h">Diễn biến</div>
+    <ol class="mlog" id="mLog"></ol>
+    <div class="row"><button class="btn primary" id="mFinish">Kết thúc trận &amp; lưu</button></div>
+  </div>
+
+  <div class="tran">
+    <div class="panel">
+      <h2>Điểm danh</h2>
+      <div class="row" style="align-items:flex-end">
+        <label class="f" style="width:170px">Ngày<input type="date" id="attDate"></label>
+        <button class="btn" id="attAll">Có mặt tất cả</button>
+        <button class="btn" id="attNone">Bỏ chọn</button>
+      </div>
+      <div class="pchips" id="attList"></div>
+      <p class="hint" id="attSum"></p>
+      <div class="sub-h">Tỉ lệ đi tập</div>
+      <div class="mins" id="attStats"></div>
+    </div>
+    <div class="panel">
+      <h2>Chia đội đá tập</h2>
+      <div class="row" style="align-items:flex-end">
+        <label class="f" style="width:100px">Số đội<select id="splitN"><option>2</option><option>3</option><option>4</option></select></label>
+        <label class="switch"><input type="checkbox" id="splitPresent" checked> Chỉ bé có mặt hôm nay</label>
+        <button class="btn primary" id="splitBtn">Chia đội</button>
+      </div>
+      <div class="teams" id="splitOut"></div>
+    </div>
+    <div class="panel">
+      <h2>Các trận đã đấu</h2>
+      <div id="mHist"></div>
+      <div class="sub-h">Tổng mùa giải</div>
+      <div class="mins" id="mSeason"></div>
     </div>
   </div>
 </section>
@@ -738,10 +870,13 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
       <button data-x="vid"><b>Video hình động</b><span>MP4, gửi Zalo xem ngay. Nên dùng.</span></button>
       <button data-x="png"><b>Ảnh khung đang xem</b><span>PNG, nét, nhẹ.</span></button>
       <button data-x="gif"><b>GIF động</b><span>Tự lặp lại, không cần bấm phát.</span></button>
+      <button data-x="voice"><b>Video có giọng HLV</b><span>App phát hình động và thu tiếng bạn giảng giải cùng lúc. Gửi Zalo cho các bé xem lại.</span></button>
       <button data-x="link"><b>Link chỉ xem</b><span>Gửi link, cầu thủ mở xem hình động, không sửa được. Cần tài khoản HLV/Trợ lý.</span></button>
     </div>
     <div class="mprog" id="expProg" hidden><span id="expBar"></span></div>
     <p class="hint" id="expMsg"></p>
+    <canvas id="expCanvas" hidden></canvas>
+    <div class="row" id="voiceRow" hidden><button class="btn primary" id="voiceStart">🎙 Bắt đầu thu</button><button class="btn danger" id="voiceStop" hidden>■ Dừng thu</button></div>
     <div class="mprev" id="expPrev" hidden><img id="expImg" alt="Ảnh xuất từ sa bàn"><video id="expVid" controls playsinline muted loop hidden></video></div>
     <div class="row" id="expActs" hidden>
       <a class="btn primary" id="expSave" download>⤓ Lưu về máy</a>
@@ -922,7 +1057,34 @@ const CLOUD = {state:'idle', fb:null, user:null, profile:null, role:'none', boar
 let readOnly = false;
 function canEditCloud(){ return ['admin','coach','assistant'].includes(CLOUD.role); }
 function isMember(){ return canEditCloud() || CLOUD.role === 'viewer'; }
-function persist(){ if(readOnly) return; store.set('sbct.work.v1', {fmt, S}); scheduleRosterSync(); }
+/* Hoàn tác / làm lại: lưu ảnh chụp trạng thái sân mỗi lần thay đổi (gộp các thay đổi sát nhau trong 0,7 giây) */
+const HIST = {};
+let histRestoring = false;
+function histOf(){ return HIST[fmt] || (HIST[fmt] = {u:[], r:[], last:JSON.stringify(S[fmt]), t:0}); }
+function trackHistory(){
+  if(histRestoring || !S[fmt]) return;
+  const h = histOf(), js = JSON.stringify(S[fmt]);
+  if(js === h.last) return;
+  const now = Date.now();
+  if(now - h.t > 400 || !h.u.length){ h.u.push(h.last); if(h.u.length > 60) h.u.shift(); }
+  h.r = []; h.last = js; h.t = now;
+  updUndoBtns();
+}
+function updUndoBtns(){
+  const h = HIST[fmt], u = $('#undoBtn'), r = $('#redoBtn');
+  if(u) u.disabled = !(h && h.u.length);
+  if(r) r.disabled = !(h && h.r.length);
+}
+function applyHist(js){
+  const h = histOf();
+  histRestoring = true;
+  try{ S[fmt] = JSON.parse(js); normState(S[fmt]); h.last = js; h.t = 0; selId = null; renderPanels(); renderAll(); store.set('sbct.work.v1', {fmt, S}); scheduleRosterSync(); }
+  finally{ histRestoring = false; }
+  updUndoBtns();
+}
+function undo(){ if(readOnly) return; const h = histOf(); if(!h.u.length){ toast('Không còn gì để hoàn tác'); return; } stopPlay(); h.r.push(JSON.stringify(S[fmt])); applyHist(h.u.pop()); }
+function redo(){ if(readOnly) return; const h = histOf(); if(!h.r.length){ toast('Không còn gì để làm lại'); return; } stopPlay(); h.u.push(JSON.stringify(S[fmt])); applyHist(h.r.pop()); }
+function persist(){ if(readOnly) return; store.set('sbct.work.v1', {fmt, S}); scheduleRosterSync(); trackHistory(); }
 
 // Danh sách đội sân 5 điền sẵn (áp dụng một lần; sau đó người dùng sửa tự do)
 // [số áo, tên, là thủ môn]. Người đầu tiên đứng khung thành; thủ môn dự bị có cờ TM.
@@ -1046,6 +1208,10 @@ function drawingSVG(d, i){
   const F = FMT[fmt], sw = F.r * .2;
   const [x1,y1] = M(d.x1,d.y1), [x2,y2] = M(d.x2,d.y2);
   const di = i == null ? '' : ` data-di="${i}"`;
+  if(d.t === 'text'){   // chữ ghi chú
+    const [tx, ty] = M(d.x, d.y), fs = F.r*1.15;
+    return `<g class="dr txt"${di}><text x="${tx.toFixed(2)}" y="${ty.toFixed(2)}" font-size="${fs.toFixed(2)}" text-anchor="middle" dominant-baseline="middle" font-weight="800" font-family="Be Vietnam Pro, system-ui, sans-serif" fill="${safeColor(d.c, '#f4f7f2')}" stroke="rgba(0,0,0,.7)" stroke-width="${(F.r*.26).toFixed(2)}" paint-order="stroke" stroke-linejoin="round">${esc(String(d.s || '').slice(0, 40))}</text></g>`;
+  }
   if(d.t === 'free'){   // nét vẽ tay: mỗi đoạn có độ dày riêng theo lực nhấn bút
     const pts = d.pts.map(([x,y,w]) => [x*F.L, y*F.W, w]);
     const path = 'M' + pts.map(q => q[0].toFixed(2) + ' ' + q[1].toFixed(2)).join(' L');
@@ -1077,6 +1243,31 @@ function drawingSVG(d, i){
            : `stroke="#f4f7f2" marker-end="url(#mw)"`;
   const w = d.t === 'line' ? sw*.7 : sw;
   return `<g class="dr"${di}><path class="hit" d="${path}" stroke-width="${F.r*1.2}"/><path d="${path}" fill="none" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" ${st}/></g>`;
+}
+// Ô nhập chữ nổi ngay chỗ chạm (gắn vào body để không bị xoay theo sân)
+function openTextInput(cx, cy, p, di){
+  const old = $('#txtInput'); if(old) old.remove();
+  const s0 = st(), cur = di >= 0 ? s0.dr[di] : null;
+  const inp = document.createElement('input');
+  inp.type = 'text'; inp.id = 'txtInput'; inp.maxLength = 40; inp.placeholder = 'Gõ chữ rồi Enter'; inp.value = cur ? cur.s : '';
+  inp.setAttribute('aria-label', 'Chữ ghi chú trên sân');
+  inp.style.left = Math.max(8, Math.min(innerWidth - 250, cx - 120)) + 'px';
+  inp.style.top = Math.max(8, Math.min(innerHeight - 50, cy - 50)) + 'px';
+  let done = false;
+  const finish = save => {
+    if(done) return; done = true;
+    const v = inp.value.trim(); inp.remove();
+    if(!save) return;
+    const s = st();
+    if(cur){ if(v) cur.s = v; else s.dr.splice(di, 1); }
+    else if(v) s.dr.push({t:'text', x:+p[0].toFixed(4), y:+p[1].toFixed(4), s:v, c:penColor});
+    else return;
+    renderDrawings(); commit();
+  };
+  inp.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); finish(true); } if(e.key === 'Escape') finish(false); });
+  inp.addEventListener('blur', () => finish(true));
+  document.body.appendChild(inp);
+  inp.focus(); inp.select();
 }
 function renderDrawings(list){
   const s = st();
@@ -1344,6 +1535,10 @@ svg.addEventListener('pointerdown', e => {
   } else if(T === 'erase'){
     const d = e.target.closest('.dr');
     if(d){ st().dr.splice(+d.dataset.di, 1); renderDrawings(); commit(); }
+  } else if(T === 'text'){
+    const ex = e.target.closest('.dr.txt'), di = ex ? +ex.dataset.di : -1;
+    openTextInput(e.clientX, e.clientY, p, di);
+    e.preventDefault();
   } else if(T === 'free'){
     draw = {t:'free', c:penColor, pts:[[p[0], p[1], penW(e)]], pid:e.pointerId};
     try{ svg.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault();
@@ -1437,12 +1632,18 @@ $('#zReset').addEventListener('click', resetZoom);
 function setTool(t){
   tool = t;
   if(S[fmt]) renderDrawings();
-  $('#penColors').hidden = t !== 'free';
+  $('#penColors').hidden = !['free','text'].includes(t);
+  svg.classList.toggle('texting', t === 'text');
   $$('#tools button').forEach(b => b.setAttribute('aria-pressed', b.dataset.tool === t));
   svg.classList.toggle('drawing', !['move','erase'].includes(t));
   svg.classList.toggle('erasing', t === 'erase');
 }
-$('#tools').addEventListener('click', e => { const b = e.target.closest('button'); if(b) setTool(b.dataset.tool); });
+$('#tools').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  if(b.dataset.act === 'undo'){ undo(); return; }
+  if(b.dataset.act === 'redo'){ redo(); return; }
+  setTool(b.dataset.tool);
+});
 $('#penColors').addEventListener('click', e => {
   const b = e.target.closest('button[data-c]'); if(!b) return;
   penColor = b.dataset.c;
@@ -1454,9 +1655,15 @@ $('#penBtn').addEventListener('click', () => {
 });
 $('#penBtn').setAttribute('aria-pressed', penMode);
 document.addEventListener('keydown', e => {
-  if(e.target.matches('input,textarea,select') || e.metaKey || e.ctrlKey || e.altKey) return;
+  const inField = !!(e.target && e.target.matches && e.target.matches('input,textarea,select'));
+  if((e.metaKey || e.ctrlKey) && !e.altKey && !inField && !$('#v-bang').hidden){
+    const k = e.key.toLowerCase();
+    if(k === 'z'){ e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
+    if(k === 'y'){ e.preventDefault(); redo(); return; }
+  }
+  if(inField || e.metaKey || e.ctrlKey || e.altKey) return;
   if($('#v-bang').hidden) return;
-  const map = {v:'move', r:'run', p:'pass', d:'dribble', s:'shot', b:'free', z:'zone', l:'line', e:'erase'};
+  const map = {v:'move', r:'run', p:'pass', d:'dribble', s:'shot', b:'free', t:'text', z:'zone', l:'line', e:'erase'};
   const t = map[e.key.toLowerCase()]; if(t){ setTool(t); return; }
   if(e.key === '+' || e.key === '='){ zoomAt(1.4); return; }
   if(e.key === '-'){ zoomAt(1/1.4); return; }
@@ -1470,7 +1677,7 @@ document.addEventListener('keydown', e => {
 });
 
 /* ---------------- Format switch ---------------- */
-function setFormat(f){ stopPlay(); fmt = f; selId = null; renderField(); renderPanels(); renderAll(); persist(); }
+function setFormat(f){ stopPlay(); fmt = f; selId = null; renderField(); renderPanels(); renderAll(); persist(); updUndoBtns(); }
 $('#fmtSeg').addEventListener('click', e => { const b = e.target.closest('button'); if(b) setFormat(b.dataset.fmt); });
 
 /* ---------------- Team panels ---------------- */
@@ -1806,16 +2013,18 @@ function exportTitle(i){
 }
 function openModal(title, msg){
   $('#expTitle').textContent = title; $('#expMsg').textContent = msg; $('#expChoices').hidden = true;
+  $('#expCanvas').hidden = true; $('#voiceRow').hidden = true;
   const v = $('#expVid'); if(v){ v.pause(); v.removeAttribute('src'); }
   $('#expPrev').hidden = true; $('#expActs').hidden = true; $('#expProg').hidden = true;
   $('#expModal').hidden = false;
 }
-function closeModal(){ $('#expModal').hidden = true; if(expUrl){ URL.revokeObjectURL(expUrl); expUrl = null; } }
+function closeModal(){ stopVoice(true); $('#expCanvas').hidden = true; $('#voiceRow').hidden = true; $('#expModal').hidden = true; if(expUrl){ URL.revokeObjectURL(expUrl); expUrl = null; } }
 let expFile = null;
 function showResult(blob, ext){
   if(expUrl) URL.revokeObjectURL(expUrl);
   expUrl = URL.createObjectURL(blob);
   const name = `sa-ban-${new Date().toISOString().slice(0,16).replace(/[-:T]/g, '')}.${ext}`;
+  $('#expCanvas').hidden = true; $('#voiceRow').hidden = true;
   const isVid = blob.type.startsWith('video/');
   $('#expImg').hidden = isVid; $('#expVid').hidden = !isVid;
   if(isVid){ $('#expVid').src = expUrl; } else { $('#expImg').src = expUrl; }
@@ -1883,6 +2092,102 @@ async function exportGIF(){
   }catch(err){ $('#expMsg').textContent = 'Không tạo được GIF trên trình duyệt này.'; }
   finally{ endExport(keep); }
 }
+/* Video có giọng HLV: dựng sẵn các hình, HLV bấm thu, app phát hình lên canvas và ghi kèm micro */
+const VOICE = {mr:null, mic:null, stop:false, frames:null};
+function stopVoice(cancel){
+  VOICE.stop = true;
+  if(cancel && VOICE.mr && VOICE.mr.state !== 'inactive'){ VOICE.cancel = true; try{ VOICE.mr.stop(); }catch(_){} }
+  if(VOICE.mic){ VOICE.mic.getTracks().forEach(t => t.stop()); VOICE.mic = null; }
+}
+async function buildVideoFrames(W, steps, label){
+  const s = st(), box = fullBox(), hh = Math.round(W*.13), ph = Math.round(W*box.h/box.w);
+  const H = (hh + ph) % 2 ? hh + ph + 1 : hh + ph;
+  const work = document.createElement('canvas'); work.width = W; work.height = H;
+  const wctx = work.getContext('2d'), k = +$('#speed').value, frames = [];
+  const total = (s.frames.length - 1)*(steps + 1) + 1;
+  const add = async (pos, dr, i, delay) => {
+    renderTokens(pos); renderDrawings(dr);
+    wctx.fillStyle = '#15211a'; wctx.fillRect(0, 0, W, H);
+    await drawComposite(wctx, W, hh, ph, exportTitle(i), s.frames[i].note);
+    frames.push({bmp: await createImageBitmap(work), delay});
+    const pct = Math.round(frames.length/total*100);
+    $('#expBar').style.width = pct + '%'; $('#expMsg').textContent = `${label} ${pct}%`;
+  };
+  for(let i=0; i<s.frames.length-1; i++){
+    const a = s.frames[i], b = s.frames[i+1], mp = motionPaths(a, b);
+    await add(a.pos, a.dr, i, Math.round(2200*k));
+    for(let j=1; j<=steps; j++){ const t = j/(steps+1), e = t < .5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2; await add(interpFrames(a, b, e, mp), a.dr, i, Math.round(1400*k/steps)); }
+  }
+  const L = s.frames.length - 1; await add(s.frames[L].pos, s.frames[L].dr, L, 3000);
+  return {frames, W, H};
+}
+async function exportVoiceVideo(){
+  const s = st();
+  if(s.frames.length < 2){ openModal('Video có giọng HLV', 'Cần ít nhất 2 khung hình để làm video. Thêm khung rồi thử lại.'); return; }
+  if(!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) || !window.MediaRecorder){
+    openModal('Video có giọng HLV', 'Trình duyệt này không cho thu âm. Hãy mở trang bằng Safari hoặc Chrome (không mở trong Zalo/Messenger).'); return;
+  }
+  const types = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4;codecs=avc1,mp4a.40.2','video/mp4','video/webm;codecs=vp8,opus','video/webm;codecs=vp9,opus','video/webm'];
+  const mime = types.find(t => { try{ return MediaRecorder.isTypeSupported(t); }catch(_){ return false; } });
+  if(!mime){ openModal('Video có giọng HLV', 'Trình duyệt này chưa hỗ trợ quay video.'); return; }
+  openModal('Video có giọng HLV', 'Đang chuẩn bị hình…');
+  $('#expProg').hidden = false;
+  const keep = beginExport();
+  let built;
+  try{ built = await buildVideoFrames(960, reduceMotion ? 3 : 24, 'Đang chuẩn bị hình…'); }
+  catch(err){ $('#expMsg').textContent = 'Không dựng được hình trên trình duyệt này.'; endExport(keep); return; }
+  endExport(keep);
+  VOICE.frames = built.frames; VOICE.stop = false; VOICE.cancel = false;
+  const cv = $('#expCanvas'); cv.width = built.W; cv.height = built.H; cv.hidden = false;
+  cv.getContext('2d').drawImage(built.frames[0].bmp, 0, 0);
+  $('#expProg').hidden = true; $('#voiceRow').hidden = false; $('#voiceStart').hidden = false; $('#voiceStop').hidden = true;
+  const secs = Math.round(built.frames.reduce((a, f) => a + f.delay, 0)/1000);
+  $('#expMsg').textContent = `Sẵn sàng. Video dài khoảng ${secs} giây. Bấm “Bắt đầu thu”, đếm ngược 3 giây rồi hình chạy; bạn nói giảng giải trong lúc xem. Bấm “Dừng thu” để kết thúc sớm.`;
+  VOICE.mime = mime;
+}
+$('#voiceStart').addEventListener('click', async () => {
+  const frames = VOICE.frames; if(!frames) return;
+  try{ VOICE.mic = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true, noiseSuppression:true}}); }
+  catch(err){ $('#expMsg').textContent = 'Không dùng được micro. Hãy cho phép micro cho trang này (Safari: bấm “aA” trên thanh địa chỉ → Cài đặt trang web → Micro → Cho phép), rồi thử lại.'; return; }
+  $('#voiceStart').hidden = true; $('#voiceStop').hidden = false;
+  const cv = $('#expCanvas'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
+  for(const n of [3, 2, 1]){
+    ctx.drawImage(frames[0].bmp, 0, 0); ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#ffd84a'; ctx.font = `800 ${Math.round(H*.3)}px ${UI_FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(n), W/2, H/2);
+    $('#expMsg').textContent = `Chuẩn bị nói… ${n}`;
+    await new Promise(r => setTimeout(r, 1000));
+    if(VOICE.stop) return;
+  }
+  ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
+  ctx.drawImage(frames[0].bmp, 0, 0);
+  const stream = new MediaStream([...cv.captureStream(30).getVideoTracks(), ...VOICE.mic.getAudioTracks()]);
+  const chunks = [];
+  let mr;
+  try{ mr = new MediaRecorder(stream, {mimeType:VOICE.mime, videoBitsPerSecond:2500000}); }
+  catch(_){ mr = new MediaRecorder(stream); }
+  VOICE.mr = mr;
+  mr.ondataavailable = ev => { if(ev.data && ev.data.size) chunks.push(ev.data); };
+  const stopped = new Promise(r => mr.onstop = r);
+  mr.start(250);
+  $('#expMsg').textContent = '● Đang thu… Hãy nói giảng giải.';
+  for(const f of frames){
+    if(VOICE.stop) break;
+    ctx.drawImage(f.bmp, 0, 0);
+    let left = f.delay;
+    while(left > 0 && !VOICE.stop){ const d = Math.min(left, 100); await new Promise(r => setTimeout(r, d)); left -= d; ctx.drawImage(f.bmp, 0, 0); }
+  }
+  if(mr.state !== 'inactive') mr.stop();
+  await stopped;
+  const cancelled = VOICE.cancel;
+  stopVoice(false); VOICE.mr = null;
+  if(cancelled) return;
+  frames.forEach(f => f.bmp.close && f.bmp.close()); VOICE.frames = null;
+  $('#voiceRow').hidden = true; cv.hidden = true;
+  const type = (mr.mimeType || VOICE.mime).split(';')[0];
+  showResult(new Blob(chunks, {type}), type === 'video/mp4' ? 'mp4' : 'webm');
+});
+$('#voiceStop').addEventListener('click', () => { VOICE.stop = true; });
+
 async function exportVideo(){
   const s = st();
   if(s.frames.length < 2){ toast('Cần ít nhất 2 khung để làm video'); return; }
@@ -1946,6 +2251,7 @@ $('#expChoices').addEventListener('click', e => {
   const b = e.target.closest('button[data-x]'); if(!b) return;
   $('#expChoices').hidden = true;
   if(b.dataset.x === 'link'){ shareCurrent(); return; }
+  if(b.dataset.x === 'voice'){ exportVoiceVideo(); return; }
   ({vid:exportVideo, png:exportPNG, gif:exportGIF})[b.dataset.x]();
 });
 $('#exportPng').addEventListener('click', exportPNG);
@@ -2183,7 +2489,7 @@ $('#libCat').addEventListener('change', e => { libCat = e.target.value; renderLi
 /* ---------------- Giáo án buổi tập ---------------- */
 const PHASES = [['warm','Khởi động','#e0a100'],['tech','Kỹ thuật','#2f7fd1'],['main','Bài chính','#1c6a41'],['game','Đấu tập','#d63a3a'],['cool','Thả lỏng','#7a8a80']];
 const phaseOf = id => PHASES.find(x => x[0] === id) || PHASES[2];
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0, 10); };
 function samplePlan(){
   return {id:'', title:'Buổi tập sân 5 – 60 phút', date:today(), goal:'Chuyền rồi chạy, giữ bóng nhóm nhỏ, phối hợp 2 đánh 1',
     blocks:[
@@ -2577,6 +2883,9 @@ function startSync(){
     q => { CLOUD.boards = q.docs.map(d => ({id:d.id, ...d.data()})); renderLib(); }, warn));
   CLOUD.dataUnsub.push(fs.onSnapshot(fs.query(fs.collection(db, 'plans'), fs.orderBy('updatedAt', 'desc')),
     q => { CLOUD.plans = q.docs.map(d => ({id:d.id, ...d.data()})); renderPlanList(); }, warn));
+  CLOUD.dataUnsub.push(cloudTeamListen('attendance', d => { ATT = d || {}; store.set('sbct.att.v1', ATT); if(!$('#v-tran').hidden) renderAtt(); }));
+  CLOUD.dataUnsub.push(cloudTeamListen('matches', d => { MH = Array.isArray(d) ? d : []; store.set('sbct.matches.v1', MH); if(!$('#v-tran').hidden) renderHist(); }));
+  CLOUD.dataUnsub.push(cloudTeamListen('progress', d => { KSTARS = d || {}; store.set('sbct.kidstars.v1', KSTARS); if(!$('#v-be').hidden) kRender(); }));
   CLOUD.dataUnsub.push(fs.onSnapshot(fs.doc(db, 'team', 'roster'), snap => {
     CLOUD.rosterLoaded = true;
     if(!snap.exists()){ if(canEditCloud()) scheduleRosterSync(); return; }
@@ -2741,6 +3050,210 @@ async function cloudInit(){
     fb.auth.onAuthStateChanged(fb.au, u => { if(!readOnly) onUser(u); });
   }catch(err){ CLOUD.state = 'off'; }
   renderAuth();
+}
+
+/* =================== TRẬN ĐẤU, ĐIỂM DANH, CHIA ĐỘI =================== */
+// Danh sách đội lấy từ đội nhà sân 5 (đá chính + dự bị); khoá mỗi bé = tên (hoặc "Số N" nếu chưa có tên)
+function teamList(){
+  const T = S['5'] && S['5'].home; if(!T) return [];
+  return [...T.players.map((p, i) => ({...p, gk:p.gk || i === 0})), ...(T.bench || [])]
+    .map(x => ({key:(x.name || '').trim() || ('Số ' + x.num), name:(x.name || '').trim() || ('Số ' + x.num), num:x.num, gk:!!x.gk}))
+    .filter((x, i, a) => a.findIndex(y => y.key === x.key) === i);
+}
+const pchip = (x, attrs) => `<button ${attrs}><b>${esc(x.num)}</b>${esc(x.name)}${x.gk ? ' <small>TM</small>' : ''}</button>`;
+function minRows(rows, max, lowN){
+  const m = Math.max(1, max || Math.max(1, ...rows.map(r => r.v)));
+  return rows.map((r, i) => `<div class="mrow${i < lowN ? ' low' : ''}"><span>${esc(r.name)}</span><span class="bar"><i style="width:${Math.round(r.v/m*100)}%"></i></span><span>${esc(r.label)}</span></div>`).join('') || '<p class="hint">Chưa có dữ liệu.</p>';
+}
+
+/* Điểm danh */
+let ATT = store.get('sbct.att.v1', {});            // {ngày: [khoá bé có mặt]}
+function saveAtt(){ store.set('sbct.att.v1', ATT); cloudTeamSave('attendance', ATT); }
+function renderAtt(){
+  if(!$('#attDate').value) $('#attDate').value = today();
+  const d = $('#attDate').value, here = new Set(ATT[d] || []), L = teamList();
+  $('#attList').innerHTML = L.map(x => pchip(x, `data-k="${esc(x.key)}" class="${here.has(x.key) ? 'on' : ''}" aria-pressed="${here.has(x.key)}"`)).join('');
+  $('#attSum').textContent = `${here.size}/${L.length} bé có mặt ngày ${d.split('-').reverse().join('/')}.`;
+  const days = Object.keys(ATT).filter(k => (ATT[k] || []).length).sort();
+  const rows = L.map(x => { const n = days.filter(k => ATT[k].includes(x.key)).length; return {name:x.name, v:n, label:`${n}/${days.length}`}; }).sort((a, b) => a.v - b.v);
+  $('#attStats').innerHTML = days.length ? minRows(rows, days.length, 0) : '<p class="hint">Chưa điểm danh buổi nào.</p>';
+}
+$('#attDate').addEventListener('change', renderAtt);
+$('#attList').addEventListener('click', e => {
+  const b = e.target.closest('button[data-k]'); if(!b) return;
+  const d = $('#attDate').value || today(), set = new Set(ATT[d] || []);
+  set.has(b.dataset.k) ? set.delete(b.dataset.k) : set.add(b.dataset.k);
+  ATT[d] = [...set]; if(!ATT[d].length) delete ATT[d]; saveAtt(); renderAtt();
+});
+$('#attAll').addEventListener('click', () => { ATT[$('#attDate').value || today()] = teamList().map(x => x.key); saveAtt(); renderAtt(); });
+$('#attNone').addEventListener('click', () => { delete ATT[$('#attDate').value || today()]; saveAtt(); renderAtt(); });
+
+/* Chia đội ngẫu nhiên, cân bằng số người, mỗi đội 1 thủ môn nếu có */
+const TEAM_COLORS = [['Đỏ','#d63a3a'],['Xanh','#2563c9'],['Vàng','#c99a06'],['Tím','#7b3fc4']];
+$('#splitBtn').addEventListener('click', () => {
+  const n = +$('#splitN').value, d = $('#attDate').value || today(), here = new Set(ATT[d] || []);
+  let L = teamList();
+  if($('#splitPresent').checked){
+    if(!here.size){ toast('Hôm nay chưa điểm danh. Bỏ chọn “Chỉ bé có mặt” hoặc điểm danh trước.'); return; }
+    L = L.filter(x => here.has(x.key));
+  }
+  if(L.length < n){ toast(`Cần ít nhất ${n} bé để chia ${n} đội`); return; }
+  const shuffle = a => { for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const gks = shuffle(L.filter(x => x.gk)), others = shuffle(L.filter(x => !x.gk));
+  const teams = Array.from({length:n}, () => []);
+  gks.forEach((x, i) => teams[i % n].push(x));
+  others.forEach(x => { teams.reduce((a, t) => t.length < a.length ? t : a, teams[0]).push(x); });
+  $('#splitOut').innerHTML = teams.map((t, i) => `<div class="team" style="--tc:${TEAM_COLORS[i][1]}"><h3>Đội ${TEAM_COLORS[i][0]} · ${t.length}</h3><ul>${t.map(x => `<li>${esc(x.num)} ${esc(x.name)}${x.gk ? ' (TM)' : ''}</li>`).join('')}</ul></div>`).join('');
+});
+
+/* Trận đấu: đồng hồ dừng, tỉ số, lỗi tích lũy, hội ý, thay người, phút thi đấu */
+let MT = store.get('sbct.match.cur', null);
+let MH = store.get('sbct.matches.v1', []);       // các trận đã lưu
+let mSel = null, mTimer = null, mLock = null;
+function newMatch(){
+  const L = teamList(), court = L.slice(0, 5).map(x => x.key);
+  return {id:'m' + Date.now(), date:today(), opp:$('#mOpp').value.trim(), halfMin:+$('#mHalfMin').value || 20, half:1,
+    clock:(+$('#mHalfMin').value || 20)*60, running:false, lastTs:0, score:[0,0], fouls:[[0,0],[0,0]], to:[[false,false],[false,false]],
+    court, mins:{}, goals:[], log:[], toEnd:0};
+}
+function saveMatch(){ store.set('sbct.match.cur', MT); }
+const mStamp = () => `H${MT.half} ${mmss(MT.halfMin*60 - MT.clock)}`;
+function mLog(t){ MT.log.push(`${mStamp()} · ${t}`); }
+function mTick(){
+  if(!MT) return;
+  const now = Date.now();
+  if(MT.running){
+    const dt = Math.min((now - MT.lastTs)/1000, MT.clock); MT.lastTs = now;
+    MT.clock = Math.max(0, MT.clock - dt);
+    MT.court.forEach(k => { MT.mins[k] = (MT.mins[k] || 0) + dt; });
+    if(MT.clock <= 0){ MT.running = false; beep(3); mLog(`Hết hiệp ${MT.half}`); toast(`Hết hiệp ${MT.half}!`); mLockOff(); }
+    saveMatch();
+  }
+  if(MT.toEnd && now >= MT.toEnd){ MT.toEnd = 0; beep(2, 660); toast('Hết 1 phút hội ý'); saveMatch(); }
+  renderMatchClock();
+}
+async function mLockOn(){ try{ mLock = await navigator.wakeLock.request('screen'); }catch(_){} }
+function mLockOff(){ try{ mLock && mLock.release(); }catch(_){} mLock = null; }
+function renderMatchClock(){
+  if(!MT) return;
+  $('#mClock').textContent = mmss(Math.ceil(MT.clock - 1e-6));
+  $('#mClock').classList.toggle('run', MT.running); $('#mClock').classList.toggle('end', MT.clock <= 0);
+  $('#mRun').textContent = MT.running ? '❚❚ Dừng' : '▶ Chạy';
+  $('#mTo').hidden = !MT.toEnd; if(MT.toEnd) $('#mTo').textContent = `Hội ý: còn ${Math.max(0, Math.ceil((MT.toEnd - Date.now())/1000))} giây`;
+  const L = teamList(), rows = L.map(x => ({name:x.name, v:MT.mins[x.key] || 0, label:mmss(MT.mins[x.key] || 0)})).sort((a, b) => a.v - b.v);
+  $('#mMins').innerHTML = minRows(rows, 0, 3);
+}
+function renderMatch(){
+  if(!MT) MT = newMatch();
+  const L = teamList(), byKey = Object.fromEntries(L.map(x => [x.key, x]));
+  MT.court = MT.court.filter(k => byKey[k]);
+  $('#mOpp').value = MT.opp || ''; $('#mHalfMin').value = String(MT.halfMin);
+  $('#sOppName').textContent = MT.opp || 'Đối thủ';
+  $('#sHome').textContent = MT.score[0]; $('#sAway').textContent = MT.score[1];
+  $('#mHalf').textContent = `Hiệp ${MT.half}`;
+  const f = MT.fouls[MT.half - 1];
+  $('#fHome').textContent = f[0]; $('#fAway').textContent = f[1];
+  $('#fHome').classList.toggle('hot', f[0] >= 5); $('#fAway').classList.toggle('hot', f[1] >= 5);
+  const warn = [];
+  [0,1].forEach(i => { const who = i ? (MT.opp || 'Đối thủ') : 'Đội nhà';
+    if(f[i] === 5) warn.push(`${who} đã 5 lỗi tích lũy: lỗi tiếp theo đối phương được đá phạt 10 m không hàng rào.`);
+    if(f[i] >= 6) warn.push(`${who} từ lỗi thứ 6: mỗi lỗi đối phương được đá phạt 10 m không hàng rào.`); });
+  $('#fWarn').hidden = !warn.length; $('#fWarn').innerHTML = warn.map(esc).join('<br>');
+  const to = MT.to[MT.half - 1];
+  $('#toHome').disabled = to[0]; $('#toAway').disabled = to[1];
+  $('#toHome').textContent = to[0] ? 'Đã hội ý' : 'Hội ý'; $('#toAway').textContent = to[1] ? 'Đã hội ý' : 'Hội ý';
+  $('#mCourt').innerHTML = MT.court.map(k => pchip(byKey[k], `data-c="${esc(k)}" aria-pressed="${mSel === 'c:' + k}"`)).join('') || '<p class="hint">Chưa có ai trên sân.</p>';
+  $('#mBench').innerHTML = L.filter(x => !MT.court.includes(x.key)).map(x => pchip(x, `data-b="${esc(x.key)}" aria-pressed="${mSel === 'b:' + x.key}"`)).join('') || '<p class="hint">Không còn ai dự bị.</p>';
+  $('#mLog').innerHTML = MT.log.slice().reverse().map(t => `<li>${esc(t)}</li>`).join('') || '<li class="hint">Chưa có diễn biến.</li>';
+  renderMatchClock();
+  renderHist();
+  clearInterval(mTimer); mTimer = setInterval(mTick, 500);
+}
+$('#mOpp').addEventListener('input', e => { if(!MT) return; MT.opp = e.target.value.trim(); $('#sOppName').textContent = MT.opp || 'Đối thủ'; saveMatch(); });
+$('#mHalfMin').addEventListener('change', e => { if(!MT) return; const m = +e.target.value; if(!MT.running && MT.clock === MT.halfMin*60){ MT.clock = m*60; } MT.halfMin = m; saveMatch(); renderMatch(); });
+$('#mRun').addEventListener('click', () => {
+  if(MT.clock <= 0){ toast('Hiệp đã hết giờ. Bấm “Hết hiệp” để sang hiệp sau.'); return; }
+  MT.running = !MT.running; MT.lastTs = Date.now();
+  if(MT.running){ if(MT.half === 1 && MT.clock === MT.halfMin*60 && !MT.log.length) mLog('Bắt đầu trận'); mLockOn(); beep(1, 990); } else mLockOff();
+  saveMatch(); renderMatch();
+});
+$('#mEndHalf').addEventListener('click', () => {
+  if(MT.half === 1){ MT.running = false; mLog('Kết thúc hiệp 1'); MT.half = 2; MT.clock = MT.halfMin*60; mLockOff(); saveMatch(); renderMatch(); toast('Sang hiệp 2. Lỗi tích lũy và hội ý tính lại từ đầu.'); }
+  else { MT.running = false; MT.clock = 0; mLog('Kết thúc hiệp 2'); saveMatch(); renderMatch(); toast('Hết trận. Bấm “Kết thúc trận & lưu”.'); }
+});
+$('#matchPanel').addEventListener('click', e => {
+  const sc = e.target.closest('[data-sc]'), fo = e.target.closest('[data-fo]'), to = e.target.closest('[data-to]');
+  if(sc){
+    const [i, d] = sc.dataset.sc.split(':').map(Number);
+    MT.score[i] = Math.max(0, MT.score[i] + d);
+    if(d > 0 && i === 0){
+      $('#mScorer').hidden = false;
+      $('#mScorer').innerHTML = '<b>Ai ghi bàn?</b> ' + MT.court.map(k => `<button class="btn" data-gk="${esc(k)}">${esc(k)}</button>`).join('') + '<button class="btn" data-gk="">Không rõ / phản lưới</button>';
+    }
+    if(d > 0 && i === 1) mLog(`${MT.opp || 'Đối thủ'} ghi bàn (${MT.score[0]}–${MT.score[1]})`);
+    if(d < 0){ mLog(`Sửa tỉ số: ${MT.score[0]}–${MT.score[1]}`); if(i === 0 && MT.goals.length && MT.goals.length > MT.score[0]) MT.goals.pop(); }
+    saveMatch(); renderMatch(); return;
+  }
+  const gk = e.target.closest('[data-gk]');
+  if(gk){ const who = gk.dataset.gk; MT.goals.push({who, half:MT.half, t:mStamp()}); mLog(`⚽ ${who || 'Đội nhà'} ghi bàn (${MT.score[0]}–${MT.score[1]})`); $('#mScorer').hidden = true; saveMatch(); renderMatch(); return; }
+  if(fo){ const [i, d] = fo.dataset.fo.split(':').map(Number), f = MT.fouls[MT.half - 1]; f[i] = Math.max(0, f[i] + d); if(d > 0) mLog(`Lỗi tích lũy ${i ? (MT.opp || 'đối thủ') : 'đội nhà'}: ${f[i]}`); if(d > 0 && f[i] === 5) beep(2, 520); saveMatch(); renderMatch(); return; }
+  if(to){ const i = +to.dataset.to; MT.to[MT.half - 1][i] = true; MT.running = false; MT.toEnd = Date.now() + 60000; mLockOff(); mLog(`Hội ý ${i ? (MT.opp || 'đối thủ') : 'đội nhà'}`); saveMatch(); renderMatch(); return; }
+  const c = e.target.closest('[data-c]'), b = e.target.closest('[data-b]');
+  if(c || b){
+    const pick = c ? 'c:' + c.dataset.c : 'b:' + b.dataset.b;
+    if(mSel && mSel[0] !== pick[0]){
+      const inK = (mSel[0] === 'b' ? mSel : pick).slice(2), outK = (mSel[0] === 'c' ? mSel : pick).slice(2);
+      MT.court[MT.court.indexOf(outK)] = inK; mLog(`Thay người: ${inK} vào, ${outK} ra`); mSel = null; saveMatch(); toast(`${inK} vào, ${outK} ra`);
+    } else mSel = mSel === pick ? null : pick;
+    renderMatch();
+  }
+});
+$('#mNew').addEventListener('click', () => {
+  const b = $('#mNew');
+  if(MT && (MT.log.length || MT.score[0] || MT.score[1]) && !b.classList.contains('armed')){ b.classList.add('armed'); b.textContent = 'Bấm lần nữa: bỏ trận đang ghi'; setTimeout(() => { b.classList.remove('armed'); b.textContent = 'Trận mới'; }, 2500); return; }
+  b.classList.remove('armed'); b.textContent = 'Trận mới';
+  mLockOff(); MT = newMatch(); mSel = null; $('#mScorer').hidden = true; saveMatch(); renderMatch();
+});
+$('#mFinish').addEventListener('click', () => {
+  if(!MT.log.length && !MT.score[0] && !MT.score[1]){ toast('Trận chưa có diễn biến nào'); return; }
+  MT.running = false; mLockOff();
+  MH.unshift({id:MT.id, date:MT.date, opp:MT.opp || 'Đối thủ', score:MT.score.slice(), goals:MT.goals.slice(), mins:Object.fromEntries(Object.entries(MT.mins).map(([k, v]) => [k, Math.round(v)])), halfMin:MT.halfMin});
+  store.set('sbct.matches.v1', MH); cloudTeamSave('matches', MH);
+  toast(`Đã lưu trận ${MT.score[0]}–${MT.score[1]}`);
+  MT = newMatch(); saveMatch(); renderMatch();
+});
+function renderHist(){
+  $('#mHist').innerHTML = MH.length ? `<div class="lib hist">${MH.map(m => {
+    const res = m.score[0] > m.score[1] ? 'Thắng' : m.score[0] < m.score[1] ? 'Thua' : 'Hoà';
+    const sc = {}; m.goals.forEach(g => { if(g.who) sc[g.who] = (sc[g.who] || 0) + 1; });
+    return `<div class="item"><b>${esc(m.date.split('-').reverse().join('/'))} · ${res} ${m.score[0]}–${m.score[1]} · ${esc(m.opp)}</b><small>${Object.keys(sc).length ? 'Ghi bàn: ' + Object.entries(sc).map(([k, v]) => `${esc(k)}${v > 1 ? ' ×' + v : ''}`).join(', ') : 'Chưa ghi tên người ghi bàn'}</small></div>`;
+  }).join('')}</div>` : '<p class="hint">Chưa lưu trận nào.</p>';
+  const L = teamList(), tot = {}, goals = {};
+  MH.forEach(m => { Object.entries(m.mins || {}).forEach(([k, v]) => tot[k] = (tot[k] || 0) + v); (m.goals || []).forEach(g => { if(g.who) goals[g.who] = (goals[g.who] || 0) + 1; }); });
+  const rows = L.map(x => ({name:x.name, v:tot[x.key] || 0, label:`${Math.round((tot[x.key] || 0)/60)}′${goals[x.key] ? ' ⚽' + goals[x.key] : ''}`})).sort((a, b) => a.v - b.v);
+  $('#mSeason').innerHTML = MH.length ? minRows(rows, 0, 3) : '<p class="hint">Lưu trận đầu tiên để thấy tổng phút thi đấu.</p>';
+}
+function renderTran(){ renderAtt(); renderMatch(); }
+
+/* Đồng bộ dữ liệu đội (điểm danh, các trận, sao của bé) lên Firebase cho HLV/Trợ lý */
+const teamSaveTimers = {}, teamLastJSON = {};
+function cloudTeamSave(name, data){
+  if(!CLOUD.fb || !CLOUD.user || !canEditCloud()) return;
+  clearTimeout(teamSaveTimers[name]);
+  teamSaveTimers[name] = setTimeout(() => {
+    const js = JSON.stringify(data); if(js === teamLastJSON[name]) return; teamLastJSON[name] = js;
+    const {fs, db} = CLOUD.fb;
+    fs.setDoc(fs.doc(db, 'team', name), {data:js, updatedAt:fs.serverTimestamp(), by:CLOUD.user.uid}).catch(err => toast(fbErr(err)));
+  }, 1200);
+}
+function cloudTeamListen(name, apply){
+  const {fs, db} = CLOUD.fb;
+  return fs.onSnapshot(fs.doc(db, 'team', name), snap => {
+    if(!snap.exists()) return;
+    const js = snap.data().data; if(!js || js === teamLastJSON[name]) return;
+    teamLastJSON[name] = js;
+    try{ apply(JSON.parse(js)); }catch(_){}
+  }, err => console.warn(err));
 }
 
 /* =================== RULES =================== */
@@ -2975,10 +3488,82 @@ const KL = [
    check:(p,pos) => p[0] > .45 && AWAY.every(id => segD(pos[id], pos.ball, p) > 1.8 && dm(p, pos[id]) > 1.5),
    ok:'Đúng rồi! Đường chuyền giờ đã thông, không còn ai chắn.',
    hint:'Tưởng tượng đường thẳng từ quả bóng tới em. Nếu áo xanh đứng trên đường đó thì bước sang ngang.'},
-  game:['Trốn tìm ngược','Một bạn áo xanh (hoặc một cọc cao) đứng giữa. Bé muốn nhận bóng phải bước ra để nhìn thấy mặt người chuyền. Hai bạn nhìn thấy mắt nhau mới được chuyền.','Con có nhìn thấy mắt bạn cầm bóng không? Nếu không thấy thì phải làm gì?']}
+  game:['Trốn tìm ngược','Một bạn áo xanh (hoặc một cọc cao) đứng giữa. Bé muốn nhận bóng phải bước ra để nhìn thấy mặt người chuyền. Hai bạn nhìn thấy mắt nhau mới được chuyền.','Con có nhìn thấy mắt bạn cầm bóng không? Nếu không thấy thì phải làm gì?']},
+
+ {id:'k6', title:'Mất bóng thì tranh lại ngay', rule:'Vừa mất bóng: bạn gần nhất lao vào tranh lại ngay trong 3 giây.', showA:true,
+  steps:[
+   {h:{2:[.62,.25],3:[.62,.75],4:[.7,.5]}, b:[.71,.5], a:{1:[.8,.5],2:[.85,.78],3:[.85,.22],4:[.88,.5]},
+    say:'Mũi nhọn đang giữ bóng ở gần khung thành đối phương.'},
+   {b:[.78,.5], a:{1:[.79,.5]}, say:'Ôi, áo xanh cướp mất bóng! Đừng đứng tiếc, bạn gần nhất lao vào ngay.', d:[['run',.7,.5,.765,.5],['run',.62,.25,.72,.38]]},
+   {h:{4:[.765,.5],2:[.72,.38]}, b:[.75,.47], say:'Hai bạn kẹp lại, áo xanh không kịp chuyền: mình lấy lại bóng!', z:[[.68,.3,.85,.62,'ok']]}
+  ],
+  ch:{h:{3:[.5,.86]}, b:[.7,.75], a:{2:[.71,.76]}, who:'h3', target:[.66,.72,.06,.12],
+   say:'Áo xanh vừa cướp bóng ở cánh phải. Em kéo bạn Cánh phải lao vào tranh lại ngay!',
+   check:(p,pos) => dm(p, pos.ball) < 2.6 && p[0] > .55,
+   ok:'Đúng rồi! Mất bóng là lao vào tranh lại ngay.',
+   hint:'Chạy thật nhanh tới chỗ quả bóng, áp sát bạn áo xanh đang cầm bóng.'},
+  game:['Trò “3 giây”','Đá 3 đánh 3. Khi mất bóng, HLV đếm to “1 – 2 – 3”: đội vừa mất bóng tranh lại được trong 3 giây thì được 1 điểm thưởng.','Mất bóng xong, việc đầu tiên con làm là gì?']},
+
+ {id:'k7', title:'2 đánh 1: kéo người rồi chuyền', rule:'Gặp 1 áo xanh: dẫn bóng thẳng vào, khi bạn ấy lao tới thì chuyền cho đồng đội.', showA:true,
+  steps:[
+   {h:{2:[.45,.35],3:[.45,.7]}, b:[.46,.35], a:{4:[.62,.5],1:[.92,.5],2:[.92,.8],3:[.92,.2]},
+    say:'Cánh trái có bóng, Cánh phải chạy song song. Chỉ có 1 áo xanh chặn.', d:[['run',.46,.35,.58,.4],['run',.45,.7,.62,.72]]},
+   {h:{2:[.58,.4],3:[.62,.72]}, b:[.59,.4], a:{4:[.6,.47]}, say:'Áo xanh lao vào bạn có bóng: chuyền ngay cho bạn kia!', d:[['pass',.59,.42,.66,.7]]},
+   {b:[.66,.7], say:'Bạn kia sút vào khung trống!', d:[['shot',.66,.7,1,.55]]},
+   {b:[1.01,.55], say:'Vào! Kéo người phòng ngự về phía mình rồi mới chuyền.'}
+  ],
+  ch:{h:{2:[.58,.4],3:[.45,.6]}, b:[.59,.4], a:{4:[.6,.47]}, who:'h3', target:[.66,.72,.07,.1],
+   say:'Bạn Cánh trái sắp chuyền. Em kéo bạn Cánh phải tới chỗ nhận được bóng: ngang hàng và xa áo xanh.',
+   check:(p,pos) => p[0] > .55 && p[1] > .6 && dm(p, pos.a4) > 3.5,
+   ok:'Chính xác! Đứng ngang hàng, xa áo xanh thì bạn chuyền được.',
+   hint:'Chạy lên phía trước, sang phía đường biên dưới, tránh xa bạn áo xanh.'},
+  game:['2 đánh 1 vào khung nhỏ','Chia nhóm 3 bé: 2 tấn công, 1 phòng ngự, đá vào khung thành nhỏ. Mỗi lượt đổi vai.','Khi bạn áo xanh lao vào con, con làm gì?']},
+
+ {id:'k8', title:'Thủ môn phát bóng nhanh', rule:'Thủ môn bắt được bóng: các bạn chạy ngay ra hai biên để nhận.', showA:true,
+  steps:[
+   {h:{1:[.2,.5],2:[.25,.4],3:[.25,.6],4:[.3,.45]}, b:[.07,.5], a:{4:[.3,.55],2:[.35,.72],3:[.35,.28],1:[.5,.5]},
+    say:'Bạn Gác đền vừa bắt được bóng. Áo xanh còn ở gần khung thành mình.', hl:['h0']},
+   {say:'Hai bạn Cánh chạy ngay ra sát hai biên.', d:[['run',.25,.4,.4,.1],['run',.25,.6,.45,.88]]},
+   {h:{2:[.4,.1],3:[.45,.88]}, say:'Gác đền ném bóng nhanh ra chỗ trống.', d:[['pass',.07,.5,.44,.86]]},
+   {b:[.44,.86], say:'Đối thủ chưa kịp quay về: tấn công nhanh!', d:[['run',.45,.86,.7,.8]]}
+  ],
+  ch:{h:{2:[.26,.42]}, b:[.07,.5], who:'h2', target:[.4,.1,.08,.08],
+   say:'Bạn Gác đền sắp ném bóng. Em kéo bạn Cánh trái ra chỗ trống sát biên để nhận.',
+   check:(p,pos) => p[1] < .22 && p[0] > .25 && AWAY.every(id => dm(p, pos[id]) > 3),
+   ok:'Giỏi quá! Ra sát biên, xa áo xanh là chỗ nhận bóng tốt nhất.',
+   hint:'Chạy ra sát đường biên trên, tránh xa các bạn áo xanh.'},
+  game:['Ném bóng nhanh','Thủ môn bắt bóng HLV sút vào, rồi ném ngay cho bạn đang chạy ra biên. Đếm xem mất mấy giây.','Thủ môn bắt được bóng rồi, các bạn khác phải làm gì?']},
+
+ {id:'k9', title:'Phạt góc: chờ ngoài vòng cấm', rule:'Phạt góc: một bạn đứng ngoài vòng cấm chờ bóng chuyền ra để sút.', showA:true,
+  steps:[
+   {h:{4:[.99,.02],2:[.85,.25],3:[.75,.45],1:[.6,.5]}, b:[.985,.03], a:{0:[.97,.5],1:[.88,.35],4:[.88,.55],2:[.8,.7]},
+    say:'Mũi nhọn đá phạt góc. Các bạn khác vào vị trí.'},
+   {say:'Chuyền ngược ra ngoài cho bạn đứng chờ ở rìa vòng cấm.', d:[['pass',.985,.03,.76,.45]]},
+   {b:[.76,.45], say:'Sút ngay một chạm!', d:[['shot',.76,.45,1,.47]]},
+   {b:[1.01,.47], say:'Vào! Đứng ngoài vòng cấm thì ít người kèm, dễ sút.'}
+  ],
+  ch:{h:{3:[.88,.75]}, b:[.985,.03], who:'h3', target:[.75,.45,.05,.1],
+   say:'Em kéo bạn Cánh phải ra đứng chờ ở chỗ trống ngoài vòng cấm để nhận bóng phạt góc.',
+   check:(p,pos) => p[0] > .6 && p[1] > .3 && p[1] < .7 && dm(p, [1, .5]) > 6.5 && dm(p, [1, .5]) < 11 && AWAY.every(id => dm(p, pos[id]) > 2.5),
+   ok:'Đúng rồi! Đứng ngoài vòng cấm, không bị kèm, chờ bóng ra là sút.',
+   hint:'Đứng ngay trước khung thành nhưng ngoài vạch vòng cấm (cách khung thành khoảng 7–10 m), ở chỗ không có áo xanh.'},
+  game:['Phạt góc ra ngoài','Một bé đá phạt góc sệt ra rìa vòng cấm, bé khác sút một chạm. Đổi người sau mỗi lượt.','Đứng ở đâu thì ít bị kèm khi phạt góc?']}
+
 ];
 
 const kDone = store.get('sbct.kid.v1', {});
+let KSTARS = store.get('sbct.kidstars.v1', {});      // {tên bé: {mã bài: true}}
+let kKid = store.get('sbct.kidsel', '');
+const kHas = id => kKid ? !!(KSTARS[kKid] || {})[id] : !!kDone[id];
+function renderKidStars(){
+  const L = typeof teamList === 'function' ? teamList() : [];
+  const sel = $('#kKid');
+  sel.innerHTML = `<option value="">— Cả lớp (không ghi tên) —</option>` + L.map(x => `<option value="${esc(x.key)}"${x.key === kKid ? ' selected' : ''}>${esc(x.num)} · ${esc(x.name)}</option>`).join('');
+  if(kKid && !L.some(x => x.key === kKid)) kKid = '';
+  sel.value = kKid;
+  const rows = L.map(x => { const n = KL.filter(l => (KSTARS[x.key] || {})[l.id]).length; return {name:x.name, v:n, label:`${'★'.repeat(n) || '–'} ${n}/${KL.length}`}; }).sort((a, b) => b.v - a.v);
+  $('#kStars').innerHTML = L.length ? rows.map(r => `<div class="mrow"><span>${esc(r.name)}</span><span class="bar"><i style="width:${Math.round(r.v/KL.length*100)}%"></i></span><span style="min-width:90px">${r.v}/${KL.length}</span></div>`).join('') : '<p class="hint">Chưa có danh sách đội.</p>';
+}
 const K = {li:0, step:0, mode:'learn', pos:null, fails:0, reveal:false, solved:false, tok:0, auto:false};
 const ksvg = $('#kPitch');
 ksvg.setAttribute('viewBox', `${-KP} ${-KP} ${KL_+2*KP} ${KW_+2*KP}`);
@@ -3057,9 +3642,10 @@ function kRender(){
   $('#kAuto').textContent = K.auto ? '■ Dừng' : 'Tự chạy';
   $('#kAuto').disabled = K.mode === 'ch';
   $('#kLessons').innerHTML = KL.map((l,i) => `<button data-li="${i}" aria-current="${i === K.li}"><span class="n">${i+1}</span>
-    <span class="t">${esc(l.title)}<small>${esc(l.rule)}</small></span><span class="star${kDone[l.id] ? ' on' : ''}" title="${kDone[l.id] ? 'Đã vượt thử thách' : 'Chưa làm thử thách'}">★</span></button>`).join('');
+    <span class="t">${esc(l.title)}<small>${esc(l.rule)}</small></span><span class="star${kHas(l.id) ? ' on' : ''}" title="${kHas(l.id) ? 'Đã vượt thử thách' : 'Chưa làm thử thách'}">★</span></button>`).join('');
   const g = L.game;
   $('#kCoach').innerHTML = `<p><b>${esc(g[0])}.</b> ${esc(g[1])}</p><p class="hint"><b>Câu hỏi gợi mở cho bé:</b> ${esc(g[2])}</p>`;
+  renderKidStars();
 }
 function kTween(from, to, dur, tok){
   return new Promise(res => {
@@ -3111,6 +3697,7 @@ $('#kPrev').addEventListener('click', () => {
   if(K.mode === 'ch') kGo(L.steps.length-1, false); else if(K.step > 0) kGo(K.step-1, false);
 });
 $('#kAuto').addEventListener('click', kAutoPlay);
+$('#kKid').addEventListener('change', e => { kKid = e.target.value; store.set('sbct.kidsel', kKid); kRender(); });
 $('#kLessons').addEventListener('click', e => { const b = e.target.closest('button[data-li]'); if(b) kLesson(+b.dataset.li); });
 $('#kFull').addEventListener('click', () => toggleFull($('#kStage')));
 $('#kFb').addEventListener('click', e => {
@@ -3150,9 +3737,11 @@ function kDrop(){
   if(!kDrag) return; kDrag = null;
   const L = KL[K.li], c = L.ch, p = K.pos[c.who];
   if(c.check(p, K.pos)){
-    K.solved = true; K.reveal = true; kDone[L.id] = true; store.set('sbct.kid.v1', kDone); kRender();
+    K.solved = true; K.reveal = true; kDone[L.id] = true; store.set('sbct.kid.v1', kDone);
+    if(kKid){ (KSTARS[kKid] = KSTARS[kKid] || {})[L.id] = true; store.set('sbct.kidstars.v1', KSTARS); cloudTeamSave('progress', KSTARS); }
+    kRender();
     const more = K.li < KL.length-1;
-    kFeedback('ok', '★ ' + esc(c.ok), `<button class="btn" data-k="retry">Làm lại</button>`);
+    kFeedback('ok', '★ ' + (kKid ? `Giỏi lắm ${esc(kKid)}! ` : '') + esc(c.ok), `<button class="btn" data-k="retry">Làm lại</button>`);
     $('#kNext').textContent = more ? 'Bài tiếp ▶' : 'Về bài 1';
   } else {
     K.fails++;
@@ -3226,7 +3815,7 @@ if(window.visualViewport){ visualViewport.addEventListener('resize', updRot); vi
 document.addEventListener('keydown', e => { if(e.key === 'Escape' && fsEl) exitFull(); });
 
 /* =================== Routing =================== */
-const VIEWS = ['bang','luat','cau-hoi','giao-an','be','quan-ly'];
+const VIEWS = ['bang','luat','cau-hoi','giao-an','tran','be','quan-ly'];
 function route(){
   let v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'bang';
   if(v === 'quan-ly' && CLOUD.role !== 'admin') v = 'bang';
@@ -3234,6 +3823,7 @@ function route(){
   VIEWS.forEach(x => $('#v-' + x).hidden = x !== v);
   $$('nav.tabs a').forEach(a => { if(a.dataset.view === v) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
   if(v !== 'bang') stopPlay();
+  if(v === 'tran') renderTran();
   exitFull();
 }
 window.addEventListener('hashchange', route);
