@@ -57,6 +57,7 @@ App có icon riêng, mở toàn màn hình không có thanh trình duyệt, và 
 ### Hồ sơ
 - Hồ sơ: đổi tên hiển thị, đổi mật khẩu (gửi email), thống kê bài / giáo án / trận của mình.
 - Nhiều đội cho một HLV: chọn đội ở góc trên, tạo đội mới (có thể chép danh sách cầu thủ), đổi tên, thêm / bỏ thành viên. Mỗi đội có bài, giáo án, danh sách, điểm danh, trận và sao riêng. Lần đầu đăng nhập, dữ liệu cũ được chép sang “Đội sân 5”.
+- Phân quyền (HLV): duyệt người mới đăng ký, cấp Trợ lý HLV hoặc Cầu thủ / phụ huynh, khoá tài khoản; người được duyệt tự vào đội đang chọn. Tài khoản Admin được giấu với HLV.
 - Kho riêng: “Lưu riêng” cho bài chiến thuật và giáo án (chỉ mình thấy), “→ Riêng” để chép bài của đội về, “Lên đội” để chia sẻ.
 - Đội hình yêu thích: ở khung Đội nhà bấm “★ Lưu” để lưu vị trí hiện tại, chọn lại để xếp nhanh.
 - Cài đặt mặc định theo tài khoản: sân mở app, màu áo hai đội, tốc độ phát, bật sẵn chế độ bút.

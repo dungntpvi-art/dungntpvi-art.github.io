@@ -315,6 +315,11 @@ details.tnew[open]{display:grid;gap:8px}
 @media (max-width:900px){ .toi{grid-template-columns:1fr} .pstats{grid-template-columns:repeat(3,minmax(0,1fr))} .pstats div:nth-child(4){border-left:0} .pstats div:nth-child(n+4){border-top:1px solid var(--line)} }
 @media (max-width:520px){ .phero-main{padding:0 14px 14px} .phero-id h2{font-size:25px} .setgrid{grid-template-columns:1fr} .acct .who span:last-child{display:none} .acct.on .teamsel{max-width:120px} }
 
+.rbadge{font-family:var(--font-body);font-size:11.5px;font-weight:800;letter-spacing:0;text-transform:none;background:var(--mark);color:#1a1300;border-radius:999px;padding:1px 8px}
+.tmem select{width:auto;max-width:170px;padding:5px 8px;font-size:13px}
+.tmem.pend{background:var(--accent-soft);border-radius:8px;padding:6px 8px;margin:2px -8px}
+.rtag{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--mark)}
+
 /* Trận đấu */
 .mpanel{margin-bottom:16px}
 .mtop{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:flex-end}
@@ -829,9 +834,15 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
 <section id="v-ho-so" hidden>
   <div class="phero" id="profHero"></div>
   <div class="toi">
-    <div class="panel" id="teamPanel">
-      <h2>Đội của tôi</h2>
-      <div id="teamBody"></div>
+    <div class="toi-col">
+      <div class="panel" id="teamPanel">
+        <h2>Đội của tôi</h2>
+        <div id="teamBody"></div>
+      </div>
+      <div class="panel" id="rolePanel" hidden>
+        <h2>Phân quyền <span class="rbadge" id="roleBadge" hidden></span></h2>
+        <div id="roleBody"></div>
+      </div>
     </div>
     <div class="toi-col">
       <div class="panel">
@@ -881,7 +892,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
         <li><b>HLV:</b> tạo, sửa, xoá bài chiến thuật, giáo án, danh sách đội; tạo link chỉ xem.</li>
         <li><b>Trợ lý:</b> như HLV, nhưng không quản lý tài khoản.</li>
         <li><b>Cầu thủ / phụ huynh:</b> xem bài và giáo án của đội, không sửa được.</li>
-        <li><b>Chờ duyệt:</b> người tự đăng ký, chưa xem được gì cho tới khi Admin cấp vai trò.</li>
+        <li><b>Chờ duyệt:</b> người tự đăng ký, chưa xem được gì cho tới khi HLV hoặc Admin cấp vai trò.</li>
         <li><b>Đã khoá:</b> không vào được dữ liệu đội.</li>
       </ul>
     </div>
@@ -975,7 +986,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
     <button class="btn" id="authGoogle">Đăng nhập bằng Google</button>
     <button class="linkbtn" id="authForgot">Quên mật khẩu?</button>
     <p class="err" id="authErr" hidden></p>
-    <p class="hint" id="authMsg">Người tự đăng ký sẽ chờ Admin duyệt rồi mới xem được bài của đội.</p>
+    <p class="hint" id="authMsg">Người tự đăng ký sẽ chờ HLV hoặc Admin duyệt rồi mới xem được bài của đội.</p>
   </div>
 </div>
 <div class="modal" id="linkModal" hidden role="dialog" aria-modal="true" aria-labelledby="linkTitle">
@@ -2868,7 +2879,7 @@ function renderAuth(){
   if(!readOnly){
     if(CLOUD.state === 'dberr') banner('Chưa kết nối được cơ sở dữ liệu của đội. Admin kiểm tra: đã tạo Firestore Database và đã dán luật bảo mật chưa.', true);
     else if(CLOUD.user && CLOUD.adminExists === false) banner(`<span class="grow">Đội chưa có Admin. Nếu bạn là người quản lý đội, bấm nút bên cạnh để nhận quyền Admin (chỉ người đầu tiên bấm mới được).</span><button class="btn primary" data-acct="claim">Nhận quyền Admin</button>`);
-    else if(CLOUD.user && CLOUD.role === 'pending') banner('Tài khoản của bạn đang chờ Admin duyệt. Trong lúc chờ, bạn vẫn dùng app bình thường trên máy này.');
+    else if(CLOUD.user && CLOUD.role === 'pending') banner('Tài khoản của bạn đang chờ HLV hoặc Admin duyệt. Trong lúc chờ, bạn vẫn dùng app bình thường trên máy này.');
     else if(CLOUD.user && CLOUD.role === 'disabled') banner('Tài khoản của bạn đã bị khoá. Liên hệ Admin của đội.', true);
     else if(CLOUD.user && CLOUD.role === 'viewer') banner('Bạn đang ở quyền <b>xem</b>: thấy bài và giáo án của đội trong Thư viện bài và tab Giáo án. Sửa trên máy này không ảnh hưởng tới đội.');
     else banner('');
@@ -2924,7 +2935,7 @@ $('#authForm').addEventListener('submit', async e => {
       pendingName = $('#authName').value.trim();
       const c = await auth.createUserWithEmailAndPassword(au, email, pw);
       try{ await auth.updateProfile(c.user, {displayName:pendingName}); }catch(_){}
-      toast('Đã đăng ký. Chờ Admin cấp quyền.');
+      toast('Đã đăng ký. Chờ HLV hoặc Admin cấp quyền.');
     } else {
       await auth.signInWithEmailAndPassword(au, email, pw);
       toast('Đã đăng nhập');
@@ -2987,7 +2998,7 @@ function startSync(){
   if(!isMember()){ loadTeamLocal(); renderAuth(); return; }
   if(canEditCloud()){
     // Admin thấy mọi tài khoản; HLV / Trợ lý chỉ thấy HLV, Trợ lý, Cầu thủ (tài khoản Admin được giấu)
-    const uq = CLOUD.role === 'admin' ? fs.collection(db, 'users') : fs.query(fs.collection(db, 'users'), fs.where('role', 'in', ['coach', 'assistant', 'viewer']));
+    const uq = CLOUD.role === 'admin' ? fs.collection(db, 'users') : fs.query(fs.collection(db, 'users'), fs.where('role', 'in', ['coach', 'assistant', 'viewer', 'pending', 'disabled']));
     CLOUD.dataUnsub.push(fs.onSnapshot(uq, q => { CLOUD.users = q.docs.map(d => ({uid:d.id, ...d.data()})); if(CLOUD.role === 'admin') renderAdmin(); renderToi(); }, warn));
   }
   (async () => {
@@ -3596,6 +3607,7 @@ function renderToi(){
     $('#profBody').innerHTML = `<div class="pname"><label class="f">Tên hiển thị<input type="text" id="profName" maxlength="40" value="${esc(name)}"></label><button class="btn primary" id="profNameSave">Lưu tên</button></div>`;
     renderTeamPanel();
   }
+  renderRolePanel();
   const L = {board:privList('board'), plan:privList('plan'), formation:privList('formation')};
   const TABS = [['board', 'Bài chiến thuật'], ['plan', 'Giáo án'], ['formation', 'Đội hình']];
   $('#privTabs').innerHTML = TABS.map(([k, t]) => `<button data-ptab="${k}" aria-pressed="${PTAB === k}">${t}<span class="n">${L[k].length}</span></button>`).join('');
@@ -3637,7 +3649,7 @@ $('#v-ho-so').addEventListener('click', async e => {
 /* Quản lý đội */
 function renderTeamPanel(){
   const box = $('#teamBody'), uid = CLOUD.user.uid;
-  if(!isMember()){ box.innerHTML = '<p class="hint">Tài khoản đang chờ Admin duyệt. Sau khi có vai trò, bạn sẽ thấy đội của mình ở đây.</p>'; return; }
+  if(!isMember()){ box.innerHTML = '<p class="hint">Tài khoản đang chờ HLV hoặc Admin duyệt. Sau khi có vai trò, bạn sẽ thấy đội của mình ở đây.</p>'; return; }
   const cur = CLOUD.teams.find(t => t.id === CLOUD.team);
   const seen = new Set((CLOUD.users || []).map(u => u.uid)), isA = CLOUD.role === 'admin';
   const visMem = t => (t.members || []).filter(m => isA || m === uid || seen.has(m));   // HLV không thấy Admin trong đội
@@ -3657,11 +3669,42 @@ function renderTeamPanel(){
         <div class="sub-h">Thành viên (${mem.length})</div>
         <div>${mem.map(u => { const n = u.name || u.email || ''; return `<div class="tmem"><span class="avatar sm" style="background:${avatarColor(n)}">${esc(initials(n))}</span><div class="mn"><b>${esc(n)}${u.uid === uid ? ' (bạn)' : ''}</b><small>${esc(ROLE_VN[u.role] || '')}</small></div>${u.uid !== uid ? `<button class="btn danger" data-tdel="${esc(u.uid)}" title="Bỏ khỏi đội">✕</button>` : ''}</div>`; }).join('')}</div>
         <div class="pname"><label class="f">Thêm thành viên<select id="tAdd">${addable.length ? addable.map(u => `<option value="${esc(u.uid)}">${esc(u.name || u.email || '')} · ${esc(ROLE_VN[u.role] || '')}</option>`).join('') : '<option value="">Không còn ai để thêm</option>'}</select></label><button class="btn primary" data-tadd="1"${addable.length ? '' : ' disabled'}>Thêm</button></div>
-        <p class="hint" style="margin:0">Người mới phải đăng ký và được Admin cấp vai trò trước, rồi mới thêm vào đội được.</p></div>`;
+        <p class="hint" style="margin:0">Người mới tự đăng ký trên app, rồi bạn duyệt ở mục Phân quyền bên dưới.</p></div>`;
     }
   }
   box.innerHTML = h;
 }
+/* Phân quyền: HLV (và Admin) duyệt người mới, cấp Trợ lý HLV / Cầu thủ - phụ huynh, khoá tài khoản */
+const ROLE_SET = ['assistant', 'viewer', 'disabled'];
+function renderRolePanel(){
+  const panel = $('#rolePanel'), can = !!CLOUD.user && ['coach', 'admin'].includes(CLOUD.role);
+  panel.hidden = !can; if(!can) return;
+  const uid = CLOUD.user.uid, order = {pending:0, assistant:1, viewer:2, disabled:3};
+  const L = (CLOUD.users || []).filter(u => u.uid !== uid && u.role in order).sort((a, b) => order[a.role] - order[b.role] || String(a.name).localeCompare(String(b.name), 'vi'));
+  const nP = L.filter(u => u.role === 'pending').length;
+  $('#roleBadge').hidden = !nP; $('#roleBadge').textContent = `${nP} chờ duyệt`;
+  const opt = (v, t, cur) => `<option value="${v}"${v === cur ? ' selected' : ''}>${t}</option>`;
+  $('#roleBody').innerHTML = (L.length ? `<div>${L.map(u => { const n = u.name || u.email || '', p = u.role === 'pending';
+      return `<div class="tmem${p ? ' pend' : ''}"><span class="avatar sm" style="background:${avatarColor(n)}">${esc(initials(n))}</span><div class="mn">${p ? '<span class="rtag">Mới đăng ký</span>' : ''}<b>${esc(n)}</b><small>${esc(u.email || '')}</small></div>
+        <select data-role-uid="${esc(u.uid)}" aria-label="Vai trò của ${esc(n)}">${p ? '<option value="" selected disabled>Chọn vai trò…</option>' : ''}${opt('assistant', 'Trợ lý HLV', u.role)}${opt('viewer', 'Cầu thủ / phụ huynh', u.role)}${opt('disabled', 'Khoá', u.role)}</select></div>`; }).join('')}</div>`
+    : '<p class="hint" style="margin:0">Chưa có ai để phân quyền.</p>')
+    + `<p class="hint" style="margin:0">Người mới tự đăng ký trên app rồi hiện ở đây. Khi duyệt, họ được thêm luôn vào đội đang chọn${teamName() ? ` (${esc(teamName())})` : ''}. Quyền HLV chỉ Admin cấp.</p>`;
+}
+$('#v-ho-so').addEventListener('change', async e => {
+  const sel = e.target.closest('select[data-role-uid]'); if(!sel || !CLOUD.fb) return;
+  const id = sel.dataset.roleUid, role = sel.value, u = (CLOUD.users || []).find(x => x.uid === id);
+  if(!u || !ROLE_SET.includes(role)) return;
+  const {fs, db} = CLOUD.fb;
+  sel.disabled = true;
+  try{
+    await fs.updateDoc(fs.doc(db, 'users', id), {role});
+    if(role !== 'disabled' && CLOUD.team){
+      const t = CLOUD.teams.find(x => x.id === CLOUD.team);
+      if(t && !(t.members || []).includes(id)) await fs.updateDoc(fs.doc(db, 'teams', CLOUD.team), {members:fs.arrayUnion(id)});
+    }
+    toast(`${u.name || u.email}: ${ROLE_VN[role]}${role !== 'disabled' && CLOUD.team ? ` · trong đội ${teamName()}` : ''}`);
+  }catch(err){ toast(fbErr(err)); renderRolePanel(); }
+});
 async function teamAction(b){
   if(!CLOUD.fb || !CLOUD.user) return;
   const {fs, db} = CLOUD.fb;

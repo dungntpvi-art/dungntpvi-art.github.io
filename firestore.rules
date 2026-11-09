@@ -4,7 +4,7 @@ rules_version = '2';
 //
 // Vai trò (lưu ở users/{uid}.role):
 //   admin     – toàn quyền, quản lý tài khoản
-//   coach     – HLV: tạo, sửa bài, giáo án, danh sách đội
+//   coach     – HLV: tạo, sửa bài, giáo án, danh sách đội; duyệt người mới, cấp Trợ lý / Cầu thủ
 //   assistant – Trợ lý: như HLV, không quản lý tài khoản
 //   viewer    – Cầu thủ / phụ huynh: chỉ xem
 //   pending   – vừa tự đăng ký, chờ Admin duyệt (không xem được dữ liệu đội)
@@ -35,14 +35,19 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-      // HLV / Trợ lý xem được HLV, Trợ lý, Cầu thủ để thêm vào đội; tài khoản Admin và người chờ duyệt được giấu
+      // HLV / Trợ lý xem được mọi tài khoản trừ Admin (để thêm vào đội và duyệt người mới); tài khoản Admin được giấu
       allow read: if signedIn() && (request.auth.uid == uid || isAdmin()
-        || (canEdit() && resource.data.role in ['coach', 'assistant', 'viewer']));
+        || (canEdit() && resource.data.role in ['coach', 'assistant', 'viewer', 'pending', 'disabled']));
       // Tự đăng ký: chỉ được tạo hồ sơ của mình với vai trò "pending". Admin tạo được cho người khác.
       allow create: if isAdmin()
         || (signedIn() && request.auth.uid == uid && request.resource.data.role == 'pending');
       // Tự sửa hồ sơ (tên…) nhưng không tự đổi vai trò; riêng lúc nhận quyền Admin lần đầu.
+      // HLV phân quyền cho người khác: chỉ đổi vai trò giữa Chờ duyệt / Trợ lý / Cầu thủ / Khoá, không đụng tới HLV và Admin
       allow update: if isAdmin()
+        || (role() == 'coach' && request.auth.uid != uid
+            && resource.data.role in ['pending', 'assistant', 'viewer', 'disabled']
+            && request.resource.data.role in ['assistant', 'viewer', 'disabled']
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role']))
         || (signedIn() && request.auth.uid == uid && request.resource.data.role == resource.data.role)
         || (signedIn() && request.auth.uid == uid && request.resource.data.role == 'admin'
             && getAfter(adminPath()).data.uid == request.auth.uid);
