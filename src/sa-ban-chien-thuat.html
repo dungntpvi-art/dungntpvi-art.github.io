@@ -254,19 +254,66 @@ a.btn{text-decoration:none;color:inherit}
 a.btn.primary{color:var(--accent-ink)}
 .fs .drillinfo{display:none}
 
-/* Của tôi */
-.toi{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;align-items:start}
-.prof{display:flex;gap:12px;align-items:center}
-.avatar{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-weight:800;font-size:24px;flex:none}
-.prof b{font-size:17px;display:block}
-.prof small{color:var(--muted);display:block}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.stats div{background:var(--surface-2);border-radius:8px;padding:8px;text-align:center}
-.stats b{display:block;font-family:var(--font-display);font-size:22px;font-variant-numeric:tabular-nums}
-.stats span{font-size:11.5px;color:var(--muted)}
-.tlist2{display:grid;gap:6px}
-.tlist2 .item.cur{border-color:var(--accent);background:var(--accent-soft)}
-.teamsel{max-width:180px;padding:5px 8px;font-size:13px}
+/* Hồ sơ */
+.avatar{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-weight:800;font-size:24px;flex:none;letter-spacing:.02em}
+.avatar.sm{width:30px;height:30px;font-size:13px}
+.avatar.xl{width:88px;height:88px;font-size:36px;border:4px solid var(--surface);box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.phero{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:16px}
+.phero-band{height:92px;background:#1c6a41 repeating-linear-gradient(90deg,rgba(255,255,255,.07) 0 48px,transparent 48px 96px);position:relative}
+.phero-band svg{position:absolute;inset:0;width:100%;height:100%}
+.phero-main{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:flex-end;padding:12px 20px 16px;position:relative}
+.phero-main .avatar.xl{margin-top:-58px}
+.phero-id{flex:1;min-width:200px}
+.phero-id h2{font-family:var(--font-display);font-weight:800;font-size:30px;line-height:1.05;margin:0;letter-spacing:.01em}
+.phero-id p{margin:2px 0 6px;color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+.pchips{display:flex;flex-wrap:wrap;gap:6px}
+.pchip2{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink)}
+.pchip2.role{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.phero-acts{display:flex;gap:8px;flex-wrap:wrap}
+.pstats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));border-top:1px solid var(--line)}
+.pstats div{padding:12px 8px;text-align:center;border-left:1px solid var(--line)}
+.pstats div:first-child{border-left:0}
+.pstats b{display:block;font-family:var(--font-display);font-size:28px;line-height:1;font-variant-numeric:tabular-nums;color:var(--accent)}
+.pstats span{font-size:12px;color:var(--muted)}
+.toi{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+.toi-col{display:grid;gap:16px;min-width:0}
+.tcards{display:grid;gap:8px}
+.tcard{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--surface-2)}
+.tcard.cur{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+.tcard .tb{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-weight:800;font-size:17px;flex:none}
+.tcard .tn{flex:1;min-width:0}
+.tcard .tn b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tcard .tn small{color:var(--muted);font-size:12px}
+.curtag{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--accent)}
+.tbox{border-top:1px dashed var(--line);padding-top:10px;display:grid;gap:8px}
+.tmem{display:flex;align-items:center;gap:9px;padding:5px 0}
+.tmem .mn{flex:1;min-width:0}
+.tmem .mn b{display:block;font-size:13.5px}
+.tmem .mn small{color:var(--muted);font-size:12px}
+details.tnew{border:1px dashed var(--line);border-radius:10px;padding:8px 11px}
+details.tnew summary{cursor:pointer;font-weight:700;color:var(--accent);list-style:none}
+details.tnew summary::-webkit-details-marker{display:none}
+details.tnew[open]{display:grid;gap:8px}
+.ptabs{justify-self:start;flex-wrap:wrap}
+.ptabs button .n{display:inline-block;min-width:18px;margin-left:4px;padding:0 5px;border-radius:999px;background:var(--surface-2);color:var(--muted);font-size:11px}
+.ptabs button[aria-pressed="true"] .n{background:rgba(255,255,255,.25);color:inherit}
+.setgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.colorf{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:4px 8px;background:var(--surface-2);text-transform:none;letter-spacing:0;font-weight:600;color:var(--ink);font-size:13px}
+.colorf input[type=color]{width:30px;height:26px;border:0;padding:0;background:none;border-radius:6px}
+.pname{display:flex;gap:8px;align-items:flex-end}
+.pname label{flex:1}
+/* ô tài khoản ở đầu trang */
+.acct{margin-left:auto}
+.acct.on{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 4px 3px 4px;flex-wrap:nowrap;gap:4px}
+.acct.on .teamsel{border:0;background:var(--surface-2);border-radius:999px;max-width:200px;padding:5px 26px 5px 10px;font-weight:700}
+.acct .who{display:flex;align-items:center;gap:7px;text-decoration:none;color:inherit;padding:2px 8px 2px 2px;border-radius:999px;text-align:left;line-height:1.15}
+.acct .who:hover{background:var(--surface-2)}
+.acct .who b{font-size:13px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.acct .who small{color:var(--muted);font-size:11px;display:block}
+.acct .out{border:0;background:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--muted)}
+.acct .out:hover{background:var(--surface-2);color:var(--bad)}
+@media (max-width:900px){ .toi{grid-template-columns:1fr} .pstats{grid-template-columns:repeat(3,minmax(0,1fr))} .pstats div:nth-child(4){border-left:0} .pstats div:nth-child(n+4){border-top:1px solid var(--line)} }
+@media (max-width:520px){ .phero-main{padding:0 14px 14px} .phero-id h2{font-size:25px} .setgrid{grid-template-columns:1fr} .acct .who span:last-child{display:none} .acct.on .teamsel{max-width:120px} }
 
 /* Trận đấu */
 .mpanel{margin-bottom:16px}
@@ -316,8 +363,6 @@ a.btn.primary{color:var(--accent-ink)}
 
 /* Accounts */
 .acct{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.acct .who{display:grid;line-height:1.25;text-align:right}
-.acct .who small{color:var(--muted);font-size:11.5px}
 .cbanner{background:var(--accent-soft);border:1px solid var(--accent);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .cbanner.warn{background:var(--bad-soft);border-color:var(--bad)}
 .cbanner .grow{flex:1;min-width:220px}
@@ -463,8 +508,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
     <a href="#cau-hoi" data-view="cau-hoi">Tình huống</a>
     <a href="#giao-an" data-view="giao-an">Giáo án</a>
     <a href="#tran" data-view="tran">Trận đấu</a>
-    <a href="#toi" data-view="toi">Của tôi</a>
-    <a href="#be" data-view="be">Cho bé (sân 5)</a>
+    <a href="#ho-so" data-view="ho-so">Hồ sơ</a>
     <a href="#quan-ly" data-view="quan-ly" id="navAdmin" hidden>Quản lý</a>
   </nav>
   <div class="acct" id="acct"></div>
@@ -782,36 +826,32 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
 </section>
 
 <!-- ============ CỦA TÔI ============ -->
-<section id="v-toi" hidden>
+<section id="v-ho-so" hidden>
+  <div class="phero" id="profHero"></div>
   <div class="toi">
-    <div class="panel" id="profPanel">
-      <h2>Hồ sơ</h2>
-      <div id="profBody"></div>
-    </div>
     <div class="panel" id="teamPanel">
       <h2>Đội của tôi</h2>
       <div id="teamBody"></div>
     </div>
-    <div class="panel">
-      <h2>Kho riêng</h2>
-      <p class="hint" id="privHint"></p>
-      <div class="sub-h">Bài chiến thuật riêng</div><div class="lib" id="privBoards"></div>
-      <div class="sub-h">Giáo án riêng</div><div class="lib" id="privPlans"></div>
-      <div class="sub-h">Đội hình yêu thích</div><div class="lib" id="privForms"></div>
-    </div>
-    <div class="panel">
-      <h2>Cài đặt</h2>
-      <p class="hint" id="setHint"></p>
-      <div class="row">
-        <label class="f grow">Mở app vào sân<select id="setFmt"><option value="">Như lần trước</option><option value="5">Sân 5</option><option value="7">Sân 7</option><option value="11">Sân 11</option></select></label>
-        <label class="f grow">Tốc độ phát<select id="setSpeed"><option value="1.6">Chậm</option><option value="1">Vừa</option><option value="0.6">Nhanh</option></select></label>
+    <div class="toi-col">
+      <div class="panel">
+        <h2>Kho riêng</h2>
+        <div class="seg ptabs" id="privTabs"></div>
+        <p class="hint" id="privHint"></p>
+        <div class="lib" id="privList"></div>
       </div>
-      <div class="row">
-        <label class="f">Áo đội nhà<input type="color" id="setHome"></label>
-        <label class="f">Áo đội khách<input type="color" id="setAway"></label>
-        <label class="switch" style="align-self:center"><input type="checkbox" id="setPen"> Bật sẵn chế độ bút</label>
+      <div class="panel">
+        <h2>Tài khoản &amp; cài đặt</h2>
+        <div id="profBody"></div>
+        <div class="setgrid">
+          <label class="f">Mở app vào sân<select id="setFmt"><option value="">Như lần trước</option><option value="5">Sân 5</option><option value="7">Sân 7</option><option value="11">Sân 11</option></select></label>
+          <label class="f">Tốc độ phát<select id="setSpeed"><option value="1.6">Chậm</option><option value="1">Vừa</option><option value="0.6">Nhanh</option></select></label>
+          <label class="f">Áo đội nhà<span class="colorf"><input type="color" id="setHome"><span>Đội nhà</span></span></label>
+          <label class="f">Áo đội khách<span class="colorf"><input type="color" id="setAway"><span>Đội khách</span></span></label>
+        </div>
+        <label class="switch"><input type="checkbox" id="setPen"> Bật sẵn chế độ bút khi mở app</label>
+        <div class="row" style="align-items:center"><button class="btn primary" id="setSave">Lưu cài đặt</button><span class="hint" id="setHint" style="margin:0"></span></div>
       </div>
-      <div class="row"><button class="btn primary" id="setSave">Lưu cài đặt</button></div>
     </div>
   </div>
 </section>
@@ -2821,8 +2861,9 @@ function renderAuth(){
     box.innerHTML = `<button class="btn primary" data-acct="login">Đăng nhập</button>`;
   } else {
     const name = (CLOUD.profile && CLOUD.profile.name) || CLOUD.user.email || '';
-    box.innerHTML = `<span class="who"><b>${esc(name)}</b><small>${esc(ROLE_VN[CLOUD.role] || '')}</small></span><button class="btn" data-acct="logout">Đăng xuất</button>`;
+    box.innerHTML = `<a class="who" href="#ho-so" title="Hồ sơ của tôi"><span class="avatar sm" style="background:${avatarColor(name)}">${esc(initials(name))}</span><span><b>${esc(name)}</b><small>${esc(ROLE_VN[CLOUD.role] || '')}</small></span></a><button class="out" data-acct="logout" title="Đăng xuất" aria-label="Đăng xuất"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button>`;
   }
+  box.classList.toggle('on', !!CLOUD.user && !readOnly);
   $('#navAdmin').hidden = CLOUD.role !== 'admin';
   if(!readOnly){
     if(CLOUD.state === 'dberr') banner('Chưa kết nối được cơ sở dữ liệu của đội. Admin kiểm tra: đã tạo Firestore Database và đã dán luật bảo mật chưa.', true);
@@ -3527,38 +3568,55 @@ $('#setSave').addEventListener('click', async () => {
 
 /* Hồ sơ */
 function avatarColor(t){ let h = 0; for(const c of String(t)) h = (h*31 + c.charCodeAt(0)) % 360; return `hsl(${h},55%,42%)`; }
-function initials(t){ const w = String(t || '?').trim().split(/\s+/); return ((w.length > 1 ? w[w.length-2][0] : '') + (w[w.length-1] || '?')[0]).toUpperCase(); }
+function initials(t){ const w = String(t || '').replace(/[^\p{L}\p{N}\s]/gu, ' ').trim().split(/\s+/).filter(Boolean); if(!w.length) return '?'; return ((w.length > 1 ? w[w.length-2][0] : '') + w[w.length-1][0]).toUpperCase(); }
+let PTAB = 'board';
+const PITCH_SVG = '<svg viewBox="0 0 400 92" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g fill="none" stroke="rgba(255,255,255,.28)" stroke-width="2"><rect x="10" y="10" width="380" height="140" rx="2"/><line x1="200" y1="10" x2="200" y2="150"/><circle cx="200" cy="80" r="34"/><rect x="10" y="40" width="44" height="80"/><rect x="346" y="40" width="44" height="80"/></g></svg>';
 function renderToi(){
-  if(!$('#profBody')) return;
+  if(!$('#profHero')) return;
   const u = CLOUD.user;
+  const band = `<div class="phero-band">${PITCH_SVG}</div>`;
   if(!u){
-    $('#profBody').innerHTML = `<p class="hint">Đăng nhập để có hồ sơ, kho riêng theo tài khoản và quản lý đội. Khi chưa đăng nhập, đội hình yêu thích và cài đặt vẫn dùng được trên máy này.</p>${CLOUD.state === 'ready' ? '<button class="btn primary" data-acct="login">Đăng nhập</button>' : ''}`;
+    $('#profHero').innerHTML = `${band}<div class="phero-main"><div class="avatar xl" style="background:#7d8a80">?</div>
+      <div class="phero-id"><h2>Chưa đăng nhập</h2><p>Đăng nhập để có hồ sơ HLV, kho riêng theo tài khoản và quản lý nhiều đội. Khi chưa đăng nhập, đội hình yêu thích và cài đặt vẫn lưu trên máy này.</p></div>
+      <div class="phero-acts">${CLOUD.state === 'ready' ? '<button class="btn primary" data-acct="login">Đăng nhập</button>' : ''}</div></div>`;
     $('#teamBody').innerHTML = '<p class="hint">Đăng nhập để chọn đội và quản lý thành viên.</p>';
+    $('#profBody').innerHTML = '';
   } else {
     const name = (CLOUD.profile && CLOUD.profile.name) || u.email || '';
     const isPw = (u.providerData || []).some(x => x.providerId === 'password');
-    const mineB = CLOUD.boards.filter(x => x.owner === u.uid).length, mineP = CLOUD.plans.filter(x => x.owner === u.uid).length;
-    $('#profBody').innerHTML = `<div class="prof"><div class="avatar" style="background:${avatarColor(name)}">${esc(initials(name))}</div><div><b>${esc(name)}</b><small>${esc(u.email || '')}</small><small>${esc(ROLE_VN[CLOUD.role] || '')}${teamName() ? ' · ' + esc(teamName()) : ''}</small></div></div>
-      <div class="row" style="align-items:flex-end"><label class="f grow">Tên hiển thị<input type="text" id="profName" maxlength="40" value="${esc(name)}"></label><button class="btn primary" id="profNameSave">Lưu tên</button></div>
-      <div class="row"><button class="btn" id="profPw">${isPw ? 'Đổi mật khẩu (gửi email)' : 'Tài khoản Google'}</button><button class="btn" data-acct="logout">Đăng xuất</button></div>
-      <div class="stats"><div><b>${mineB}</b><span>bài của tôi trên đội</span></div><div><b>${privList('board').length + privList('plan').length}</b><span>mục kho riêng</span></div><div><b>${privList('formation').length}</b><span>đội hình yêu thích</span></div>
-      <div><b>${CLOUD.teams.length}</b><span>đội</span></div><div><b>${(MH || []).length}</b><span>trận đã ghi</span></div><div><b>${Object.keys(ATT || {}).length}</b><span>buổi điểm danh</span></div></div>`;
+    const mineB = CLOUD.boards.filter(x => x.owner === u.uid).length;
+    const st6 = [[CLOUD.teams.length, 'đội'], [mineB, 'bài của tôi trên đội'], [privList('board').length + privList('plan').length, 'mục kho riêng'],
+      [privList('formation').length, 'đội hình yêu thích'], [(MH || []).length, 'trận đã ghi'], [Object.keys(ATT || {}).length, 'buổi điểm danh']];
+    $('#profHero').innerHTML = `${band}<div class="phero-main"><div class="avatar xl" style="background:${avatarColor(name)}">${esc(initials(name))}</div>
+      <div class="phero-id"><h2>${esc(name)}</h2><p>${esc(u.email || '')}</p><div class="pchips"><span class="pchip2 role">${esc(ROLE_VN[CLOUD.role] || '')}</span>${teamName() ? `<span class="pchip2">⚽ ${esc(teamName())}</span>` : ''}</div></div>
+      <div class="phero-acts"><button class="btn" id="profPw">${isPw ? 'Đổi mật khẩu' : 'Tài khoản Google'}</button><button class="btn" data-acct="logout">Đăng xuất</button></div></div>
+      <div class="pstats">${st6.map(([n, t]) => `<div><b>${n}</b><span>${t}</span></div>`).join('')}</div>`;
+    $('#profBody').innerHTML = `<div class="pname"><label class="f">Tên hiển thị<input type="text" id="profName" maxlength="40" value="${esc(name)}"></label><button class="btn primary" id="profNameSave">Lưu tên</button></div>`;
     renderTeamPanel();
   }
-  const pb = privList('board'), pp = privList('plan'), pf = privList('formation');
+  const L = {board:privList('board'), plan:privList('plan'), formation:privList('formation')};
+  const TABS = [['board', 'Bài chiến thuật'], ['plan', 'Giáo án'], ['formation', 'Đội hình']];
+  $('#privTabs').innerHTML = TABS.map(([k, t]) => `<button data-ptab="${k}" aria-pressed="${PTAB === k}">${t}<span class="n">${L[k].length}</span></button>`).join('');
   $('#privHint').textContent = u ? 'Chỉ bạn thấy. Đăng nhập máy khác vẫn còn.' : 'Đang lưu trên máy này. Đăng nhập để giữ theo tài khoản.';
   const team = canEditCloud() && CLOUD.team;
-  $('#privBoards').innerHTML = pb.map(x => `<div class="item"><div><span class="tag">Sân ${esc(x.fmt)}</span><b>${esc(x.name)}</b></div><div class="acts"><button class="btn" data-pb="${esc(x.id)}">Mở</button>${team ? `<button class="btn" data-pbteam="${esc(x.id)}">Lên đội</button>` : ''}<button class="btn danger" data-pbdel="${esc(x.id)}">✕</button></div></div>`).join('') || (u ? '<p class="hint">Chưa có. Ở Bảng chiến thuật, bấm “Lưu riêng”.</p>' : '<p class="hint">Đăng nhập để lưu bài riêng theo tài khoản.</p>');
-  $('#privPlans').innerHTML = pp.map(x => `<div class="item"><div><b>${esc(x.name)}</b></div><div class="acts"><button class="btn" data-ppo="${esc(x.id)}">Mở</button>${team ? `<button class="btn" data-ppteam="${esc(x.id)}">Lên đội</button>` : ''}<button class="btn danger" data-ppdel="${esc(x.id)}">✕</button></div></div>`).join('') || (u ? '<p class="hint">Chưa có. Ở tab Giáo án, bấm “Lưu riêng”.</p>' : '<p class="hint">Đăng nhập để lưu giáo án riêng theo tài khoản.</p>');
-  $('#privForms').innerHTML = pf.map(x => `<div class="item"><div><span class="tag">Sân ${esc(x.fmt)}</span><b>${esc(x.name)}</b></div><div class="acts"><button class="btn" data-pfa="${esc(x.id)}">Xếp lên sân</button><button class="btn danger" data-pfdel="${esc(x.id)}">✕</button></div></div>`).join('') || '<p class="hint">Chưa có. Ở khung Đội nhà, bấm “★ Lưu”.</p>';
+  const up = (attr, id) => team ? `<button class="btn" data-${attr}="${esc(id)}" title="Chia sẻ cho đội">Lên đội</button>` : '';
+  let html = '';
+  if(PTAB === 'board') html = L.board.map(x => `<div class="item"><div><span class="tag">Sân ${esc(x.fmt)}</span><b>${esc(x.name)}</b></div><div class="acts"><button class="btn" data-pb="${esc(x.id)}">Mở</button>${up('pbteam', x.id)}<button class="btn danger" data-pbdel="${esc(x.id)}" title="Xoá">✕</button></div></div>`).join('')
+    || `<p class="hint">${u ? 'Chưa có. Ở Bảng chiến thuật, bấm “Lưu riêng”, hoặc bấm “→ Riêng” ở bài của đội.' : 'Đăng nhập để lưu bài riêng theo tài khoản.'}</p>`;
+  if(PTAB === 'plan') html = L.plan.map(x => `<div class="item"><div><b>${esc(x.name)}</b></div><div class="acts"><button class="btn" data-ppo="${esc(x.id)}">Mở</button>${up('ppteam', x.id)}<button class="btn danger" data-ppdel="${esc(x.id)}" title="Xoá">✕</button></div></div>`).join('')
+    || `<p class="hint">${u ? 'Chưa có. Ở tab Giáo án, bấm “Lưu riêng”.' : 'Đăng nhập để lưu giáo án riêng theo tài khoản.'}</p>`;
+  if(PTAB === 'formation') html = L.formation.map(x => `<div class="item"><div><span class="tag">Sân ${esc(x.fmt)}</span><b>${esc(x.name)}</b></div><div class="acts"><button class="btn" data-pfa="${esc(x.id)}">Xếp lên sân</button><button class="btn danger" data-pfdel="${esc(x.id)}" title="Xoá">✕</button></div></div>`).join('')
+    || '<p class="hint">Chưa có. Ở khung Đội nhà (Bảng chiến thuật), bấm “★ Lưu”.</p>';
+  $('#privList').innerHTML = html;
   renderSettings();
 }
-$('#v-toi').addEventListener('click', async e => {
+$('#v-ho-so').addEventListener('click', async e => {
   const b = e.target.closest('button'); if(!b) return;
   if(b.dataset.acct){ acctAction(b.dataset.acct); return; }
   if(b.dataset.pb || b.dataset.pbteam || b.dataset.pbdel){ privLibAction(b); return; }
   if(b.dataset.ppo || b.dataset.ppteam || b.dataset.ppdel){ privPlanAction(b); return; }
   if(b.dataset.pfa){ const x = privList('formation').find(y => y.id === b.dataset.pfa); if(x){ applyFav(x); location.hash = 'bang'; } return; }
+  if(b.dataset.ptab){ PTAB = b.dataset.ptab; renderToi(); return; }
   if(b.dataset.pfdel){ if(confirmDel(b)){ try{ await privDel(b.dataset.pfdel); toast('Đã xoá'); }catch(err){ toast(fbErr(err)); } } return; }
   if(b.id === 'profNameSave'){
     const v = $('#profName').value.trim(); if(!v){ toast('Tên không được để trống'); return; }
@@ -3579,21 +3637,23 @@ function renderTeamPanel(){
   const box = $('#teamBody'), uid = CLOUD.user.uid;
   if(!isMember()){ box.innerHTML = '<p class="hint">Tài khoản đang chờ Admin duyệt. Sau khi có vai trò, bạn sẽ thấy đội của mình ở đây.</p>'; return; }
   const cur = CLOUD.teams.find(t => t.id === CLOUD.team);
-  let h = CLOUD.teams.length ? `<div class="tlist2">${CLOUD.teams.map(t => `<div class="item${t.id === CLOUD.team ? ' cur' : ''}"><div><b>${esc(t.name || 'Đội')}</b><small>${(t.members || []).length} thành viên${t.id === CLOUD.team ? ' · đang chọn' : ''}</small></div><div class="acts">${t.id === CLOUD.team ? '' : `<button class="btn" data-tsel="${esc(t.id)}">Chọn</button>`}</div></div>`).join('')}</div>`
+  let h = CLOUD.teams.length ? `<div class="tcards">${CLOUD.teams.map(t => { const on = t.id === CLOUD.team, n = t.name || 'Đội';
+      return `<div class="tcard${on ? ' cur' : ''}"><span class="tb" style="background:${avatarColor(n)}">${esc(initials(n))}</span><div class="tn"><b>${esc(n)}</b><small>${(t.members || []).length} thành viên</small></div>${on ? '<span class="curtag">Đang chọn</span>' : `<button class="btn" data-tsel="${esc(t.id)}">Chọn</button>`}</div>`; }).join('')}</div>`
     : `<p class="hint">${canEditCloud() ? 'Đang tạo đội đầu tiên…' : 'Bạn chưa thuộc đội nào. Nhờ HLV thêm bạn vào đội.'}</p>`;
   if(canEditCloud()){
-    h += `<div class="sub-h">Tạo đội mới</div><div class="row" style="align-items:flex-end"><label class="f grow">Tên đội<input type="text" id="tNewName" maxlength="40" placeholder="vd U9 sân 5"></label><button class="btn primary" data-tnew="1">Tạo đội</button></div>
-      <label class="switch"><input type="checkbox" id="tCopy"> Chép danh sách cầu thủ của đội đang chọn</label>`;
+    h += `<details class="tnew"><summary>+ Tạo đội mới</summary>
+      <div class="pname"><label class="f">Tên đội<input type="text" id="tNewName" maxlength="40" placeholder="vd U9 sân 5"></label><button class="btn primary" data-tnew="1">Tạo</button></div>
+      <label class="switch"><input type="checkbox" id="tCopy"> Chép danh sách cầu thủ của đội đang chọn</label></details>`;
     if(cur){
       const users = CLOUD.users || [], byId = Object.fromEntries(users.map(u => [u.uid, u]));
       const mem = (cur.members || []).map(m => byId[m] || {uid:m, name:'(tài khoản)', role:''});
       const addable = users.filter(u => !(cur.members || []).includes(u.uid) && !['pending','disabled'].includes(u.role));
-      h += `<div class="sub-h">Đội đang chọn: ${esc(cur.name || '')}</div>
-        <div class="row" style="align-items:flex-end"><label class="f grow">Đổi tên đội<input type="text" id="tRename" maxlength="40" value="${esc(cur.name || '')}"></label><button class="btn" data-tren="1">Lưu</button></div>
+      h += `<div class="tbox"><div class="sub-h">Đội đang chọn</div>
+        <div class="pname"><label class="f">Tên đội<input type="text" id="tRename" maxlength="40" value="${esc(cur.name || '')}"></label><button class="btn" data-tren="1">Đổi tên</button></div>
         <div class="sub-h">Thành viên (${mem.length})</div>
-        <div class="tlist2">${mem.map(u => `<div class="item"><div><b>${esc(u.name || u.email || '')}</b><small>${esc(ROLE_VN[u.role] || '')}${u.uid === uid ? ' · bạn' : ''}</small></div><div class="acts">${u.uid !== uid ? `<button class="btn danger" data-tdel="${esc(u.uid)}" title="Bỏ khỏi đội">✕</button>` : ''}</div></div>`).join('')}</div>
-        <div class="row" style="align-items:flex-end"><label class="f grow">Thêm thành viên<select id="tAdd">${addable.length ? addable.map(u => `<option value="${esc(u.uid)}">${esc(u.name || u.email || '')} · ${esc(ROLE_VN[u.role] || '')}</option>`).join('') : '<option value="">Không còn ai để thêm</option>'}</select></label><button class="btn" data-tadd="1"${addable.length ? '' : ' disabled'}>Thêm</button></div>
-        <p class="hint">Người mới phải đăng ký và được Admin cấp vai trò trước, rồi mới thêm vào đội được.</p>`;
+        <div>${mem.map(u => { const n = u.name || u.email || ''; return `<div class="tmem"><span class="avatar sm" style="background:${avatarColor(n)}">${esc(initials(n))}</span><div class="mn"><b>${esc(n)}${u.uid === uid ? ' (bạn)' : ''}</b><small>${esc(ROLE_VN[u.role] || '')}</small></div>${u.uid !== uid ? `<button class="btn danger" data-tdel="${esc(u.uid)}" title="Bỏ khỏi đội">✕</button>` : ''}</div>`; }).join('')}</div>
+        <div class="pname"><label class="f">Thêm thành viên<select id="tAdd">${addable.length ? addable.map(u => `<option value="${esc(u.uid)}">${esc(u.name || u.email || '')} · ${esc(ROLE_VN[u.role] || '')}</option>`).join('') : '<option value="">Không còn ai để thêm</option>'}</select></label><button class="btn primary" data-tadd="1"${addable.length ? '' : ' disabled'}>Thêm</button></div>
+        <p class="hint" style="margin:0">Người mới phải đăng ký và được Admin cấp vai trò trước, rồi mới thêm vào đội được.</p></div>`;
     }
   }
   box.innerHTML = h;
@@ -4178,16 +4238,18 @@ if(window.visualViewport){ visualViewport.addEventListener('resize', updRot); vi
 document.addEventListener('keydown', e => { if(e.key === 'Escape' && fsEl && !(e.target && e.target.matches && e.target.matches('input,textarea,select'))) exitFull(); });
 
 /* =================== Routing =================== */
-const VIEWS = ['bang','luat','cau-hoi','giao-an','tran','toi','be','quan-ly'];
+const VIEWS = ['bang','luat','cau-hoi','giao-an','tran','ho-so','quan-ly'];
+const VIEW_ALIAS = {toi:'ho-so', be:'bang'};   // link cũ
 function route(){
-  let v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'bang';
+  const h0 = location.hash.slice(1), h = VIEW_ALIAS[h0] || h0;
+  let v = VIEWS.includes(h) ? h : 'bang';
   if(v === 'quan-ly' && CLOUD.role !== 'admin') v = 'bang';
   if(readOnly) v = 'bang';
   VIEWS.forEach(x => $('#v-' + x).hidden = x !== v);
   $$('nav.tabs a').forEach(a => { if(a.dataset.view === v) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
   if(v !== 'bang') stopPlay();
   if(v === 'tran') renderTran();
-  if(v === 'toi') renderToi();
+  if(v === 'ho-so') renderToi();
   exitFull();
 }
 window.addEventListener('hashchange', route);
