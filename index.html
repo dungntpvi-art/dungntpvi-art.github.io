@@ -3146,7 +3146,8 @@ function renderMatchClock(){
 function renderMatch(){
   if(!MT) MT = newMatch();
   const L = teamList(), byKey = Object.fromEntries(L.map(x => [x.key, x]));
-  MT.court = MT.court.filter(k => byKey[k]);
+  // Bé đổi tên giữa trận: vẫn giữ trên sân dưới tên cũ, không làm mất người
+  MT.court.forEach(k => { if(!byKey[k]) byKey[k] = {key:k, name:k, num:'?', gk:false}; });
   $('#mOpp').value = MT.opp || ''; $('#mHalfMin').value = String(MT.halfMin);
   $('#sOppName').textContent = MT.opp || 'Đối thủ';
   $('#sHome').textContent = MT.score[0]; $('#sAway').textContent = MT.score[1];
@@ -3812,7 +3813,7 @@ document.addEventListener('fullscreenchange', () => { if(!document.fullscreenEle
 portraitMQ.addEventListener ? portraitMQ.addEventListener('change', updRot) : portraitMQ.addListener(updRot);
 window.addEventListener('resize', updRot);
 if(window.visualViewport){ visualViewport.addEventListener('resize', updRot); visualViewport.addEventListener('scroll', updRot); }
-document.addEventListener('keydown', e => { if(e.key === 'Escape' && fsEl) exitFull(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape' && fsEl && !(e.target && e.target.matches && e.target.matches('input,textarea,select'))) exitFull(); });
 
 /* =================== Routing =================== */
 const VIEWS = ['bang','luat','cau-hoi','giao-an','tran','be','quan-ly'];
