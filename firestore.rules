@@ -78,6 +78,13 @@ service cloud.firestore {
         allow read: if inTeam(tid);
         allow write: if canEdit() && inTeam(tid);
       }
+      // Phụ huynh báo con nghỉ buổi tập: ai trong đội cũng tạo được báo nghỉ của chính mình; HLV/Trợ lý xoá được
+      match /absence/{id} {
+        allow read: if inTeam(tid);
+        allow create: if inTeam(tid) && request.resource.data.uid == request.auth.uid
+          && request.resource.data.kid is string && request.resource.data.date is string;
+        allow delete: if inTeam(tid) && (resource.data.uid == request.auth.uid || canEdit());
+      }
     }
 
     // ---- Dữ liệu cũ (trước khi có nhiều đội); app tự chép sang đội đầu tiên ----

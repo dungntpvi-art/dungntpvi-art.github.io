@@ -341,6 +341,75 @@ details.tnew[open]{display:grid;gap:8px}
 .tmem.pend{background:var(--accent-soft);border-radius:8px;padding:6px 8px;margin:2px -8px}
 .rtag{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--mark)}
 
+/* Lịch & tin */
+.nbadge{display:inline-grid;place-items:center;min-width:17px;height:17px;padding:0 4px;margin-left:5px;border-radius:999px;background:var(--bad);color:#fff;font-size:10.5px;font-weight:800;vertical-align:2px;font-family:var(--font-body);letter-spacing:0}
+.nexts{margin-bottom:16px}
+.nx{background:linear-gradient(135deg,var(--grass-a),var(--grass-edge));color:#fff;border-radius:14px;padding:16px 18px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px 20px;align-items:center;position:relative;overflow:hidden}
+.nx > svg{position:absolute;inset:0;width:100%;height:100%;opacity:.5;pointer-events:none}
+.nx > *:not(svg){position:relative}
+.nx.off{background:linear-gradient(135deg,#8a3d33,#5d2721)}
+.nx.empty{background:var(--surface);color:var(--ink);border:1px dashed var(--line)}
+.nx-date{background:rgba(255,255,255,.15);border-radius:12px;padding:8px 12px;text-align:center;min-width:76px}
+.nx-date small{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;opacity:.9}
+.nx-date b{display:block;font-family:var(--font-display);font-size:36px;line-height:1}
+.nx-date span{font-size:12px;opacity:.9}
+.nx-k{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#ffe08a}
+.nx.empty .nx-k{color:var(--mark)}
+.nx-t{font-family:var(--font-display);font-size:30px;font-weight:800;line-height:1.05;letter-spacing:.01em}
+.nx-m{opacity:.95;font-size:13.5px;margin-top:3px}
+.nx-side{display:grid;gap:6px;justify-items:end;text-align:right;font-size:13px;max-width:280px}
+.nx-side .btn{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.35);color:#fff}
+.nx.empty .nx-side .btn{background:var(--surface);border-color:var(--line);color:var(--ink)}
+.nx-abs{background:rgba(0,0,0,.18);border-radius:8px;padding:5px 9px;font-size:12.5px}
+.lich{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:16px;align-items:start}
+.slist{display:grid;gap:6px}
+.srow{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:var(--surface-2)}
+.srow .sd{width:48px;text-align:center;flex:none}
+.srow .sd b{display:block;font-family:var(--font-display);font-size:19px;line-height:1;color:var(--accent)}
+.srow .sd span{font-size:11.5px;color:var(--muted)}
+.srow .si{flex:1;min-width:0}
+.srow .si b{display:block;font-size:13.5px}
+.srow .si small{display:block;color:var(--muted);font-size:12px;line-height:1.35}
+.srow.off .si b{text-decoration:line-through;color:var(--muted)}
+.srow input{max-width:180px;padding:5px 8px;font-size:13px}
+.stag{display:inline-block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;border-radius:999px;padding:1px 7px;background:var(--bad-soft);color:var(--bad);margin-left:4px;vertical-align:1px}
+.stag.ex{background:var(--accent-soft);color:var(--accent)}
+.stag.ab{background:color-mix(in srgb,var(--mark) 18%,transparent);color:var(--mark)}
+.wrow{display:grid;grid-template-columns:104px 96px 96px minmax(0,1fr) auto;gap:6px;align-items:end}
+.wrow input[type=time],.wrow input[type=date],.exrow input[type=time],.exrow input[type=date]{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:6px 7px;font-size:14px;width:100%}
+.exrow{display:grid;grid-template-columns:150px 96px 96px minmax(0,1fr);gap:6px;align-items:end}
+.news{display:grid;gap:8px}
+.nitem{border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--surface-2)}
+.nitem.pin{border-color:var(--mark);background:color-mix(in srgb,var(--mark) 8%,var(--surface))}
+.nitem.new{box-shadow:inset 3px 0 0 var(--accent)}
+.nitem p{margin:0 0 6px;white-space:pre-wrap;word-break:break-word;font-size:14px}
+.nitem p a{color:var(--accent);text-decoration:underline}
+.nmeta{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.nmeta .grow{flex:1}
+.nmeta .btn{padding:3px 8px;font-size:12px}
+.ncomp{display:grid;gap:8px;border:1px dashed var(--line);border-radius:10px;padding:9px 11px}
+.ncomp .row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.cpick{display:flex;flex-wrap:wrap;gap:6px}
+.cpick button{border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:4px 10px;font-size:13px;font-weight:600}
+.cpick button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.ccard{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:9px;background:var(--surface-2)}
+.chead{display:flex;gap:10px;align-items:center}
+.chead b{font-size:15px;display:block}
+.chead small{color:var(--muted);font-size:12px}
+.cstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.cstat{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 4px;text-align:center}
+.cstat b{display:block;font-family:var(--font-display);font-size:22px;line-height:1.05}
+.cstat small{font-size:11px;color:var(--muted)}
+.cdots{display:flex;gap:4px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted)}
+.cdots i{width:15px;height:15px;border-radius:4px;background:var(--bad-soft);border:1px solid var(--line)}
+.cdots i.y{background:var(--ok);border-color:var(--ok)}
+.absf{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) auto;gap:6px;align-items:end}
+#attList button.ab{outline:2px dashed var(--mark);outline-offset:1px}
+.teamro #matchPanel,.teamro #attAll,.teamro #attNone,.teamro #attDate{display:none!important}
+.teamro #attList button{pointer-events:none}
+@media (max-width:900px){.lich{grid-template-columns:1fr}.lich > .toi-col:last-child{order:-1}.nx{grid-template-columns:auto minmax(0,1fr)}.nx-side{grid-column:1/-1;justify-items:start;text-align:left;max-width:none}}
+@media (max-width:520px){.wrow{grid-template-columns:1fr 1fr 1fr}.wrow .wp{grid-column:1/-1}.exrow{grid-template-columns:1fr 1fr 1fr}.exrow .wp{grid-column:1/-1}.absf{grid-template-columns:1fr 1fr}.absf .btn{grid-column:1/-1}.cstats{grid-template-columns:repeat(2,minmax(0,1fr))}.nx-t{font-size:25px}}
+
 /* Trận đấu */
 .mpanel{margin-bottom:16px}
 .mtop{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:flex-end}
@@ -529,6 +598,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
     <p>Bảng vẽ chiến thuật, luật thi đấu và câu hỏi tình huống cho sân 11, 7 và 5 người</p>
   </div>
   <nav class="tabs" aria-label="Chuyển mục">
+    <a href="#lich" data-view="lich">Lịch &amp; tin<span class="nbadge" id="newsDot" hidden></span></a>
     <a href="#bang" data-view="bang">Bảng chiến thuật</a>
     <a href="#luat" data-view="luat">Luật thi đấu</a>
     <a href="#cau-hoi" data-view="cau-hoi">Tình huống</a>
@@ -775,6 +845,31 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
         <li><b>Khen lựa chọn đúng,</b> không chỉ khen bàn thắng: “Con chạy ra chỗ trống rất đúng!”.</li>
         <li><b>Chiếu lên TV:</b> bấm Toàn màn hình, xem hình động cùng cả đội, rồi gọi từng bé lên kéo cầu thủ trong phần thử thách.</li>
       </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LỊCH TẬP, THÔNG BÁO, CON CỦA TÔI ============ -->
+<section id="v-lich" hidden>
+  <div class="nexts" id="lNext"></div>
+  <div class="lich">
+    <div class="toi-col">
+      <div class="panel">
+        <h2>Lịch tập</h2>
+        <div id="lSched"></div>
+        <div id="lEdit"></div>
+      </div>
+      <div class="panel" id="kidPanel">
+        <h2 id="kidTitle">Con của tôi</h2>
+        <div id="kidBody"></div>
+      </div>
+    </div>
+    <div class="toi-col">
+      <div class="panel">
+        <h2>Thông báo</h2>
+        <div id="nCompose"></div>
+        <div class="news" id="nList"></div>
+      </div>
     </div>
   </div>
 </section>
@@ -2902,7 +2997,7 @@ function renderAuth(){
     else if(CLOUD.user && CLOUD.adminExists === false) banner(`<span class="grow">Đội chưa có Admin. Nếu bạn là người quản lý đội, bấm nút bên cạnh để nhận quyền Admin (chỉ người đầu tiên bấm mới được).</span><button class="btn primary" data-acct="claim">Nhận quyền Admin</button>`);
     else if(CLOUD.user && CLOUD.role === 'pending') banner('Tài khoản của bạn đang chờ HLV hoặc Admin duyệt. Trong lúc chờ, bạn vẫn dùng app bình thường trên máy này.');
     else if(CLOUD.user && CLOUD.role === 'disabled') banner('Tài khoản của bạn đã bị khoá. Liên hệ Admin của đội.', true);
-    else if(CLOUD.user && CLOUD.role === 'viewer') banner('Bạn đang ở quyền <b>xem</b>: thấy bài và giáo án của đội trong Thư viện bài và tab Giáo án. Sửa trên máy này không ảnh hưởng tới đội.');
+    else if(CLOUD.user && CLOUD.role === 'viewer') banner('<span class="grow">Bạn đang ở quyền <b>xem</b>: lịch tập, thông báo và tình hình của con ở tab <a href="#lich">Lịch &amp; tin</a>; bài và giáo án của đội ở Thư viện bài và tab Giáo án.</span>');
     else banner('');
   }
   const onTeam = canEditCloud() && CLOUD.team;
@@ -2912,6 +3007,10 @@ function renderAuth(){
   $('#saveHint').textContent = !CLOUD.user ? 'Bài lưu nằm trong trình duyệt này. Đăng nhập để lưu theo tài khoản.' : onTeam ? `“Lưu lên đội” cho cả đội ${teamName()} thấy; “Lưu riêng” chỉ bạn thấy.` : '“Lưu riêng” chỉ bạn thấy, đổi máy vẫn còn.';
   renderTeamSel(); renderToi(); renderFavSel();
   renderLib(); renderPlanList();
+  document.body.classList.toggle('teamro', !!CLOUD.user && CLOUD.role === 'viewer');
+  if(CLOUD.role === 'viewer' && !autoLich){ autoLich = true; if(!location.hash || location.hash === '#bang') location.hash = 'lich'; }
+  if(!$('#v-lich').hidden) renderLich(); else updNewsDot();
+  if(!$('#v-tran').hidden) renderAtt();
   if(CLOUD.role === 'admin') renderAdmin();
   if(location.hash === '#quan-ly' && CLOUD.role !== 'admin') route();
 }
@@ -3045,6 +3144,8 @@ function loadTeamLocal(){
   const legacy = !CLOUD.team || CLOUD.team === CLOUD.migratedTid;
   const get = (base, def) => { const v = store.get(lkey(base), null); return v != null ? v : (legacy ? store.get(base, def) : def); };
   ATT = get('sbct.att.v1', {}); MH = get('sbct.matches.v1', []); KSTARS = get('sbct.kidstars.v1', {}); MT = get('sbct.match.cur', null);
+  SCH = normSch(store.get(lkey('sbct.sched.v1'), null)); NEWS = store.get(lkey('sbct.news.v1'), []); ABS = [];
+  if(typeof renderLich === 'function'){ if(!$('#v-lich').hidden) renderLich(); else updNewsDot(); }
   if(!$('#v-tran').hidden) renderTran();
   if(!$('#v-be').hidden) kRender();
 }
@@ -3064,9 +3165,15 @@ function switchTeam(tid){
     q => { CLOUD.boards = q.docs.map(d => ({id:d.id, ...d.data()})); renderLib(); renderToi(); }, warn));
   U.push(fs.onSnapshot(fs.query(fs.collection(db, 'teams', tid, 'plans'), fs.orderBy('updatedAt', 'desc')),
     q => { CLOUD.plans = q.docs.map(d => ({id:d.id, ...d.data()})); renderPlanList(); renderToi(); }, warn));
-  U.push(cloudTeamListen('attendance', d => { ATT = d || {}; store.set(lkey('sbct.att.v1'), ATT); if(!$('#v-tran').hidden) renderAtt(); renderToi(); }));
-  U.push(cloudTeamListen('matches', d => { MH = Array.isArray(d) ? d : []; store.set(lkey('sbct.matches.v1'), MH); if(!$('#v-tran').hidden) renderHist(); renderToi(); }));
+  U.push(cloudTeamListen('attendance', d => { ATT = d || {}; store.set(lkey('sbct.att.v1'), ATT); if(!$('#v-tran').hidden) renderAtt(); if(!$('#v-lich').hidden) renderLich(); renderToi(); }));
+  U.push(cloudTeamListen('matches', d => { MH = Array.isArray(d) ? d : []; store.set(lkey('sbct.matches.v1'), MH); if(!$('#v-tran').hidden) renderHist(); if(!$('#v-lich').hidden) renderLich(); renderToi(); }));
   U.push(cloudTeamListen('progress', d => { KSTARS = d || {}; store.set(lkey('sbct.kidstars.v1'), KSTARS); if(!$('#v-be').hidden) kRender(); }));
+  const lichUpd = () => { if(!$('#v-lich').hidden) renderLich(); else updNewsDot(); };
+  U.push(cloudTeamListen('schedule', d => { SCH = normSch(d); store.set(lkey('sbct.sched.v1'), SCH); lichUpd(); }));
+  U.push(cloudTeamListen('news', d => { NEWS = Array.isArray(d) ? d : []; store.set(lkey('sbct.news.v1'), NEWS); lichUpd(); }));
+  if(isMember()) U.push(fs.onSnapshot(fs.collection(db, 'teams', tid, 'absence'), q => {
+    ABS = q.docs.map(d => ({id:d.id, ...d.data()})); lichUpd(); if(!$('#v-tran').hidden) renderAtt();
+  }, err => console.warn(err)));
   U.push(fs.onSnapshot(fs.doc(db, 'teams', tid, 'data', 'roster'), snap => {
     CLOUD.rosterLoaded = true;
     if(!snap.exists()){
@@ -3297,17 +3404,20 @@ function minRows(rows, max, lowN){
 let ATT = store.get('sbct.att.v1', {});            // {ngày: [khoá bé có mặt]}
 function saveAtt(){ store.set(lkey('sbct.att.v1'), ATT); cloudTeamSave('attendance', ATT); }
 function renderAtt(){
-  if(!$('#attDate').value) $('#attDate').value = today();
+  const ro = document.body.classList.contains('teamro');
+  if(ro) $('#attDate').value = Object.keys(ATT).filter(k => (ATT[k] || []).length).sort().pop() || today();
+  else if(!$('#attDate').value) $('#attDate').value = today();
   const d = $('#attDate').value, here = new Set(ATT[d] || []), L = teamList();
-  $('#attList').innerHTML = L.map(x => pchip(x, `data-k="${esc(x.key)}" class="${here.has(x.key) ? 'on' : ''}" aria-pressed="${here.has(x.key)}"`)).join('');
-  $('#attSum').textContent = `${here.size}/${L.length} bé có mặt ngày ${d.split('-').reverse().join('/')}.`;
+  const ab = new Map(ABS.filter(a => a.date === d).map(a => [a.kid, a.note || '']));
+  $('#attList').innerHTML = L.map(x => pchip(x, `data-k="${esc(x.key)}" class="${here.has(x.key) ? 'on' : ''}${ab.has(x.key) ? ' ab' : ''}" aria-pressed="${here.has(x.key)}"${ab.has(x.key) ? ` title="Phụ huynh báo nghỉ${ab.get(x.key) ? ': ' + esc(ab.get(x.key)) : ''}"` : ''}`)).join('');
+  $('#attSum').textContent = `${ro ? 'Buổi gần nhất: ' : ''}${here.size}/${L.length} bé có mặt ngày ${d.split('-').reverse().join('/')}.` + (ab.size ? ` Báo nghỉ: ${[...ab.keys()].join(', ')}.` : '');
   const days = Object.keys(ATT).filter(k => (ATT[k] || []).length).sort();
   const rows = L.map(x => { const n = days.filter(k => ATT[k].includes(x.key)).length; return {name:x.name, v:n, label:`${n}/${days.length}`}; }).sort((a, b) => a.v - b.v);
   $('#attStats').innerHTML = days.length ? minRows(rows, days.length, 0) : '<p class="hint">Chưa điểm danh buổi nào.</p>';
 }
 $('#attDate').addEventListener('change', renderAtt);
 $('#attList').addEventListener('click', e => {
-  const b = e.target.closest('button[data-k]'); if(!b) return;
+  const b = e.target.closest('button[data-k]'); if(!b || document.body.classList.contains('teamro')) return;
   const d = $('#attDate').value || today(), set = new Set(ATT[d] || []);
   set.has(b.dataset.k) ? set.delete(b.dataset.k) : set.add(b.dataset.k);
   ATT[d] = [...set]; if(!ATT[d].length) delete ATT[d]; saveAtt(); renderAtt();
@@ -3594,7 +3704,7 @@ function renderSettings(){
   $('#setHint').textContent = CLOUD.user ? 'Cài đặt lưu theo tài khoản, đăng nhập máy khác vẫn giữ.' : 'Cài đặt lưu trên máy này. Đăng nhập để giữ theo tài khoản.';
 }
 $('#setSave').addEventListener('click', async () => {
-  SETT = {defFmt:$('#setFmt').value, speed:$('#setSpeed').value, homeColor:$('#setHome').value, awayColor:$('#setAway').value, pen:$('#setPen').checked};
+  SETT = {...SETT, defFmt:$('#setFmt').value, speed:$('#setSpeed').value, homeColor:$('#setHome').value, awayColor:$('#setAway').value, pen:$('#setPen').checked};
   store.set('sbct.settings.v1', SETT); applySettings(true);
   if(CLOUD.user && CLOUD.fb){ try{ const {fs, db} = CLOUD.fb; await fs.updateDoc(fs.doc(db, 'users', CLOUD.user.uid), {settings:SETT}); }catch(err){ toast(fbErr(err)); return; } }
   toast('Đã lưu cài đặt');
@@ -3709,8 +3819,18 @@ function renderRolePanel(){
       return `<div class="tmem${p ? ' pend' : ''}"><span class="avatar sm" style="background:${avatarColor(n)}">${esc(initials(n))}</span><div class="mn">${p ? '<span class="rtag">Mới đăng ký</span>' : ''}<b>${esc(n)}</b><small>${esc(u.email || '')}</small></div>
         <select data-role-uid="${esc(u.uid)}" aria-label="Vai trò của ${esc(n)}">${p ? '<option value="" selected disabled>Chọn vai trò…</option>' : ''}${opt('assistant', 'Trợ lý HLV', u.role)}${opt('viewer', 'Cầu thủ / phụ huynh', u.role)}${opt('disabled', 'Khoá', u.role)}</select></div>`; }).join('')}</div>`
     : '<p class="hint" style="margin:0">Chưa có ai để phân quyền.</p>')
-    + `<p class="hint" style="margin:0">Người mới tự đăng ký trên app rồi hiện ở đây. Khi duyệt, họ được thêm luôn vào đội đang chọn${teamName() ? ` (${esc(teamName())})` : ''}. Quyền HLV chỉ Admin cấp.</p>`;
+    + `<p class="hint" style="margin:0">Người mới tự đăng ký trên app rồi hiện ở đây. Khi duyệt, họ được thêm luôn vào đội đang chọn${teamName() ? ` (${esc(teamName())})` : ''}. Quyền HLV chỉ Admin cấp.</p>
+      <div><button class="btn" data-invite="1">📨 Gửi lời mời cho phụ huynh</button></div>`;
 }
+async function sendInvite(){
+  const team = teamName() || 'đội bóng', url = MAIN_SITE + '#lich';
+  const text = `Mời anh/chị dùng app của ${team} để xem lịch tập, thông báo và tình hình của con.\n1. Mở ${url}\n2. Bấm Đăng nhập → Đăng ký (hoặc dùng Google)\n3. Nhắn HLV để được duyệt.`;
+  try{
+    if(navigator.share){ await navigator.share({title:`Mời vào ${team}`, text}); return; }
+    await navigator.clipboard.writeText(text); toast('Đã chép lời mời, dán vào Zalo nhóm lớp');
+  }catch(err){ if(err && err.name === 'AbortError') return; prompt('Chép lời mời này gửi phụ huynh:', text); }
+}
+$('#rolePanel').addEventListener('click', e => { if(e.target.closest('[data-invite]')) sendInvite(); });
 $('#v-ho-so').addEventListener('change', async e => {
   const sel = e.target.closest('select[data-role-uid]'); if(!sel || !CLOUD.fb) return;
   const id = sel.dataset.roleUid, role = sel.value, u = (CLOUD.users || []).find(x => x.uid === id);
@@ -4305,8 +4425,198 @@ window.addEventListener('resize', updRot);
 if(window.visualViewport){ visualViewport.addEventListener('resize', updRot); visualViewport.addEventListener('scroll', updRot); }
 document.addEventListener('keydown', e => { if(e.key === 'Escape' && fsEl && !(e.target && e.target.matches && e.target.matches('input,textarea,select'))) exitFull(); });
 
+/* =================== LỊCH TẬP, THÔNG BÁO, CON CỦA TÔI =================== */
+const DOW_S = ['CN','T2','T3','T4','T5','T6','T7'], DOW_L = ['Chủ nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+function normSch(d){ d = d && typeof d === 'object' ? d : {};
+  return {weekly:Array.isArray(d.weekly) ? d.weekly : [], extra:Array.isArray(d.extra) ? d.extra : [], off:d.off && typeof d.off === 'object' ? d.off : {}, bring:String(d.bring || '')}; }
+let SCH = normSch(store.get('sbct.sched.v1', null)), NEWS = store.get('sbct.news.v1', []), ABS = [], autoLich = false, offEdit = null;
+const canTeamEdit = () => !CLOUD.user || canEditCloud();
+const ymd = d => new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0, 10);
+const parseYmd = x => { const [y, m, d] = String(x).split('-').map(Number); return new Date(y, (m || 1) - 1, d || 1); };
+const nowHM = () => { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+const dmy = x => x.split('-').reverse().slice(0, 2).join('/');
+function relDay(ds){ const n = Math.round((parseYmd(ds) - parseYmd(today()))/86400000); return n === 0 ? 'Hôm nay' : n === 1 ? 'Ngày mai' : n === 2 ? 'Ngày kia' : `Còn ${n} ngày`; }
+const timeTxt = x => x.start ? (x.end ? `${x.start} – ${x.end}` : x.start) : 'Chưa có giờ';
+function saveSch(){ store.set(lkey('sbct.sched.v1'), SCH); cloudTeamSave('schedule', SCH); }
+function saveNews(){ store.set(lkey('sbct.news.v1'), NEWS); cloudTeamSave('news', NEWS); }
+// Các buổi sắp tới: lịch cố định hằng tuần + buổi lẻ; buổi hôm nay đã xong thì bỏ
+function sessions(days){
+  const out = [], t0 = parseYmd(today()), td = today(), hm = nowHM();
+  for(let i = 0; i < (days || 28); i++){ const d = new Date(t0); d.setDate(d.getDate() + i); const ds = ymd(d), w = d.getDay();
+    SCH.weekly.filter(x => +x.dow === w).forEach(x => out.push({date:ds, start:x.start || '', end:x.end || '', place:x.place || ''})); }
+  SCH.extra.filter(x => x && x.date >= td).forEach(x => out.push({date:x.date, start:x.start || '', end:x.end || '', place:x.place || '', note:x.note || '', extra:true}));
+  return out.filter(x => !(x.date === td && (x.end || x.start) && (x.end || x.start) < hm))
+    .map(x => ({...x, off:SCH.off[x.date]}))
+    .sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start));
+}
+const myKidsKey = () => CLOUD.team || 'local';
+function myKids(){ const k = (SETT.kids || {})[myKidsKey()]; const names = new Set(teamList().map(x => x.key)); return (Array.isArray(k) ? k : []).filter(x => names.has(x)); }
+async function setMyKids(list){
+  SETT = {...SETT, kids:{...(SETT.kids || {}), [myKidsKey()]:list}}; store.set('sbct.settings.v1', SETT);
+  if(CLOUD.user && CLOUD.fb){ try{ const {fs, db} = CLOUD.fb; await fs.updateDoc(fs.doc(db, 'users', CLOUD.user.uid), {settings:SETT}); }catch(err){ toast(fbErr(err)); } }
+}
+function linkify(t){ return esc(t).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>'); }
+function agoTxt(ts){ const m = Math.round((Date.now() - ts)/60000); if(m < 1) return 'vừa xong'; if(m < 60) return `${m} phút trước`; const h = Math.round(m/60); if(h < 24) return `${h} giờ trước`; const d = new Date(ts); return `${d.getDate()}/${d.getMonth()+1}`; }
+const seenKey = () => 'sbct.news.seen.' + (CLOUD.team || 'local');
+function updNewsDot(){
+  const seen = +store.get(seenKey(), 0), mine = CLOUD.user && CLOUD.user.uid;
+  const n = NEWS.filter(x => x.at > seen && x.uid !== mine).length;
+  const b = $('#newsDot'); b.hidden = !n; b.textContent = n > 9 ? '9+' : String(n);
+}
+const absFor = (date, kid) => ABS.filter(a => a.date === date && (!kid || a.kid === kid));
+
+function renderNext(){
+  const L = sessions(), x = L[0], box = $('#lNext'), ed = canTeamEdit();
+  if(!x){
+    box.innerHTML = `<div class="nx empty"><div class="nx-date"><small>Lịch</small><b>–</b><span>&nbsp;</span></div><div><div class="nx-k">Buổi tập tới</div><div class="nx-t">Chưa có lịch</div><div class="nx-m">${ed ? 'Thêm lịch cố định hằng tuần ở mục Lịch tập bên dưới. Phụ huynh sẽ thấy ngay.' : 'HLV chưa nhập lịch tập cho đội.'}</div></div></div>`;
+    return;
+  }
+  const d = parseYmd(x.date), ab = absFor(x.date), nxt = x.off ? L.find(y => !y.off) : null;
+  const meta = [x.place ? '📍 ' + esc(x.place) : '', x.note ? esc(x.note) : '', !x.off && SCH.bring ? '🎒 ' + esc(SCH.bring) : ''].filter(Boolean).join('<br>');
+  const side = [];
+  if(x.off) side.push(`<div class="nx-abs">Buổi này nghỉ${x.off !== true && x.off !== 'Nghỉ' ? ': ' + esc(x.off) : ''}</div>`);
+  if(nxt) side.push(`<div>Buổi kế tiếp: <b>${DOW_S[parseYmd(nxt.date).getDay()]} ${dmy(nxt.date)}</b> · ${esc(timeTxt(nxt))}</div>`);
+  if(!x.off && ab.length) side.push(`<div class="nx-abs">Báo nghỉ: ${ab.map(a => esc(a.kid)).join(', ')}</div>`);
+  if(SCH.weekly.length || SCH.extra.length) side.push('<button class="btn" data-ics="1">📅 Thêm vào lịch điện thoại</button>');
+  box.innerHTML = `<div class="nx${x.off ? ' off' : ''}">${PITCH_SVG}<div class="nx-date"><small>${DOW_S[d.getDay()]}</small><b>${d.getDate()}</b><span>Th ${d.getMonth()+1}</span></div>
+    <div><div class="nx-k">${x.off ? 'Nghỉ tập' : 'Buổi tập tới'} · ${relDay(x.date)}</div><div class="nx-t">${esc(timeTxt(x))}</div>${meta ? `<div class="nx-m">${meta}</div>` : ''}</div>
+    ${side.length ? `<div class="nx-side">${side.join('')}</div>` : ''}</div>`;
+}
+function renderSched(){
+  const L = sessions().slice(0, 8), ed = canTeamEdit();
+  $('#lSched').innerHTML = L.length ? `<div class="slist">${L.map(x => { const d = parseYmd(x.date), ab = absFor(x.date);
+    const tags = (x.extra ? '<span class="stag ex">Buổi thêm</span>' : '') + (x.off ? '<span class="stag">Nghỉ</span>' : '') + (!x.off && ab.length ? `<span class="stag ab">${ab.length} báo nghỉ</span>` : '');
+    const sub = [x.place, x.off && x.off !== true && x.off !== 'Nghỉ' ? 'Lý do: ' + x.off : '', x.note, !x.off && ab.length && ed ? 'Nghỉ: ' + ab.map(a => a.kid + (a.note ? ` (${a.note})` : '')).join(', ') : ''].filter(Boolean).map(esc).join(' · ');
+    const act = !ed ? '' : offEdit === x.date ? `<input type="text" id="offWhy" maxlength="60" placeholder="Lý do (vd trời mưa)" aria-label="Lý do nghỉ"><button class="btn primary" data-offok="${x.date}">Lưu</button><button class="btn" data-offx="1">Huỷ</button>`
+      : x.off ? `<button class="btn" data-offun="${x.date}">Học lại</button>` : `<button class="btn" data-offset="${x.date}">Cho nghỉ</button>`;
+    return `<div class="srow${x.off ? ' off' : ''}"><div class="sd"><b>${DOW_S[d.getDay()]}</b><span>${dmy(x.date)}</span></div><div class="si"><b>${esc(timeTxt(x))}${tags}</b>${sub ? `<small>${sub}</small>` : ''}</div>${act}</div>`; }).join('')}</div>`
+    : `<p class="hint" style="margin:0">${ed ? 'Chưa có buổi nào. Mở “Sửa lịch tập” để thêm.' : 'HLV chưa nhập lịch tập.'}</p>`;
+  if(offEdit){ const i = $('#offWhy'); if(i) i.focus(); }
+}
+function renderSchedEdit(){
+  const box = $('#lEdit');
+  if(!canTeamEdit()){ box.innerHTML = SCH.bring ? `<p class="hint" style="margin:0">🎒 Mang theo: ${esc(SCH.bring)}</p>` : ''; return; }
+  const open = box.querySelector('details') ? box.querySelector('details').open : !SCH.weekly.length;
+  const dowSel = (i, v) => `<select data-w="${i}" data-f="dow" aria-label="Thứ">${[1,2,3,4,5,6,0].map(k => `<option value="${k}"${+v === k ? ' selected' : ''}>${DOW_L[k]}</option>`).join('')}</select>`;
+  const ex = SCH.extra.filter(x => x && x.date >= today()).sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start));
+  box.innerHTML = `<details class="tnew"${open ? ' open' : ''}><summary>✎ Sửa lịch tập</summary>
+    <div class="sub-h">Lịch cố định hằng tuần</div>
+    ${SCH.weekly.map((w, i) => `<div class="wrow"><label class="f">Thứ${dowSel(i, w.dow)}</label><label class="f">Bắt đầu<input type="time" data-w="${i}" data-f="start" value="${esc(w.start || '')}"></label><label class="f">Kết thúc<input type="time" data-w="${i}" data-f="end" value="${esc(w.end || '')}"></label><label class="f wp">Sân / địa điểm<input type="text" data-w="${i}" data-f="place" maxlength="60" value="${esc(w.place || '')}" placeholder="vd Sân trường"></label><button class="btn danger" data-wdel="${i}" title="Bỏ buổi này" aria-label="Bỏ buổi này">✕</button></div>`).join('') || '<p class="hint" style="margin:0">Chưa có buổi cố định.</p>'}
+    <div><button class="btn" data-wadd="1">+ Thêm buổi trong tuần</button></div>
+    <label class="f">Nhắc phụ huynh mang theo<input type="text" id="schBring" maxlength="100" value="${esc(SCH.bring)}" placeholder="vd Nước uống, giày, bọc ống đồng"></label>
+    <div class="sub-h">Buổi lẻ (giao hữu, tập bù…)</div>
+    ${ex.map(x => `<div class="tmem"><div class="mn"><b>${DOW_S[parseYmd(x.date).getDay()]} ${dmy(x.date)} · ${esc(timeTxt(x))}</b><small>${esc([x.place, x.note].filter(Boolean).join(' · '))}</small></div><button class="btn danger" data-exdel="${esc(x.date + '|' + x.start)}" aria-label="Xoá buổi lẻ">✕</button></div>`).join('')}
+    <div class="exrow"><label class="f">Ngày<input type="date" id="exDate" min="${today()}"></label><label class="f">Bắt đầu<input type="time" id="exStart"></label><label class="f">Kết thúc<input type="time" id="exEnd"></label><label class="f wp">Địa điểm<input type="text" id="exPlace" maxlength="60"></label></div>
+    <div class="pname"><label class="f">Ghi chú<input type="text" id="exNote" maxlength="80" placeholder="vd Giao hữu với lớp 4A"></label><button class="btn primary" data-exadd="1">Thêm buổi</button></div>
+  </details>`;
+}
+function renderNews(){
+  const ed = canTeamEdit(), seen = +store.get(seenKey(), 0), mine = CLOUD.user && CLOUD.user.uid;
+  $('#nCompose').innerHTML = ed ? `<div class="ncomp"><textarea id="nText" maxlength="800" placeholder="Viết thông báo cho phụ huynh: đổi giờ tập, giải đấu, đóng quỹ…"></textarea>
+    <div class="row"><label class="switch"><input type="checkbox" id="nPin"> Ghim lên đầu</label><button class="btn primary" id="nPost">Đăng thông báo</button></div></div>` : '';
+  const L = NEWS.slice().sort((a, b) => (!!b.pin - !!a.pin) || b.at - a.at).slice(0, 40);
+  $('#nList').innerHTML = L.length ? L.map(x => `<div class="nitem${x.pin ? ' pin' : ''}${x.at > seen && x.uid !== mine ? ' new' : ''}"><p>${linkify(x.text)}</p>
+    <div class="nmeta">${x.pin ? '<span>📌</span>' : ''}<span class="grow">${esc(x.by || 'HLV')} · ${agoTxt(x.at)}</span>${ed ? `<button class="btn" data-npin="${esc(x.id)}">${x.pin ? 'Bỏ ghim' : 'Ghim'}</button><button class="btn danger" data-ndel="${esc(x.id)}" aria-label="Xoá thông báo">✕</button>` : ''}</div></div>`).join('')
+    : `<p class="hint" style="margin:0">${ed ? 'Chưa có thông báo. Bài đăng ở đây cả đội đều thấy.' : 'Chưa có thông báo nào từ HLV.'}</p>`;
+  if(!$('#v-lich').hidden && NEWS.length){ store.set(seenKey(), Math.max(...NEWS.map(x => x.at || 0))); }
+  updNewsDot();
+}
+function kidStats(k){
+  const days = Object.keys(ATT).filter(d => (ATT[d] || []).length).sort(), went = days.filter(d => ATT[d].includes(k));
+  let mins = 0, goals = 0, games = 0;
+  MH.forEach(m => { const v = (m.mins || {})[k] || 0; if(v > 0) games++; mins += v; (m.goals || []).forEach(g => { if(g.who === k) goals++; }); });
+  return {days, went, mins:Math.round(mins/60), goals, games, stars:Object.keys(KSTARS[k] || {}).length};
+}
+function renderKids(){
+  const roster = teamList().filter(x => x.name && !/^Số \d+$/.test(x.name)), mine = myKids(), viewer = CLOUD.role === 'viewer';
+  $('#kidTitle').textContent = viewer || !CLOUD.user ? 'Con của tôi' : 'Theo dõi từng bé';
+  if(!roster.length){ $('#kidBody').innerHTML = `<p class="hint" style="margin:0">${canTeamEdit() ? 'Nhập tên các bé ở “Danh sách đội” (tab Bảng chiến thuật, sân 5) để phụ huynh chọn được con mình.' : 'HLV chưa nhập danh sách đội.'}</p>`; return; }
+  const canAbs = !!CLOUD.user && isMember() && !!CLOUD.team;
+  const up = sessions().filter(x => !x.off).slice(0, 6);
+  let h = `<p class="hint" style="margin:0">${viewer || !CLOUD.user ? 'Chạm vào tên con (có thể chọn nhiều bé):' : 'Chọn bé muốn xem:'}</p>
+    <div class="cpick">${roster.map(x => `<button data-kid="${esc(x.key)}" class="${mine.includes(x.key) ? 'on' : ''}" aria-pressed="${mine.includes(x.key)}">${esc(x.name)}</button>`).join('')}</div>`;
+  h += mine.map(k => { const st = kidStats(k), last = st.days.slice(-10), pct = st.days.length ? Math.round(st.went.length/st.days.length*100) : 0;
+    const myAbs = ABS.filter(a => a.kid === k && a.date >= today()).sort((a, b) => a.date.localeCompare(b.date));
+    return `<div class="ccard"><div class="chead"><span class="avatar sm" style="background:${avatarColor(k)}">${esc(initials(k))}</span><div><b>${esc(k)}</b><small>${st.days.length ? `Đi tập ${st.went.length}/${st.days.length} buổi (${pct}%)` : 'Chưa có buổi điểm danh nào'}</small></div></div>
+      <div class="cstats"><div class="cstat"><b>${st.went.length}</b><small>buổi tập</small></div><div class="cstat"><b>${st.games}</b><small>trận đã đá</small></div><div class="cstat"><b>${st.mins}′</b><small>phút thi đấu</small></div><div class="cstat"><b>${st.goals}</b><small>bàn thắng</small></div></div>
+      ${last.length ? `<div class="cdots"><span>Gần đây:</span>${last.map(d => `<i class="${ATT[d].includes(k) ? 'y' : ''}" title="${dmy(d)}: ${ATT[d].includes(k) ? 'có mặt' : 'vắng'}"></i>`).join('')}</div>` : ''}
+      ${myAbs.length ? `<div>${myAbs.map(a => `<div class="tmem"><div class="mn"><b>Báo nghỉ ${DOW_S[parseYmd(a.date).getDay()]} ${dmy(a.date)}</b><small>${esc([a.note, a.by ? 'gửi bởi ' + a.by : ''].filter(Boolean).join(' · '))}</small></div>${CLOUD.user && (a.uid === CLOUD.user.uid || canEditCloud()) ? `<button class="btn" data-absdel="${esc(a.id)}">Huỷ báo nghỉ</button>` : ''}</div>`).join('')}</div>` : ''}
+      ${canAbs && up.length ? `<div class="absf"><label class="f">Báo nghỉ buổi<select data-absdate="${esc(k)}">${up.map(x => `<option value="${x.date}">${DOW_S[parseYmd(x.date).getDay()]} ${dmy(x.date)} · ${esc(x.start || '')}</option>`).join('')}</select></label><label class="f">Lý do<input type="text" data-absnote="${esc(k)}" maxlength="60" placeholder="vd Bé bị ốm"></label><button class="btn" data-absadd="${esc(k)}">Gửi HLV</button></div>` : ''}
+    </div>`; }).join('');
+  if(!mine.length) h += `<p class="hint" style="margin:0">${viewer ? 'Chọn tên con để xem số buổi đi tập, số trận, bàn thắng và báo nghỉ cho HLV.' : 'Chọn một bé để xem chuyên cần và thành tích.'}</p>`;
+  $('#kidBody').innerHTML = h;
+}
+function renderLich(){ renderNext(); renderSched(); renderSchedEdit(); renderNews(); renderKids(); }
+
+$('#v-lich').addEventListener('click', async e => {
+  const b = e.target.closest('button'); if(!b) return;
+  const D = b.dataset;
+  if(D.ics){ downloadIcs(); return; }
+  if(D.kid){ const m = myKids(), k = D.kid; await setMyKids(m.includes(k) ? m.filter(x => x !== k) : [...m, k]); renderKids(); return; }
+  if(D.absadd){
+    const k = D.absadd, date = $(`select[data-absdate="${CSS.escape(k)}"]`).value, note = $(`input[data-absnote="${CSS.escape(k)}"]`).value.trim();
+    if(absFor(date, k).length){ toast('Đã báo nghỉ buổi này rồi'); return; }
+    const {fs, db} = CLOUD.fb; b.disabled = true;
+    try{ await fs.addDoc(fs.collection(db, 'teams', CLOUD.team, 'absence'), {uid:CLOUD.user.uid, by:(CLOUD.profile && CLOUD.profile.name) || CLOUD.user.email || '', kid:k, date, note, at:fs.serverTimestamp()}); toast(`Đã báo HLV: ${k} nghỉ ${dmy(date)}`); }
+    catch(err){ toast(fbErr(err)); b.disabled = false; }
+    return;
+  }
+  if(D.absdel){ const {fs, db} = CLOUD.fb; try{ await fs.deleteDoc(fs.doc(db, 'teams', CLOUD.team, 'absence', D.absdel)); toast('Đã huỷ báo nghỉ'); }catch(err){ toast(fbErr(err)); } return; }
+  if(!canTeamEdit()) return;
+  if(D.offset){ offEdit = D.offset; renderSched(); return; }
+  if(D.offx){ offEdit = null; renderSched(); return; }
+  if(D.offok){ SCH.off[D.offok] = ($('#offWhy').value.trim() || 'Nghỉ'); offEdit = null; saveSch(); renderLich(); toast(`Đã báo nghỉ buổi ${dmy(D.offok)} cho cả đội`); return; }
+  if(D.offun){ delete SCH.off[D.offun]; saveSch(); renderLich(); toast('Đã mở lại buổi tập'); return; }
+  if(D.wadd){ SCH.weekly.push({dow:SCH.weekly.length ? (+SCH.weekly[SCH.weekly.length-1].dow + 2) % 7 : 2, start:'17:30', end:'19:00', place:SCH.weekly.length ? SCH.weekly[SCH.weekly.length-1].place || '' : ''}); saveSch(); renderLich(); return; }
+  if(D.wdel){ SCH.weekly.splice(+D.wdel, 1); saveSch(); renderLich(); return; }
+  if(D.exadd){
+    const date = $('#exDate').value, start = $('#exStart').value;
+    if(!date){ toast('Chọn ngày cho buổi lẻ'); return; }
+    if(date < today()){ toast('Ngày đã qua'); return; }
+    SCH.extra = SCH.extra.filter(x => x && x.date >= today());
+    SCH.extra.push({date, start, end:$('#exEnd').value, place:$('#exPlace').value.trim(), note:$('#exNote').value.trim()});
+    saveSch(); renderLich(); toast(`Đã thêm buổi ${dmy(date)}`); return;
+  }
+  if(D.exdel){ const [d, st] = D.exdel.split('|'); SCH.extra = SCH.extra.filter(x => !(x.date === d && (x.start || '') === st)); saveSch(); renderLich(); return; }
+  if(b.id === 'nPost'){
+    const text = $('#nText').value.trim(); if(!text){ toast('Viết nội dung thông báo trước'); return; }
+    NEWS.unshift({id:'n' + Date.now().toString(36), text, pin:$('#nPin').checked, at:Date.now(), uid:CLOUD.user ? CLOUD.user.uid : '', by:(CLOUD.profile && CLOUD.profile.name) || (CLOUD.user ? CLOUD.user.email : 'HLV')});
+    NEWS = NEWS.slice(0, 60); saveNews(); renderNews(); toast('Đã đăng thông báo'); return;
+  }
+  if(D.npin){ const x = NEWS.find(y => y.id === D.npin); if(x){ x.pin = !x.pin; saveNews(); renderNews(); } return; }
+  if(D.ndel){
+    if(D.armed !== '1'){ D.armed = '1'; b.classList.add('armed'); b.textContent = 'Xoá?'; setTimeout(() => { if(b.isConnected){ D.armed = ''; b.classList.remove('armed'); b.textContent = '✕'; } }, 2500); return; }
+    NEWS = NEWS.filter(y => y.id !== D.ndel); saveNews(); renderNews(); return;
+  }
+});
+$('#v-lich').addEventListener('change', e => {
+  const t = e.target;
+  if(t.id === 'schBring' && canTeamEdit()){ SCH.bring = t.value.trim(); saveSch(); renderNext(); return; }
+  if(t.dataset.w != null && canTeamEdit()){ const w = SCH.weekly[+t.dataset.w]; if(!w) return; w[t.dataset.f] = t.dataset.f === 'dow' ? +t.value : t.value.trim(); saveSch(); renderNext(); renderSched(); }
+});
+$('#v-lich').addEventListener('keydown', e => { if(e.key === 'Enter' && e.target.id === 'offWhy'){ const b = $('[data-offok]'); if(b) b.click(); } });
+function icsEsc(t){ return String(t).replace(/[\\;,]/g, m => '\\' + m).replace(/\n/g, '\\n'); }
+function addMin(hm, n){ const [h, m] = hm.split(':').map(Number), t = h*60 + m + n; return String(Math.floor(t/60) % 24).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); }
+function downloadIcs(){
+  const by = ['SU','MO','TU','WE','TH','FR','SA'], name = teamName() || 'Đội bóng', stamp = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
+  const tid = CLOUD.team || 'local', L = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//SaBan//Lich tap//VI','CALSCALE:GREGORIAN','X-WR-CALNAME:' + icsEsc('Lịch tập ' + name)];
+  const ev = (uid, date, x, extra) => { if(!x.start) return; const ds = date.replace(/-/g, ''), st = x.start.replace(':', '') + '00', en = (x.end || addMin(x.start, 90)).replace(':', '') + '00';
+    L.push('BEGIN:VEVENT', `UID:${uid}@saban`, `DTSTAMP:${stamp}`, `DTSTART:${ds}T${st}`, `DTEND:${ds}T${en}`, ...extra, 'SUMMARY:' + icsEsc((x.note ? x.note + ' · ' : 'Tập bóng · ') + name));
+    if(x.place) L.push('LOCATION:' + icsEsc(x.place));
+    if(SCH.bring) L.push('DESCRIPTION:' + icsEsc('Mang theo: ' + SCH.bring));
+    L.push('BEGIN:VALARM', 'TRIGGER:-PT60M', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc('Sắp tới giờ tập'), 'END:VALARM', 'END:VEVENT'); };
+  SCH.weekly.forEach((w, i) => { const d = parseYmd(today()); while(d.getDay() !== +w.dow) d.setDate(d.getDate() + 1);
+    const st = (w.start || '').replace(':', '') + '00', ex = Object.keys(SCH.off).filter(k => k >= ymd(d) && parseYmd(k).getDay() === +w.dow).map(k => `EXDATE:${k.replace(/-/g, '')}T${st}`);
+    ev(`${tid}-w${i}-${w.dow}-${(w.start || '').replace(':', '')}`, ymd(d), w, [`RRULE:FREQ=WEEKLY;BYDAY=${by[+w.dow]}`, ...ex]); });
+  SCH.extra.filter(x => x && x.date >= today() && !SCH.off[x.date]).forEach(x => ev(`${tid}-x${x.date}-${(x.start || '').replace(':', '')}`, x.date, x, []));
+  L.push('END:VCALENDAR');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([L.join('\r\n')], {type:'text/calendar'})); a.download = 'lich-tap.ics';
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  toast('Mở file vừa tải để thêm lịch tập vào điện thoại (có nhắc trước 1 giờ)');
+}
+
 /* =================== Routing =================== */
-const VIEWS = ['bang','luat','cau-hoi','giao-an','tran','ho-so','quan-ly'];
+const VIEWS = ['lich','bang','luat','cau-hoi','giao-an','tran','ho-so','quan-ly'];
 const VIEW_ALIAS = {toi:'ho-so', be:'bang'};   // link cũ
 function route(){
   const h0 = location.hash.slice(1), h = VIEW_ALIAS[h0] || h0;
@@ -4318,6 +4628,7 @@ function route(){
   if(v !== 'bang') stopPlay();
   if(v === 'tran') renderTran();
   if(v === 'ho-so') renderToi();
+  if(v === 'lich') renderLich();
   exitFull();
 }
 window.addEventListener('hashchange', route);

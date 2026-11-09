@@ -15,6 +15,14 @@ App có icon riêng, mở toàn màn hình không có thanh trình duyệt, và 
 
 ## Tính năng
 
+### Lịch & tin (trang chung của lớp)
+- **Buổi tập tới** nổi bật đầu trang: ngày, giờ, sân, đồ cần mang, đếm ngày, bé nào đã báo nghỉ.
+- **Lịch tập**: HLV nhập lịch cố định hằng tuần, buổi lẻ (giao hữu, tập bù), bấm "Cho nghỉ" kèm lý do; phụ huynh thấy ngay. Nút "Thêm vào lịch điện thoại" tải file .ics (lặp hằng tuần, nhắc trước 1 giờ).
+- **Thông báo**: HLV/Trợ lý đăng, ghim, xoá; tab có chấm đỏ khi có tin mới chưa đọc.
+- **Con của tôi**: phụ huynh chọn tên con trong danh sách đội để xem số buổi đi tập, số trận, phút thi đấu, bàn thắng, và **báo nghỉ** cho HLV. Bé báo nghỉ được đánh dấu trong Điểm danh.
+- Phụ huynh (quyền xem) mở app là vào thẳng Lịch & tin; ở tab Trận đấu chỉ xem điểm danh buổi gần nhất và lịch sử trận, không thấy phần ghi trận.
+- HLV có nút "Gửi lời mời cho phụ huynh" ở mục Phân quyền (chia sẻ qua Zalo).
+
 ### Bảng chiến thuật
 - Sân 11, 7 và 5 người (sân 5 vẽ theo chuẩn futsal), vẽ đúng tỉ lệ.
 - Sơ đồ có sẵn cho từng loại sân, hoặc tự nhập (ví dụ `4-1-4-1`). Đổi màu áo từng đội.
