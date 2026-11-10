@@ -15,6 +15,9 @@ App có icon riêng, mở toàn màn hình không có thanh trình duyệt, và 
 
 ## Tính năng
 
+### Mời vào đội
+HLV vào Hồ sơ → Phân quyền → **Gửi link mời** (gửi vào nhóm Zalo lớp). Phụ huynh bấm link, đăng ký, rồi hiện ở mục “Xin vào đội” để HLV duyệt. HLV chỉ thấy thành viên đội mình; chỉ Admin xem được mọi tài khoản. “Đổi mã” làm link cũ hết hiệu lực.
+
 ### Lịch & tin (trang chung của lớp)
 - **Buổi tập tới** nổi bật đầu trang: ngày, giờ, sân, đồ cần mang, đếm ngày, bé nào đã báo nghỉ.
 - **Lịch tập**: HLV nhập lịch cố định hằng tuần, buổi lẻ (giao hữu, tập bù), bấm "Cho nghỉ" kèm lý do; phụ huynh thấy ngay. Nút "Thêm vào lịch điện thoại" tải file .ics (lặp hằng tuần, nhắc trước 1 giờ).

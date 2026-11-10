@@ -35,19 +35,23 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-      // HLV / Trợ lý xem được mọi tài khoản trừ Admin (để thêm vào đội và duyệt người mới); tài khoản Admin được giấu
-      allow read: if signedIn() && (request.auth.uid == uid || isAdmin()
-        || (canEdit() && resource.data.role in ['coach', 'assistant', 'viewer', 'pending', 'disabled']));
+      // Chỉ chủ tài khoản và Admin đọc được. HLV / Trợ lý xem thành viên qua danh bạ đội (teams/{tid}/people)
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
       // Tự đăng ký: chỉ được tạo hồ sơ của mình với vai trò "pending". Admin tạo được cho người khác.
       allow create: if isAdmin()
         || (signedIn() && request.auth.uid == uid && request.resource.data.role == 'pending');
       // Tự sửa hồ sơ (tên…) nhưng không tự đổi vai trò; riêng lúc nhận quyền Admin lần đầu.
-      // HLV phân quyền cho người khác: chỉ đổi vai trò giữa Chờ duyệt / Trợ lý / Cầu thủ / Khoá, không đụng tới HLV và Admin
+      // HLV phân quyền cho người khác: chỉ đổi vai trò giữa Chờ duyệt / Trợ lý / Cầu thủ / Khoá, không đụng tới HLV và Admin.
+      // Chỉ với người trong đội của HLV hoặc người đã gửi yêu cầu vào đội đó (roleTeam = mã đội)
       allow update: if isAdmin()
         || (role() == 'coach' && request.auth.uid != uid
             && resource.data.role in ['pending', 'assistant', 'viewer', 'disabled']
             && request.resource.data.role in ['assistant', 'viewer', 'disabled']
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role']))
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role', 'roleTeam'])
+            && request.resource.data.roleTeam is string
+            && inTeam(request.resource.data.roleTeam)
+            && (uid in get(teamPath(request.resource.data.roleTeam)).data.members
+                || exists(/databases/$(database)/documents/teams/$(request.resource.data.roleTeam)/requests/$(uid))))
         || (signedIn() && request.auth.uid == uid && request.resource.data.role == resource.data.role)
         || (signedIn() && request.auth.uid == uid && request.resource.data.role == 'admin'
             && getAfter(adminPath()).data.uid == request.auth.uid);
@@ -57,6 +61,14 @@ service cloud.firestore {
       match /private/{doc} {
         allow read, write: if signedIn() && request.auth.uid == uid;
       }
+    }
+
+    // Mã mời vào đội: ai đăng nhập cũng tra được một mã (không liệt kê được danh sách mã)
+    match /invites/{code} {
+      allow get: if signedIn();
+      allow create: if canEdit() && request.resource.data.tid is string && inTeam(request.resource.data.tid)
+        && request.resource.data.by == request.auth.uid;
+      allow delete: if canEdit() && inTeam(resource.data.tid);
     }
 
     // Nhiều đội: mỗi đội có thành viên riêng, bài, giáo án và dữ liệu (danh sách, điểm danh, trận, sao)
@@ -77,6 +89,21 @@ service cloud.firestore {
       match /data/{doc} {
         allow read: if inTeam(tid);
         allow write: if canEdit() && inTeam(tid);
+      }
+      // Danh bạ thành viên đội: HLV / Trợ lý của đội xem; mỗi người tự ghi mục của mình (đúng vai trò thật)
+      match /people/{pid} {
+        allow read, write: if canEdit() && inTeam(tid);
+        allow create, update: if signedIn() && request.auth.uid == pid && inTeam(tid)
+          && request.resource.data.role == role();
+      }
+      // Xin vào đội bằng mã mời: người xin tự tạo yêu cầu của mình; HLV / Admin của đội xem và duyệt
+      match /requests/{rid} {
+        allow get: if signedIn() && request.auth.uid == rid;
+        allow read: if canEdit() && inTeam(tid);
+        allow create, update: if signedIn() && request.auth.uid == rid && request.resource.data.code is string
+          && exists(/databases/$(database)/documents/invites/$(request.resource.data.code))
+          && get(/databases/$(database)/documents/invites/$(request.resource.data.code)).data.tid == tid;
+        allow delete: if (canEdit() && inTeam(tid)) || (signedIn() && request.auth.uid == rid);
       }
       // Phụ huynh báo con nghỉ buổi tập: ai trong đội cũng tạo được báo nghỉ của chính mình; HLV/Trợ lý xoá được
       match /absence/{id} {
