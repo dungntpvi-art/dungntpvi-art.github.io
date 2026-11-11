@@ -1,6 +1,6 @@
 // Service worker: cho app chạy khi không có mạng.
 // Trang chính lấy từ mạng trước (để luôn có bản mới), mất mạng thì dùng bản đã lưu.
-const CACHE = 'saban-v26';
+const CACHE = 'saban-v27';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-180.png', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {

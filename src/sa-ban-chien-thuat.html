@@ -26,6 +26,7 @@
   --grass-a:#276d3e; --grass-b:#23653a; --grass-edge:#1c5230; --chalk:#eef3ec; color-scheme:dark}
 
 *{box-sizing:border-box}
+html,body{overscroll-behavior-y:contain}
 [hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14px;line-height:1.5;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 32px}
@@ -115,6 +116,15 @@ svg.erasing #drawings .dr:hover path,svg.erasing #drawings .dr:hover ellipse{str
 aside{display:grid;gap:12px}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:grid;gap:10px;min-width:0}
 .panel h2{font-family:var(--font-display);font-weight:700;font-size:18px;letter-spacing:.04em;text-transform:uppercase;margin:0;display:flex;align-items:center;gap:8px}
+aside .panel > h2{cursor:pointer;user-select:none;-webkit-user-select:none}
+aside .panel > h2::after{content:"▾";margin-left:auto;font-size:15px;color:var(--muted);padding-left:6px}
+aside .panel > h2 .switch{margin-left:auto}
+aside .panel.shut > h2::after{content:"▸"}
+aside .panel.shut > :not(h2){display:none!important}
+.tipbox{margin-top:8px}
+.tipbox > summary{cursor:pointer;color:var(--muted);font-size:12.5px;list-style:none;display:inline-block;padding:4px 0}
+.tipbox > summary::-webkit-details-marker{display:none}
+.tipbox[open] > summary{margin-bottom:4px}
 .panel h2 .dot{width:12px;height:12px;border-radius:50%;flex:none;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line)}
 .row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
 .row>*{min-width:0}
@@ -729,7 +739,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
         <button class="btn danger" id="delFrame">Xoá khung</button>
         <span class="spacer"></span>
         <select id="speed" aria-label="Tốc độ phát" style="width:auto">
-          <option value="1.6">Chậm</option><option value="1" selected>Vừa</option><option value="0.6">Nhanh</option>
+          <option value="1.6">Chậm (0.6×)</option><option value="1" selected>Vừa (1×)</option><option value="0.6">Nhanh (1.7×)</option>
         </select>
         <button class="btn primary" id="playBtn">▶ Phát</button>
         <button class="btn" id="exportPng" title="Lưu khung đang xem thành ảnh">⤓ Ảnh</button>
@@ -738,7 +748,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
       </div>
       </div>
       <div class="panel drillinfo" id="drillInfo" hidden></div>
-      <p class="hint" style="margin-top:8px">Mẹo: chọn <b>Kéo thả</b> để di chuyển cầu thủ, chọn công cụ vẽ rồi kéo trên sân để vẽ (bắt đầu từ một cầu thủ thì mũi tên tự bám vào cầu thủ đó). Mỗi khung lưu vị trí + nét vẽ; nét vẽ ở khung N mô tả chuyển động sang khung N+1. Sửa khung đang chọn sẽ tự lưu.</p>
+      <details class="tipbox hint"><summary>💡 Xem mẹo sử dụng</summary><p class="hint">Mẹo: chọn <b>Kéo thả</b> để di chuyển cầu thủ, chọn công cụ vẽ rồi kéo trên sân để vẽ (bắt đầu từ một cầu thủ thì mũi tên tự bám vào cầu thủ đó). Mỗi khung lưu vị trí + nét vẽ; nét vẽ ở khung N mô tả chuyển động sang khung N+1. Sửa khung đang chọn sẽ tự lưu.</p></details>
     </div>
 
     <aside>
@@ -820,6 +830,11 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
         <p class="hint" id="saveHint">Bài lưu nằm trong trình duyệt này.</p>
         <label class="f">Lọc<select id="libCat"></select></label>
         <div class="lib" id="lib"></div>
+        <div class="row">
+          <button class="btn" id="libExport" title="Tải các bài lưu trên máy này thành file .json">⤓ Sao lưu (.json)</button>
+          <button class="btn" id="libImport" title="Nạp lại bài từ file .json đã sao lưu">⤒ Khôi phục (.json)</button>
+          <input type="file" id="libFile" accept=".json,application/json" hidden>
+        </div>
       </div>
     </aside>
   </div>
@@ -959,7 +974,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
       <div class="frow"><span>Lỗi tích lũy đối thủ</span><button class="btn" data-fo="1:-1">−</button><b id="fAway">0</b><button class="btn" data-fo="1:1">+</button><button class="btn" data-to="1" id="toAway">Hội ý</button></div>
       <p class="fwarn" id="fWarn" hidden></p>
     </div>
-    <div class="sub-h">Trên sân <span class="hint" style="text-transform:none;letter-spacing:0">— chạm 1 bé trên sân rồi 1 bé dự bị để thay người</span></div>
+    <div class="sub-h">Trên sân <span class="hint" style="text-transform:none;letter-spacing:0">— chạm 1 cầu thủ trên sân rồi 1 cầu thủ dự bị để thay người</span></div>
     <div class="pchips court" id="mCourt"></div>
     <div class="sub-h">Dự bị</div>
     <div class="pchips" id="mBench"></div>
@@ -987,7 +1002,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
       <h2>Chia đội đá tập</h2>
       <div class="row" style="align-items:flex-end">
         <label class="f" style="width:100px">Số đội<select id="splitN"><option>2</option><option>3</option><option>4</option></select></label>
-        <label class="switch"><input type="checkbox" id="splitPresent" checked> Chỉ bé có mặt hôm nay</label>
+        <label class="switch"><input type="checkbox" id="splitPresent" checked> Chỉ cầu thủ có mặt hôm nay</label>
         <button class="btn primary" id="splitBtn">Chia đội</button>
       </div>
       <div class="teams" id="splitOut"></div>
@@ -1027,7 +1042,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
         <div id="profBody"></div>
         <div class="setgrid">
           <label class="f">Mở app vào sân<select id="setFmt"><option value="">Như lần trước</option><option value="5">Sân 5</option><option value="7">Sân 7</option><option value="11">Sân 11</option></select></label>
-          <label class="f">Tốc độ phát<select id="setSpeed"><option value="1.6">Chậm</option><option value="1">Vừa</option><option value="0.6">Nhanh</option></select></label>
+          <label class="f">Tốc độ phát<select id="setSpeed"><option value="1.6">Chậm (0.6×)</option><option value="1">Vừa (1×)</option><option value="0.6">Nhanh (1.7×)</option></select></label>
           <label class="f">Áo đội nhà<span class="colorf"><input type="color" id="setHome"><span>Đội nhà</span></span></label>
           <label class="f">Áo đội khách<span class="colorf"><input type="color" id="setAway"><span>Đội khách</span></span></label>
         </div>
@@ -2222,6 +2237,59 @@ $('#lib').addEventListener('click', e => {
     store.set('sbct.saved.v1', store.get('sbct.saved.v1', []).filter(x => x.id !== b.dataset.del)); renderLib(); toast('Đã xoá bài');
   }
 });
+
+/* ---------------- Sao lưu / khôi phục bài lưu trên máy ---------------- */
+$('#libExport').addEventListener('click', () => {
+  const saved = store.get('sbct.saved.v1', []);
+  if(!saved.length){ toast('Chưa có bài nào lưu trên máy này để sao lưu'); return; }
+  const blob = new Blob([JSON.stringify({app:'sa-ban', kind:'saved', v:1, at:Date.now(), items:saved}, null, 1)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `sa-ban-bai-luu-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast(`Đã sao lưu ${saved.length} bài`);
+});
+$('#libImport').addEventListener('click', () => $('#libFile').click());
+$('#libFile').addEventListener('change', async e => {
+  const f = e.target.files && e.target.files[0]; e.target.value = ''; if(!f) return;
+  if(f.size > 20e6){ toast('File quá lớn'); return; }
+  let j; try{ j = JSON.parse(await f.text()); }catch(err){ toast('File không phải JSON hợp lệ'); return; }
+  const arr = Array.isArray(j) ? j : j && Array.isArray(j.items) ? j.items : null;
+  if(!arr){ toast('File không đúng định dạng sao lưu của Sa Bàn'); return; }
+  const ok = arr.filter(x => x && typeof x.name === 'string' && x.name.trim() && FMT[x.fmt] && x.data && typeof x.data === 'object' && Array.isArray(x.data.frames) && x.data.pos && typeof x.data.pos === 'object');
+  if(!ok.length){ toast('Không tìm thấy bài hợp lệ trong file'); return; }
+  const saved = store.get('sbct.saved.v1', []), byId = new Map(saved.map(x => [x.id, x]));
+  let add = 0, upd = 0;
+  for(const x of ok){
+    const it = {id: typeof x.id === 'string' && x.id ? x.id.slice(0,40) : 's' + Date.now() + Math.random().toString(36).slice(2,6), name:x.name.trim().slice(0,80), fmt:x.fmt, at:+x.at || Date.now(), data:x.data};
+    try{ normState(it.data); }catch(err){ continue; }
+    const cur = byId.get(it.id);
+    if(!cur){ byId.set(it.id, it); add++; }
+    else if((+cur.at || 0) <= it.at && JSON.stringify(cur.data) !== JSON.stringify(it.data)){ byId.set(it.id, it); upd++; }
+  }
+  const list = [...byId.values()].sort((a, b) => (+b.at || 0) - (+a.at || 0));
+  store.set('sbct.saved.v1', list);
+  if(store.get('sbct.saved.v1', []).length !== list.length){ toast('Bộ nhớ trình duyệt đầy, không khôi phục được'); return; }
+  renderLib();
+  const other = ok.filter(x => x.fmt !== fmt).length;
+  toast(add || upd ? `Đã khôi phục: ${add} bài mới${upd ? `, ${upd} bài cập nhật` : ''}${other ? ` (${other} bài ở sân khác)` : ''}` : 'Các bài trong file đã có sẵn');
+});
+
+/* ---------------- Cột bên thu gọn / mở rộng ---------------- */
+(() => {
+  const KEY = 'sbct.acc.v2', panels = [...document.querySelectorAll('.board > aside > .panel')];
+  const key = p => p.id || 'p' + panels.indexOf(p);
+  let st = store.get(KEY, null);
+  if(!st || typeof st !== 'object'){ st = {}; if((innerWidth || screen.width) < 900) panels.forEach((p, i) => { if(i >= 2 && p.id !== 'selPanel') st[key(p)] = 1; }); }
+  const apply = () => panels.forEach(p => { const h = p.querySelector(':scope > h2'); const shut = !!st[key(p)]; p.classList.toggle('shut', shut); if(h) h.setAttribute('aria-expanded', String(!shut)); });
+  panels.forEach(p => {
+    const h = p.querySelector(':scope > h2'); if(!h) return;
+    h.setAttribute('role', 'button'); h.tabIndex = 0;
+    const tog = () => { const k = key(p); st[k] = st[k] ? 0 : 1; store.set(KEY, st); apply(); };
+    h.addEventListener('click', e => { if(e.target.closest('button,input,select,textarea,label,a')) return; tog(); });
+    h.addEventListener('keydown', e => { if(e.target === h && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); tog(); } });
+  });
+  apply();
+})();
 
 $('#viewSeg').addEventListener('click', e => {
   const b = e.target.closest('button[data-view]'); if(!b) return;
@@ -3480,7 +3548,7 @@ function renderAtt(){
   const d = $('#attDate').value, here = new Set(ATT[d] || []), L = teamList();
   const ab = new Map(ABS.filter(a => a.date === d).map(a => [a.kid, a.note || '']));
   $('#attList').innerHTML = L.map(x => pchip(x, `data-k="${esc(x.key)}" class="${here.has(x.key) ? 'on' : ''}${ab.has(x.key) ? ' ab' : ''}" aria-pressed="${here.has(x.key)}"${ab.has(x.key) ? ` title="Phụ huynh báo nghỉ${ab.get(x.key) ? ': ' + esc(ab.get(x.key)) : ''}"` : ''}`)).join('');
-  $('#attSum').textContent = `${ro ? 'Buổi gần nhất: ' : ''}${here.size}/${L.length} bé có mặt ngày ${d.split('-').reverse().join('/')}.` + (ab.size ? ` Báo nghỉ: ${[...ab.keys()].join(', ')}.` : '');
+  $('#attSum').textContent = `${ro ? 'Buổi gần nhất: ' : ''}${here.size}/${L.length} cầu thủ có mặt ngày ${d.split('-').reverse().join('/')}.` + (ab.size ? ` Báo nghỉ: ${[...ab.keys()].join(', ')}.` : '');
   const days = Object.keys(ATT).filter(k => (ATT[k] || []).length).sort();
   const rows = L.map(x => { const n = days.filter(k => ATT[k].includes(x.key)).length; return {name:x.name, v:n, label:`${n}/${days.length}`}; }).sort((a, b) => a.v - b.v);
   $('#attStats').innerHTML = days.length ? minRows(rows, days.length, 0) : '<p class="hint">Chưa điểm danh buổi nào.</p>';
@@ -3501,10 +3569,10 @@ $('#splitBtn').addEventListener('click', () => {
   const n = +$('#splitN').value, d = $('#attDate').value || today(), here = new Set(ATT[d] || []);
   let L = teamList();
   if($('#splitPresent').checked){
-    if(!here.size){ toast('Hôm nay chưa điểm danh. Bỏ chọn “Chỉ bé có mặt” hoặc điểm danh trước.'); return; }
+    if(!here.size){ toast('Hôm nay chưa điểm danh. Bỏ chọn “Chỉ cầu thủ có mặt” hoặc điểm danh trước.'); return; }
     L = L.filter(x => here.has(x.key));
   }
-  if(L.length < n){ toast(`Cần ít nhất ${n} bé để chia ${n} đội`); return; }
+  if(L.length < n){ toast(`Cần ít nhất ${n} cầu thủ để chia ${n} đội`); return; }
   const shuffle = a => { for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const gks = shuffle(L.filter(x => x.gk)), others = shuffle(L.filter(x => !x.gk));
   const teams = Array.from({length:n}, () => []);
@@ -4759,7 +4827,7 @@ function kidStats(k){
 }
 function renderKids(){
   const roster = teamList().filter(x => x.name && !/^Số \d+$/.test(x.name)), mine = myKids(), viewer = CLOUD.role === 'viewer';
-  $('#kidTitle').textContent = viewer || !CLOUD.user ? 'Con của tôi' : 'Theo dõi từng bé';
+  $('#kidTitle').textContent = viewer || !CLOUD.user ? 'Con của tôi' : 'Theo dõi từng cầu thủ';
   if(!roster.length){ $('#kidBody').innerHTML = `<p class="hint" style="margin:0">${canTeamEdit() ? 'Nhập tên các bé ở “Danh sách đội” (tab Bảng chiến thuật, sân 5) để phụ huynh chọn được con mình.' : 'HLV chưa nhập danh sách đội.'}</p>`; return; }
   const canAbs = !!CLOUD.user && isMember() && !!CLOUD.team;
   const up = sessions().filter(x => !x.off).slice(0, 6);

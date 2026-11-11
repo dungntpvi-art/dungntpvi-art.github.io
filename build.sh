@@ -13,6 +13,16 @@ cd "$(dirname "$0")"
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#246638">
+<meta name="description" content="Bảng vẽ chiến thuật chuyển động, luật thi đấu, giáo án và quản lý đội bóng sân 5, 7, 11.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sa Bàn">
+<meta property="og:title" content="Sa Bàn Chiến Thuật - Bóng đá sân 5, 7, 11">
+<meta property="og:description" content="Bảng vẽ chiến thuật chuyển động, luật thi đấu, giáo án và quản lý trận đấu trực quan.">
+<meta property="og:url" content="https://dungntpvi-art.github.io/">
+<meta property="og:image" content="https://dungntpvi-art.github.io/icons/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta name="twitter:card" content="summary">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
