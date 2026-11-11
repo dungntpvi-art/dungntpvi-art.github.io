@@ -645,6 +645,12 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
   .row > label.f:has(input[type=date]){flex:1 1 150px;width:auto!important}
   input[type=date]{min-width:0;max-width:100%}
   .zoomctl{transform:scale(.8);transform-origin:bottom right}
+  /* Điện thoại: chú thích khung và nút zoom nằm dưới sân, không che cầu thủ */
+  #boardStage:not(.fs) .pitch-wrap{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-bottom:6px}
+  #boardStage:not(.fs) #pitch{flex:1 1 100%}
+  #boardStage:not(.fs) .caption{position:static;flex:1 1 0;min-width:0;padding-left:6px}
+  #boardStage:not(.fs) .caption .chip{max-width:100%}
+  #boardStage:not(.fs) .zoomctl{position:static;transform:none;margin:0 6px 0 auto}
 }
 @media (pointer:coarse){
   .btn{min-height:40px;padding:8px 13px}
