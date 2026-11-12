@@ -1396,10 +1396,45 @@ if(saved0 && saved0.S && saved0.S['11'] && saved0.S['7'] && saved0.S['5']){ S = 
 else { S = {'11':buildScenario(SCEN[0]), '7':buildScenario(SCEN[2]), '5':buildScenario(SCEN[4])}; }
 const st = () => S[fmt];
 /* Tài khoản & đồng bộ: trạng thái dùng chung (phần chính ở mục CLOUD bên dưới) */
-const CLOUD = {state:'idle', fb:null, user:null, profile:null, role:'none', boards:[], plans:[], users:[], adminExists:null, unsub:[], dataUnsub:[], rosterJSON:null, rosterLoaded:false};
+const CLOUD = {state:'idle', fb:null, user:null, profile:null, role:'none', teamRoles:{}, boards:[], plans:[], users:[], adminExists:null, unsub:[], dataUnsub:[], rosterJSON:null, rosterLoaded:false};
 let readOnly = false;
-function canEditCloud(){ return ['admin','coach','assistant'].includes(CLOUD.role); }
-function isMember(){ return canEditCloud() || CLOUD.role === 'viewer'; }
+// Person IDs are separate from tactical token IDs (h0/a0) and survive substitutions.
+function ensureRosterIds(){
+  for(const f of Object.keys(S)) for(const side of ['home','away']){
+    const t=S[f][side];if(!t)continue;
+    [...t.players,...(t.bench||[])].forEach((p,i)=>{
+      if(!p.playerUid)p.playerUid='legacy-'+encodeURIComponent(CLOUD.team||'local')+'-'+f+'-'+side+'-'+i;
+      const name=(p.name||'').trim()||'Số '+p.num;
+      p.legacyNames=[...new Set([...(p.legacyNames||[]),name])];
+    });
+  }
+}
+function resolveKidKey(key){
+  const roster=teamList();if(roster.some(p=>p.key===key))return key;
+  const matches=roster.filter(p=>p.aliases.includes(key));return matches.length===1?matches[0].key:key;
+}
+function kidName(key){return teamList().find(p=>p.key===resolveKidKey(key))?.name||key;}
+function normalizePlayerReferences(){
+  const map=resolveKidKey;
+  for(const d of Object.keys(ATT))ATT[d]=[...new Set(ATT[d].map(map))];
+  const mapValues=o=>{const out={};for(const [k,v]of Object.entries(o||{})){const id=map(k);out[id]=typeof v==='number'?(out[id]||0)+v:{...(out[id]||{}),...v};}return out;};
+  const match=m=>{if(!m)return;if(m.court)m.court=m.court.map(map);m.mins=mapValues(m.mins);for(const g of m.goals||[])if(g.who)g.who=map(g.who);};
+  match(MT);MH.forEach(match);KSTARS=mapValues(KSTARS);
+  ABS=ABS.map(a=>({...a,kid:map(a.kid)}));
+}
+function teamRole(){
+  if(CLOUD.role==='admin'||CLOUD.role==='disabled')return CLOUD.role;
+  if(CLOUD.team && CLOUD.teamPermissionsLoaded===false)return 'pending';
+  return CLOUD.teamRoles?.[CLOUD.user?.uid]||CLOUD.role;
+}
+function teamPersonRole(uid,fallback){return ['admin','disabled'].includes(fallback)?fallback:CLOUD.teamRoles?.[uid]||fallback;}
+async function setTeamPermission(tid,uid,role){
+  const {fs,db}=CLOUD.fb;
+  await fs.setDoc(fs.doc(db,'teams',tid,'permissions',uid),{role});
+}
+
+function canEditCloud(){ return ['admin','coach','assistant'].includes(teamRole()); }
+function isMember(){ return canEditCloud() || teamRole() === 'viewer'; }
 /* Hoàn tác / làm lại: lưu ảnh chụp trạng thái sân mỗi lần thay đổi (gộp các thay đổi sát nhau trong 0,7 giây) */
 // Dữ liệu trên máy theo từng đội (khi đã đăng nhập và chọn đội); chưa đăng nhập dùng khoá cũ
 const lkey = base => CLOUD.team ? `${base}.${CLOUD.team}` : base;
@@ -1462,7 +1497,7 @@ if(!store.get('sbct.open5.v1', false)){ fmt = '5'; store.set('sbct.open5.v1', tr
 function keepRoster(oldS, newS){
   for(const side of ['home','away']){
     const o = oldS && oldS[side], n = newS[side]; if(!o) continue;
-    if(o.players.length === n.players.length) n.players.forEach((p,i) => { p.num = o.players[i].num; p.name = o.players[i].name; });
+    if(o.players.length === n.players.length) n.players.forEach((p,i) => { p.num = o.players[i].num; p.name = o.players[i].name; p.playerUid=o.players[i].playerUid;p.legacyNames=deep(o.players[i].legacyNames||[]); });
     n.bench = deep(o.bench || []); n.color = o.color;
   }
   return newS;
@@ -2058,7 +2093,7 @@ $('#resetPos').addEventListener('click', () => { const s = st(); s.hidden = []; 
 $('#clearDr').addEventListener('click', () => { st().dr = []; renderDrawings(); commit(); toast('Đã xoá nét vẽ ở khung hiện tại'); });
 
 $('#selNum').addEventListener('input', e => { const p = findPlayer(selId); if(!p) return; p.num = String(e.target.value).slice(0,2); renderTokens(); renderRoster(); persist(); });
-$('#selName').addEventListener('input', e => { const p = findPlayer(selId); if(!p) return; p.name = e.target.value; renderTokens(); renderRoster(); persist(); });
+$('#selName').addEventListener('input', e => { const p = findPlayer(selId); if(!p) return; ensureRosterIds();p.name = e.target.value; renderTokens(); renderRoster(); persist(); });
 
 /* ---------------- Roster & bench ---------------- */
 let rosterSide = 'home';
@@ -2105,6 +2140,7 @@ function doSub(side, i){
   if(!b) return;
   if(!p){ toast(`Chọn trên sân cầu thủ ${SIDE_VN[side]} sẽ ra sân trước, rồi bấm thay người`); setTool('move'); return; }
   const outName = p.name || 'số ' + p.num, inName = b.name || 'số ' + b.num;
+  ensureRosterIds();[p.playerUid,b.playerUid]=[b.playerUid,p.playerUid];[p.legacyNames,b.legacyNames]=[b.legacyNames,p.legacyNames];
   [p.num, b.num] = [b.num, p.num]; [p.name, b.name] = [b.name, p.name];
   // cờ thủ môn đi theo người: người rời khung thành mang cờ TM xuống ghế dự bị
   const pGK = /^[ha]0$/.test(p.id) || !!p.gk, bGK = !!b.gk;
@@ -2119,6 +2155,7 @@ $('#roster').addEventListener('input', e => {
   const t = e.target, T = st()[rosterSide];
   const item = t.dataset.pid ? T.players.find(p => p.id === t.dataset.pid) : T.bench[+t.dataset.bi];
   if(!item) return;
+  ensureRosterIds();
   item[t.dataset.f] = t.dataset.f === 'num' ? String(t.value).slice(0,2) : t.value;
   renderTokens(); renderBench(); if(t.dataset.pid === selId) renderSel(); persist();
 });
@@ -2137,7 +2174,7 @@ $('#addBench').addEventListener('click', () => {
   const T = st()[rosterSide];
   const used = [...T.players, ...T.bench].map(x => +x.num || 0);
   let n = FMT[fmt].n + 1; while(used.includes(n) && n < 99) n++;
-  T.bench.push({num:String(n), name:''});
+  T.bench.push({num:String(n),name:'',playerUid:'p-'+crypto.randomUUID(),legacyNames:[]});
   renderRoster(); renderBench(); persist();
   const ins = $$('#roster input[data-bi][data-f="name"]'); ins[ins.length-1]?.focus();
 });
@@ -2153,8 +2190,9 @@ $('#bulkApply').addEventListener('click', () => {
     const m = l.match(/^(\d{1,2})?[\s.\-–:)]*(.*)$/); return {num:m[1] || '', name:(m[2] || '').slice(0,18)};
   });
   if(!rows.length){ toast('Danh sách đang trống'); return; }
+  ensureRosterIds();
   T.players.forEach((p,i) => { if(rows[i]){ if(rows[i].num) p.num = rows[i].num; p.name = rows[i].name; } });
-  T.bench = rows.slice(T.players.length).map(r => ({num:r.num, name:r.name}));
+  T.bench = rows.slice(T.players.length).map((r,i) => ({num:r.num,name:r.name,playerUid:T.bench[i]?.playerUid||'p-'+crypto.randomUUID(),legacyNames:T.bench[i]?.legacyNames||[]}));
   const used = [...T.players, ...T.bench].map(x => +x.num).filter(Boolean);
   let nx = 1;
   T.bench.forEach(b => { if(!b.num){ while(used.includes(nx)) nx++; b.num = String(nx); used.push(nx); } });
@@ -2300,7 +2338,7 @@ $('#lib').addEventListener('click', e => {
   const b = e.target.closest('button'); if(!b) return;
   if(b.dataset.ex){ const sc = SCEN.find(x => x.id === b.dataset.ex); stopPlay(); S[fmt] = keepRoster(S[fmt], buildScenario(sc)); selId = null; resetZoom(); renderPanels(); renderAll(); persist(); toast(`Đã mở “${sc.name}”. Bấm ▶ Phát để xem.`); }
   if(b.dataset.drill){ const D = DRILLS.find(x => x.id === b.dataset.drill); stopPlay(); S[fmt] = keepRoster(S[fmt], buildDrill(D)); selId = null; resetZoom(); renderPanels(); renderAll(); persist(); toast(`Đã mở “${D.name}”. Bấm ▶ Phát để xem.`); }
-  if(b.dataset.open){ const x = store.get('sbct.saved.v1', []).find(x => x.id === b.dataset.open); if(x){ stopPlay(); S[fmt] = deep(x.data); selId = null; resetZoom(); renderPanels(); renderAll(); persist(); toast(`Đã mở “${x.name}”`); } }
+  if(b.dataset.open){ const x = store.get('sbct.saved.v1', []).find(x => x.id === b.dataset.open); if(x){ stopPlay(); S[fmt] = keepRoster(S[fmt],deep(x.data)); selId = null; resetZoom(); renderPanels(); renderAll(); persist(); toast(`Đã mở “${x.name}”`); } }
   if(b.dataset.del){
     if(b.dataset.armed !== '1'){ b.dataset.armed = '1'; b.classList.add('armed'); b.textContent = 'Xoá?'; setTimeout(() => { if(b.isConnected){ b.dataset.armed=''; b.classList.remove('armed'); b.textContent='✕'; } }, 2500); return; }
     store.set('sbct.saved.v1', store.get('sbct.saved.v1', []).filter(x => x.id !== b.dataset.del)); renderLib(); toast('Đã xoá bài');
@@ -3027,7 +3065,7 @@ function openRef(ref){
   if(k === 'drill'){ const D = DRILLS.find(d => d.id === id); if(!D) return; tStop(); if(fmt !== '5') setFormat('5'); S['5'] = keepRoster(S['5'], buildDrill(D)); }
   else if(k === 'ex'){ const sc = SCEN.find(x => x.id === id); if(!sc) return; if(fmt !== sc.fmt) setFormat(sc.fmt); S[fmt] = keepRoster(S[fmt], buildScenario(sc)); }
   else if(k === 'cloud'){ const [tid,bid] = id.split('~'), x = tid === CLOUD.team && CLOUD.boards.find(x => x.id === bid); if(!x){ toast('Chọn đúng đội hoặc bài đã bị xoá.'); return; } try{ const data=JSON.parse(x.data); if(fmt !== x.fmt) setFormat(x.fmt); S[fmt]=keepRoster(S[fmt],data); }catch(_){toast('Không mở được dữ liệu bài.');return;} }
-  else if(k === 'saved'){ const x = store.get('sbct.saved.v1', []).find(y => y.id === id); if(!x) return; if(fmt !== x.fmt) setFormat(x.fmt); S[fmt] = deep(x.data); }
+  else if(k === 'saved'){ const x = store.get('sbct.saved.v1', []).find(y => y.id === id); if(!x) return; if(fmt !== x.fmt) setFormat(x.fmt); S[fmt] = keepRoster(S[fmt],deep(x.data)); }
   else return;
   selId = null; resetZoom(); renderPanels(); renderAll(); persist();
   location.hash = 'bang';
@@ -3183,16 +3221,16 @@ function renderAuth(){
     box.innerHTML = `<button class="btn primary" data-acct="login">Đăng nhập</button>`;
   } else {
     const name = (CLOUD.profile && CLOUD.profile.name) || CLOUD.user.email || '';
-    box.innerHTML = `<a class="who" href="#ho-so" title="Hồ sơ của tôi"><span class="avatar sm" style="background:${avatarColor(name)}">${esc(initials(name))}</span><span><b>${esc(name)}</b><small>${esc(ROLE_VN[CLOUD.role] || '')}</small></span></a><button class="out" data-acct="logout" title="Đăng xuất" aria-label="Đăng xuất"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button>`;
+    box.innerHTML = `<a class="who" href="#ho-so" title="Hồ sơ của tôi"><span class="avatar sm" style="background:${avatarColor(name)}">${esc(initials(name))}</span><span><b>${esc(name)}</b><small>${esc(ROLE_VN[teamRole()] || '')}</small></span></a><button class="out" data-acct="logout" title="Đăng xuất" aria-label="Đăng xuất"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button>`;
   }
   box.classList.toggle('on', !!CLOUD.user && !readOnly);
   $('#navAdmin').hidden = CLOUD.role !== 'admin';
   if(!readOnly){
     if(CLOUD.state === 'dberr') banner('Chưa kết nối được cơ sở dữ liệu của đội. Admin kiểm tra: đã tạo Firestore Database và đã dán luật bảo mật chưa.', true);
     else if(CLOUD.user && CLOUD.adminExists === false) banner(`<span class="grow">Đội chưa có Admin. Nếu bạn là người quản lý đội, bấm nút bên cạnh để nhận quyền Admin (chỉ người đầu tiên bấm mới được).</span><button class="btn primary" data-acct="claim">Nhận quyền Admin</button>`);
-    else if(CLOUD.user && CLOUD.role === 'pending') banner('Tài khoản của bạn đang chờ HLV hoặc Admin duyệt. Trong lúc chờ, bạn vẫn dùng app bình thường trên máy này.');
+    else if(CLOUD.user && !isMember() && CLOUD.role === 'pending') banner('Tài khoản của bạn đang chờ HLV hoặc Admin duyệt. Trong lúc chờ, bạn vẫn dùng app bình thường trên máy này.');
     else if(CLOUD.user && CLOUD.role === 'disabled') banner('Tài khoản của bạn đã bị khoá. Liên hệ Admin của đội.', true);
-    else if(CLOUD.user && CLOUD.role === 'viewer') banner('<span class="grow">Bạn đang ở quyền <b>xem</b>: lịch tập, thông báo và tình hình của con ở tab <a href="#lich">Lịch &amp; tin</a>; bài và giáo án của đội ở Thư viện bài và tab Giáo án.</span>');
+    else if(CLOUD.user && teamRole() === 'viewer') banner('<span class="grow">Bạn đang ở quyền <b>xem</b>: lịch tập, thông báo và tình hình của con ở tab <a href="#lich">Lịch &amp; tin</a>; bài và giáo án của đội ở Thư viện bài và tab Giáo án.</span>');
     else banner('');
   }
   const onTeam = canEditCloud() && CLOUD.team;
@@ -3202,8 +3240,8 @@ function renderAuth(){
   $('#saveHint').textContent = !CLOUD.user ? 'Bài lưu nằm trong trình duyệt này. Đăng nhập để lưu theo tài khoản.' : onTeam ? `“Lưu lên đội” cho cả đội ${teamName()} thấy; “Lưu riêng” chỉ bạn thấy.` : '“Lưu riêng” chỉ bạn thấy, đổi máy vẫn còn.';
   renderTeamSel(); renderToi(); renderFavSel(); trainingSync(); if(!$('#v-huan-luyen').hidden) renderTraining();
   renderLib(); renderPlanList();
-  document.body.classList.toggle('teamro', !!CLOUD.user && CLOUD.role === 'viewer');
-  if(CLOUD.role === 'viewer' && !autoLich){ autoLich = true; if(!location.hash || location.hash === '#bang') location.hash = 'lich'; }
+  document.body.classList.toggle('teamro', !!CLOUD.user && teamRole() === 'viewer');
+  if(teamRole() === 'viewer' && !autoLich){ autoLich = true; if(!location.hash || location.hash === '#bang') location.hash = 'lich'; }
   if(!$('#v-lich').hidden) renderLich(); else updNewsDot();
   if(!$('#v-tran').hidden) renderAtt();
   if(CLOUD.role === 'admin') renderAdmin();
@@ -3276,7 +3314,7 @@ async function onUser(u){
   CLOUD.unsub.forEach(f => f()); CLOUD.unsub = [];
   CLOUD.dataUnsub.forEach(f => f()); CLOUD.dataUnsub = [];
   teamUnsubAll();
-  Object.assign(CLOUD, {user:u, profile:null, role:'none', boards:[], plans:[], users:[], people:[], reqs:[], adminExists:null, rosterJSON:null, rosterLoaded:false, teams:[], team:null, priv:[]});
+  Object.assign(CLOUD, {user:u, profile:null, role:'none', teamRoles:{}, boards:[], plans:[], users:[], people:[], reqs:[], adminExists:null, rosterJSON:null, rosterLoaded:false, teams:[], team:null, priv:[]});
   if(!u && store.get('sbct.invite', '') && !inviteAsked){ inviteAsked = true; setTimeout(() => { toast('Bạn được mời vào đội. Đăng ký hoặc đăng nhập để tham gia.'); if(CLOUD.state === 'ready') openAuth('up'); }, 400); }
   loadTeamLocal();
   if(CLOUD.state === 'dberr') CLOUD.state = 'ready';
@@ -3308,13 +3346,13 @@ async function onUser(u){
 function startSync(){
   CLOUD.dataUnsub.forEach(f => f()); CLOUD.dataUnsub = [];
   teamUnsubAll();
-  CLOUD.boards = []; CLOUD.plans = []; CLOUD.users = []; CLOUD.rosterLoaded = false; CLOUD.teams = []; CLOUD.team = null;
+  CLOUD.boards = []; CLOUD.plans = []; CLOUD.users = []; CLOUD.rosterLoaded = false; CLOUD.teams = []; CLOUD.team = null; CLOUD.teamRoles={};
   const {fs, db} = CLOUD.fb, warn = err => { console.warn(err); toast(fbErr(err)); };
   // Kho riêng: mọi tài khoản đã đăng nhập
   CLOUD.dataUnsub.push(fs.onSnapshot(fs.collection(db, 'users', CLOUD.user.uid, 'private'),
     q => { CLOUD.priv = q.docs.map(d => ({id:d.id, ...d.data()})); renderLib(); renderPlanList(); renderFavSel(); renderToi(); }, warn));
   uploadLocalPriv();
-  if(!isMember()){ loadTeamLocal(); renderAuth(); return; }
+  if(['disabled','none'].includes(CLOUD.role)){ loadTeamLocal(); renderAuth(); return; }
   if(CLOUD.role === 'admin'){
     // Chỉ Admin tải danh sách mọi tài khoản. HLV / Trợ lý chỉ thấy thành viên đội mình (teams/{tid}/people)
     CLOUD.dataUnsub.push(fs.onSnapshot(fs.collection(db, 'users'), q => { CLOUD.users = q.docs.map(d => ({uid:d.id, ...d.data()})); renderAdmin(); renderToi(); adminBackfillPeople(); }, warn));
@@ -3353,9 +3391,10 @@ function loadTeamLocal(){
 }
 function blankRoster(){
   for(const f of ['11','7','5']){ const s0 = S[f]; if(!s0) continue;
-    for(const side of ['home','away']){ const T0 = s0[side]; T0.players.forEach((p, i) => { p.num = String(i + 1); p.name = ''; delete p.gk; }); T0.bench = []; } }
+    for(const side of ['home','away']){ const T0 = s0[side]; T0.players.forEach((p, i) => { p.num = String(i + 1); p.name = ''; delete p.playerUid;delete p.legacyNames;delete p.gk; }); T0.bench = []; } }
 }
-function switchTeam(tid){
+function switchTeam(tid, preservePermissions=false){
+  if(!preservePermissions){CLOUD.teamRoles={};CLOUD.teamPermissionsLoaded=false;}
   flushPending();
   teamUnsubAll();
   CLOUD.team = tid; CLOUD.teamSub = tid; store.set('sbct.team.cur', tid);
@@ -3363,6 +3402,13 @@ function switchTeam(tid){
   for(const k in teamLastJSON) delete teamLastJSON[k];
   loadTeamLocal();
   const {fs, db} = CLOUD.fb, warn = err => { console.warn(err); toast(fbErr(err)); }, U = CLOUD.teamUnsub;
+  U.push(fs.onSnapshot(fs.collection(db,'teams',tid,'permissions'), q=>{
+    if(CLOUD.team!==tid)return;
+    const before=teamRole();CLOUD.teamPermissionsLoaded=true;CLOUD.teamRoles=Object.fromEntries(q.docs.map(d=>[d.id,d.data().role]));
+    if(before!==teamRole()){queueMicrotask(()=>{if(CLOUD.team===tid){switchTeam(tid,true);renderAuth();}});}
+    else {renderAuth();}
+  }, err=>{ if(CLOUD.team===tid){CLOUD.teamPermissionsLoaded=true;CLOUD.teamRoles={[CLOUD.user.uid]:'disabled'};trainingSync();renderAuth();toast('Chưa tải được quyền của đội. Nhờ Admin cập nhật quy tắc truy cập.');} }));
+
   U.push(fs.onSnapshot(fs.query(fs.collection(db, 'teams', tid, 'boards'), fs.orderBy('updatedAt', 'desc')),
     q => { CLOUD.boards = q.docs.map(d => ({id:d.id, ...d.data()})); renderLib(); renderToi(); }, warn));
   U.push(fs.onSnapshot(fs.query(fs.collection(db, 'teams', tid, 'plans'), fs.orderBy('updatedAt', 'desc')),
@@ -3375,7 +3421,7 @@ function switchTeam(tid){
   U.push(cloudTeamListen('news', d => { NEWS = Array.isArray(d) ? d : []; store.set(lkey('sbct.news.v1'), NEWS); lichUpd(); }));
   if(canEditCloud() && CLOUD.role !== 'admin') U.push(fs.onSnapshot(fs.collection(db, 'teams', tid, 'people'),
     q => { CLOUD.people = q.docs.map(d => ({uid:d.id, ...d.data()})); renderToi(); if(!$('#v-huan-luyen').hidden) guardianOptions(); }, err => console.warn(err)));
-  if(['coach', 'admin'].includes(CLOUD.role)) U.push(fs.onSnapshot(fs.collection(db, 'teams', tid, 'requests'),
+  if(['coach', 'admin'].includes(teamRole())) U.push(fs.onSnapshot(fs.collection(db, 'teams', tid, 'requests'),
     q => { CLOUD.reqs = q.docs.map(d => ({id:d.id, ...d.data()})); renderToi(); }, err => console.warn(err)));
   // Báo nghỉ: chỉ tải 60 ngày gần nhất, không tải lại cả lịch sử mỗi lần mở app
   if(isMember()) U.push(fs.onSnapshot(fs.query(fs.collection(db, 'teams', tid, 'absence'), fs.where('date', '>=', isoDaysAgo(ABS_DAYS))), q => {
@@ -3440,12 +3486,13 @@ function renderTeamSel(){
 
 /* Danh sách đội đồng bộ cho cả đội */
 function rosterSnapshot(){
+  ensureRosterIds();
   const out = {};
   for(const f of ['11','7','5']){
     const s = S[f]; if(!s) continue; out[f] = {};
     for(const side of ['home','away']){
       const T0 = s[side];
-      const pick = x => x.gk ? {num:x.num, name:x.name, gk:true} : {num:x.num, name:x.name};
+      const pick = x => ({num:x.num,name:x.name,playerUid:x.playerUid,legacyNames:x.legacyNames,...(x.gk?{gk:true}:{})});
       out[f][side] = {color:T0.color, players:T0.players.map(pick), bench:(T0.bench || []).map(pick)};
     }
   }
@@ -3459,7 +3506,7 @@ function applyRoster(r){
       const T0 = s[side];
       if(R.color) T0.color = safeColor(R.color, T0.color);
       if(Array.isArray(R.players) && R.players.length === T0.players.length)
-        R.players.forEach((p, i) => { T0.players[i].num = p.num; T0.players[i].name = p.name; if(p.gk) T0.players[i].gk = true; else delete T0.players[i].gk; });
+        R.players.forEach((p, i) => { T0.players[i].playerUid = p.playerUid; T0.players[i].legacyNames = p.legacyNames || []; T0.players[i].num = p.num; T0.players[i].name = p.name; if(p.gk) T0.players[i].gk = true; else delete T0.players[i].gk; });
       T0.bench = (R.bench || []).map(b => ({...b}));
     }
   }
@@ -3601,10 +3648,10 @@ async function cloudInit(){
 /* =================== TRẬN ĐẤU, ĐIỂM DANH, CHIA ĐỘI =================== */
 // Danh sách đội lấy từ đội nhà sân 5 (đá chính + dự bị); khoá mỗi bé = tên (hoặc "Số N" nếu chưa có tên)
 function teamList(){
+  ensureRosterIds();
   const T = S['5'] && S['5'].home; if(!T) return [];
   return [...T.players.map((p, i) => ({...p, gk:p.gk || i === 0})), ...(T.bench || [])]
-    .map(x => ({key:(x.name || '').trim() || ('Số ' + x.num), name:(x.name || '').trim() || ('Số ' + x.num), num:x.num, gk:!!x.gk}))
-    .filter((x, i, a) => a.findIndex(y => y.key === x.key) === i);
+    .map(x => ({key:x.playerUid, aliases:x.legacyNames||[], name:(x.name || '').trim() || ('Số ' + x.num), num:x.num, gk:!!x.gk}));
 }
 const pchip = (x, attrs) => `<button ${attrs}><b>${esc(x.num)}</b>${esc(x.name)}${x.gk ? ' <small>TM</small>' : ''}</button>`;
 function minRows(rows, max, lowN){
@@ -3616,6 +3663,7 @@ function minRows(rows, max, lowN){
 let ATT = store.get('sbct.att.v1', {});            // {ngày: [khoá bé có mặt]}
 function saveAtt(){ store.set(lkey('sbct.att.v1'), ATT); cloudTeamSave('attendance', ATT); }
 function renderAtt(){
+  normalizePlayerReferences();
   const ro = document.body.classList.contains('teamro');
   if(ro) $('#attDate').value = Object.keys(ATT).filter(k => (ATT[k] || []).length).sort().pop() || today();
   else if(!$('#attDate').value) $('#attDate').value = today();
@@ -3693,6 +3741,7 @@ function renderMatchClock(){
   $('#mMins').innerHTML = minRows(rows, 0, 3);
 }
 function renderMatch(){
+  normalizePlayerReferences();
   if(!MT) MT = newMatch();
   const L = teamList(), byKey = Object.fromEntries(L.map(x => [x.key, x]));
   // Bé đổi tên giữa trận: vẫn giữ trên sân dưới tên cũ, không làm mất người
@@ -3738,14 +3787,14 @@ $('#matchPanel').addEventListener('click', e => {
     MT.score[i] = Math.max(0, MT.score[i] + d);
     if(d > 0 && i === 0){
       $('#mScorer').hidden = false;
-      $('#mScorer').innerHTML = '<b>Ai ghi bàn?</b> ' + MT.court.map(k => `<button class="btn" data-gk="${esc(k)}">${esc(k)}</button>`).join('') + '<button class="btn" data-gk="">Không rõ / phản lưới</button>';
+      $('#mScorer').innerHTML = '<b>Ai ghi bàn?</b> ' + MT.court.map(k => `<button class="btn" data-gk="${esc(k)}">${esc(kidName(k))}</button>`).join('') + '<button class="btn" data-gk="">Không rõ / phản lưới</button>';
     }
     if(d > 0 && i === 1) mLog(`${MT.opp || 'Đối thủ'} ghi bàn (${MT.score[0]}–${MT.score[1]})`);
     if(d < 0){ mLog(`Sửa tỉ số: ${MT.score[0]}–${MT.score[1]}`); if(i === 0 && MT.goals.length && MT.goals.length > MT.score[0]) MT.goals.pop(); }
     saveMatch(); renderMatch(); return;
   }
   const gk = e.target.closest('[data-gk]');
-  if(gk){ const who = gk.dataset.gk; MT.goals.push({who, half:MT.half, t:mStamp()}); mLog(`⚽ ${who || 'Đội nhà'} ghi bàn (${MT.score[0]}–${MT.score[1]})`); $('#mScorer').hidden = true; saveMatch(); renderMatch(); return; }
+  if(gk){ const who = gk.dataset.gk; MT.goals.push({who, half:MT.half, t:mStamp()}); mLog(`⚽ ${who ? kidName(who) : 'Đội nhà'} ghi bàn (${MT.score[0]}–${MT.score[1]})`); $('#mScorer').hidden = true; saveMatch(); renderMatch(); return; }
   if(fo){ const [i, d] = fo.dataset.fo.split(':').map(Number), f = MT.fouls[MT.half - 1]; f[i] = Math.max(0, f[i] + d); if(d > 0) mLog(`Lỗi tích lũy ${i ? (MT.opp || 'đối thủ') : 'đội nhà'}: ${f[i]}`); if(d > 0 && f[i] === 5) beep(2, 520); saveMatch(); renderMatch(); return; }
   if(to){ const i = +to.dataset.to; MT.to[MT.half - 1][i] = true; MT.running = false; MT.toEnd = Date.now() + 60000; mLockOff(); mLog(`Hội ý ${i ? (MT.opp || 'đối thủ') : 'đội nhà'}`); saveMatch(); renderMatch(); return; }
   const c = e.target.closest('[data-c]'), b = e.target.closest('[data-b]');
@@ -3753,7 +3802,7 @@ $('#matchPanel').addEventListener('click', e => {
     const pick = c ? 'c:' + c.dataset.c : 'b:' + b.dataset.b;
     if(mSel && mSel[0] !== pick[0]){
       const inK = (mSel[0] === 'b' ? mSel : pick).slice(2), outK = (mSel[0] === 'c' ? mSel : pick).slice(2);
-      MT.court[MT.court.indexOf(outK)] = inK; mLog(`Thay người: ${inK} vào, ${outK} ra`); mSel = null; saveMatch(); toast(`${inK} vào, ${outK} ra`);
+      MT.court[MT.court.indexOf(outK)] = inK; mLog(`Thay người: ${kidName(inK)} vào, ${kidName(outK)} ra`); mSel = null; saveMatch(); toast(`${kidName(inK)} vào, ${kidName(outK)} ra`);
     } else mSel = mSel === pick ? null : pick;
     renderMatch();
   }
@@ -3773,6 +3822,7 @@ $('#mFinish').addEventListener('click', () => {
   MT = newMatch(); saveMatch(); renderMatch();
 });
 function renderHist(){
+  normalizePlayerReferences();
   $('#mHist').innerHTML = MH.length ? `<div class="lib hist">${MH.map(m => {
     const res = m.score[0] > m.score[1] ? 'Thắng' : m.score[0] < m.score[1] ? 'Thua' : 'Hoà';
     const sc = {}; m.goals.forEach(g => { if(g.who) sc[g.who] = (sc[g.who] || 0) + 1; });
@@ -3981,7 +4031,7 @@ function renderToi(){
     const st6 = [[CLOUD.teams.length, 'đội'], [mineB, 'bài của tôi trên đội'], [privList('board').length + privList('plan').length, 'mục kho riêng'],
       [privList('formation').length, 'đội hình yêu thích'], [(MH || []).length, 'trận đã ghi'], [Object.keys(ATT || {}).length, 'buổi điểm danh']];
     $('#profHero').innerHTML = `${band}<div class="phero-main"><div class="avatar xl" style="background:${avatarColor(name)}">${esc(initials(name))}</div>
-      <div class="phero-id"><h2>${esc(name)}</h2><p>${esc(u.email || '')}</p><div class="pchips"><span class="pchip2 role">${esc(ROLE_VN[CLOUD.role] || '')}</span>${teamName() ? `<span class="pchip2">⚽ ${esc(teamName())}</span>` : ''}</div></div>
+      <div class="phero-id"><h2>${esc(name)}</h2><p>${esc(u.email || '')}</p><div class="pchips"><span class="pchip2 role">${esc(ROLE_VN[teamRole()] || '')}</span>${teamName() ? `<span class="pchip2">⚽ ${esc(teamName())}</span>` : ''}</div></div>
       <div class="phero-acts"><button class="btn" id="profPw">${isPw ? 'Đổi mật khẩu' : 'Tài khoản Google'}</button><button class="btn" data-acct="logout">Đăng xuất</button></div></div>
       <div class="pstats">${st6.map(([n, t]) => `<div><b>${n}</b><span>${t}</span></div>`).join('')}</div>`;
     $('#profBody').innerHTML = `<div class="pname"><label class="f">Tên hiển thị<input type="text" id="profName" maxlength="40" value="${esc(name)}"></label><button class="btn primary" id="profNameSave">Lưu tên</button></div>`;
@@ -4033,8 +4083,8 @@ const tsMs = x => x ? (x.toMillis ? x.toMillis() : +x || 0) : 0;
 // Danh bạ thành viên: Admin dùng danh sách mọi tài khoản; HLV / Trợ lý chỉ có thành viên đội đang chọn
 function memberDir(){
   const src = CLOUD.role === 'admin' ? (CLOUD.users || []) : (CLOUD.people || []);
-  const d = Object.fromEntries(src.map(u => [u.uid, u]));
-  if(CLOUD.user) d[CLOUD.user.uid] = {uid:CLOUD.user.uid, name:(CLOUD.profile && CLOUD.profile.name) || CLOUD.user.email || '', email:CLOUD.user.email || '', role:CLOUD.role};
+  const d = Object.fromEntries(src.map(u => [u.uid, {...u,role:teamPersonRole(u.uid,u.role)}]));
+  if(CLOUD.user) d[CLOUD.user.uid] = {uid:CLOUD.user.uid, name:(CLOUD.profile && CLOUD.profile.name) || CLOUD.user.email || '', email:CLOUD.user.email || '', role:teamRole()};
   return d;
 }
 function teamMembers(t){
@@ -4046,9 +4096,9 @@ let peopleSyncing = false;
 async function syncSelfPeople(){
   if(peopleSyncing || !CLOUD.user || !CLOUD.fb || CLOUD.role === 'admin' || !isMember()) return;
   peopleSyncing = true;
-  const {fs, db} = CLOUD.fb, me = {name:(CLOUD.profile && CLOUD.profile.name) || '', email:CLOUD.user.email || '', role:CLOUD.role}, sig = JSON.stringify(me);
+  const {fs, db} = CLOUD.fb, me = {name:(CLOUD.profile && CLOUD.profile.name) || '', email:CLOUD.user.email || '', role:teamRole()}, sig = JSON.stringify(me);
   try{
-    for(const t of CLOUD.teams){
+    for(const t of CLOUD.teams.filter(t=>t.id===CLOUD.team)){
       const k = `sbct.pp.${t.id}.${CLOUD.user.uid}`; if(store.get(k, '') === sig) continue;
       try{ await fs.setDoc(fs.doc(db, 'teams', t.id, 'people', CLOUD.user.uid), {...me, at:fs.serverTimestamp()}); store.set(k, sig); }catch(err){ console.warn(err); }
     }
@@ -4120,7 +4170,7 @@ function renderTeamPanel(){
       return `<div class="tcard${on ? ' cur' : ''}"><span class="tb" style="background:${avatarColor(n)}">${esc(initials(n))}</span><div class="tn"><b>${esc(n)}</b><small>${cnt}</small></div>${on ? '<span class="curtag">Đang chọn</span>' : `<button class="btn" data-tsel="${esc(t.id)}">Chọn</button>`}</div>`; }).join('')}</div>`
     : `<p class="hint">${canEditCloud() ? 'Đang tạo đội đầu tiên…' : 'Bạn chưa thuộc đội nào. Bấm link mời HLV gửi, hoặc nhập mã mời bên dưới.'}</p>`;
   if(canEditCloud()){
-    h += `<details class="tnew"><summary>+ Tạo đội mới</summary>
+    h += `<details class="tnew"${!['admin','coach','assistant'].includes(CLOUD.role)?' hidden':''}><summary>+ Tạo đội mới</summary>
       <div class="pname"><label class="f">Tên đội<input type="text" id="tNewName" maxlength="40" placeholder="vd U9 sân 5"></label><button class="btn primary" data-tnew="1">Tạo</button></div>
       <label class="switch"><input type="checkbox" id="tCopy"> Chép danh sách cầu thủ của đội đang chọn</label></details>`;
     if(cur){
@@ -4130,23 +4180,23 @@ function renderTeamPanel(){
       h += `<div class="tbox"><div class="sub-h">Đội đang chọn</div>
         <div class="pname"><label class="f">Tên đội<input type="text" id="tRename" maxlength="40" value="${esc(cur.name || '')}"></label><button class="btn" data-tren="1">Đổi tên</button></div>
         <div class="sub-h">Thành viên (${mem.length})</div>
-        <div>${mem.map(u => { const n = u.name || u.email || ''; return `<div class="tmem"><span class="avatar sm" style="background:${avatarColor(n)}">${esc(initials(n))}</span><div class="mn"><b>${esc(n)}${u.uid === uid ? ' (bạn)' : ''}</b><small>${esc(ROLE_VN[u.role] || '')}</small></div>${u.uid !== uid ? `<button class="btn danger" data-tdel="${esc(u.uid)}" title="Bỏ khỏi đội">✕</button>` : ''}</div>`; }).join('')}</div>
+        <div>${mem.map(u => { const n = u.name || u.email || ''; return `<div class="tmem"><span class="avatar sm" style="background:${avatarColor(n)}">${esc(initials(n))}</span><div class="mn"><b>${esc(n)}${u.uid === uid ? ' (bạn)' : ''}</b><small>${esc(ROLE_VN[u.role] || '')}</small></div>${u.uid !== uid && ['admin','coach'].includes(teamRole()) ? `<button class="btn danger" data-tdel="${esc(u.uid)}" title="Bỏ khỏi đội">✕</button>` : ''}</div>`; }).join('')}</div>
         ${isA ? `<div class="pname"><label class="f">Thêm thành viên<select id="tAdd">${addable.length ? addable.map(u => `<option value="${esc(u.uid)}">${esc(u.name || u.email || '')} · ${esc(ROLE_VN[u.role] || '')}</option>`).join('') : '<option value="">Không còn ai để thêm</option>'}</select></label><button class="btn primary" data-tadd="1"${addable.length ? '' : ' disabled'}>Thêm</button></div>` : ''}
-        <p class="hint" style="margin:0">${CLOUD.role === 'assistant' ? 'Muốn thêm người, nhờ HLV gửi link mời.' : 'Thêm người mới: gửi link mời ở mục Phân quyền. Họ bấm link, đăng ký, rồi bạn duyệt.'}</p></div>`;
+        <p class="hint" style="margin:0">${teamRole() === 'assistant' ? 'Muốn thêm người, nhờ HLV gửi link mời.' : 'Thêm người mới: gửi link mời ở mục Phân quyền. Họ bấm link, đăng ký, rồi bạn duyệt.'}</p></div>`;
     }
   }
   box.innerHTML = h + rqLine + joinBox(false);
 }
 /* Phân quyền: HLV (và Admin) duyệt người xin vào đội, cấp Trợ lý HLV / Cầu thủ - phụ huynh, khoá tài khoản */
-const ROLE_SET = ['assistant', 'viewer', 'disabled'];
+const ROLE_SET = ['coach','assistant', 'viewer', 'disabled'];
 function renderRolePanel(){
-  const panel = $('#rolePanel'), can = !!CLOUD.user && ['coach', 'admin'].includes(CLOUD.role);
+  const panel = $('#rolePanel'), can = !!CLOUD.user && ['coach', 'admin'].includes(teamRole());
   panel.hidden = !can; if(!can) return;
-  const uid = CLOUD.user.uid, cur = CLOUD.teams.find(t => t.id === CLOUD.team), order = {pending:0, assistant:1, viewer:2, disabled:3};
+  const uid = CLOUD.user.uid, cur = CLOUD.teams.find(t => t.id === CLOUD.team), order = {pending:0, coach:1, assistant:2, viewer:3, disabled:4};
   const R = (CLOUD.reqs || []).slice().sort((a, b) => tsMs(a.at) - tsMs(b.at));
   $('#roleBadge').hidden = !R.length; $('#roleBadge').textContent = `${R.length} xin vào`;
   if(!cur){ $('#roleBody').innerHTML = '<p class="hint" style="margin:0">Tạo hoặc chọn một đội trước.</p>'; return; }
-  const L = teamMembers(cur).filter(u => u.uid !== uid && u.role in order).sort((a, b) => order[a.role] - order[b.role] || String(a.name).localeCompare(String(b.name), 'vi'));
+  const L = teamMembers(cur).filter(u => u.uid !== uid && u.role in order && (CLOUD.role==='admin'||u.role!=='coach')).sort((a, b) => order[a.role] - order[b.role] || String(a.name).localeCompare(String(b.name), 'vi'));
   const opt = (v, t, c) => `<option value="${v}"${v === c ? ' selected' : ''}>${t}</option>`;
   const av = n => `<span class="avatar sm" style="background:${avatarColor(n)}">${esc(initials(n))}</span>`;
   let h = '';
@@ -4156,7 +4206,7 @@ function renderRolePanel(){
         <button class="btn primary" data-req-ok="${esc(r.id)}">Duyệt</button><button class="btn danger" data-req-no="${esc(r.id)}" title="Từ chối">✕</button></div></div>`; }).join('')}</div>`;
   h += `<div class="sub-h">Vai trò trong đội</div>` + (L.length ? `<div>${L.map(u => { const n = u.name || u.email || '', p = u.role === 'pending';
       return `<div class="tmem">${av(n)}<div class="mn"><b>${esc(n)}</b><small>${esc(u.email || '')}</small></div>
-        <select data-role-uid="${esc(u.uid)}" aria-label="Vai trò của ${esc(n)}">${p ? '<option value="" selected disabled>Chọn vai trò…</option>' : ''}${opt('assistant', 'Trợ lý HLV', u.role)}${opt('viewer', 'Cầu thủ / phụ huynh', u.role)}${opt('disabled', 'Khoá', u.role)}</select></div>`; }).join('')}</div>`
+        <select data-role-uid="${esc(u.uid)}" aria-label="Vai trò của ${esc(n)}">${p ? '<option value="" selected disabled>Chọn vai trò…</option>' : ''}${CLOUD.role==='admin'?opt('coach','HLV (đội này)',u.role):''}${opt('assistant', 'Trợ lý HLV', u.role)}${opt('viewer', 'Cầu thủ / phụ huynh', u.role)}${opt('disabled', 'Khoá', u.role)}</select></div>`; }).join('')}</div>`
     : '<p class="hint" style="margin:0">Đội chưa có ai để phân quyền.</p>');
   h += `<div class="sub-h">Mời vào đội</div>
     ${cur.invite ? `<p class="icode">Mã mời: <b>${esc(fmtCode(cur.invite))}</b></p>` : ''}
@@ -4184,14 +4234,12 @@ async function reqAction(b){
     if(b.dataset.reqNo){ await fs.deleteDoc(fs.doc(db, 'teams', tid, 'requests', id)); toast(`Đã từ chối ${r.name || r.email}`); return; }
     const sel = $$('select[data-req-role]').find(x => x.dataset.reqRole === id), role = sel ? sel.value : 'viewer';
     if(!['assistant', 'viewer'].includes(role)) return;
-    const known = ['coach', 'admin'].includes(r.role);
-    if(!known && r.role !== role){
-      try{ await fs.updateDoc(fs.doc(db, 'users', id), {role, roleTeam:tid}); }
-      catch(err){ if(r.role === 'pending') throw err; console.warn(err); }
-    }
-    await fs.updateDoc(fs.doc(db, 'teams', tid), {members:fs.arrayUnion(id)});
-    await peopleSet(tid, {uid:id, name:r.name, email:r.email}, r.role === 'coach' ? 'coach' : role);
-    await fs.deleteDoc(fs.doc(db, 'teams', tid, 'requests', id));
+    const batch=fs.writeBatch(db);
+    batch.set(fs.doc(db,'teams',tid,'permissions',id),{role});
+    batch.update(fs.doc(db,'teams',tid),{members:fs.arrayUnion(id)});
+    batch.set(fs.doc(db,'teams',tid,'people',id),{name:r.name||'',email:r.email||'',role,at:fs.serverTimestamp()});
+    batch.delete(fs.doc(db,'teams',tid,'requests',id));
+    await batch.commit();
     toast(`Đã duyệt ${r.name || r.email} vào đội ${teamName()}`);
   }catch(err){ toast(fbErr(err)); b.disabled = false; }
 }
@@ -4204,11 +4252,11 @@ $('#rolePanel').addEventListener('click', async e => {
 $('#v-ho-so').addEventListener('change', async e => {
   const sel = e.target.closest('select[data-role-uid]'); if(!sel || !CLOUD.fb) return;
   const id = sel.dataset.roleUid, role = sel.value, u = memberDir()[id];
-  if(!u || !ROLE_SET.includes(role) || !CLOUD.team) return;
+  if(!u || !ROLE_SET.includes(role) || !CLOUD.team || (role==='coach'&&CLOUD.role!=='admin')) return;
   const {fs, db} = CLOUD.fb, tid = CLOUD.team;
   sel.disabled = true;
   try{
-    await fs.updateDoc(fs.doc(db, 'users', id), {role, roleTeam:tid});
+    await setTeamPermission(tid,id,role);
     try{ await peopleSet(tid, u, role); }catch(err){ console.warn(err); }
     toast(`${u.name || u.email}: ${ROLE_VN[role]}`);
   }catch(err){ toast(fbErr(err)); renderRolePanel(); }
@@ -4229,11 +4277,11 @@ async function teamAction(b){
       toast(`Đã tạo đội “${name}”`); return;
     }
     const cur = CLOUD.team; if(!cur) return;
-    if(b.dataset.tren){ const v = $('#tRename').value.trim(); if(!v) return; await fs.updateDoc(fs.doc(db, 'teams', cur), {name:v}); toast('Đã đổi tên đội'); return; }
+    if(b.dataset.tren){ if(!['admin','coach'].includes(teamRole()))return; const v = $('#tRename').value.trim(); if(!v) return; await fs.updateDoc(fs.doc(db, 'teams', cur), {name:v}); toast('Đã đổi tên đội'); return; }
     if(b.dataset.tadd){ const v = $('#tAdd').value; if(!v) return; await fs.updateDoc(fs.doc(db, 'teams', cur), {members:fs.arrayUnion(v)});
       const u = (CLOUD.users || []).find(x => x.uid === v); if(u) try{ await peopleSet(cur, u, u.role); }catch(_){}
       toast('Đã thêm vào đội'); return; }
-    if(b.dataset.tdel){ if(!confirmDel(b)) return; const id = b.dataset.tdel; await fs.updateDoc(fs.doc(db, 'teams', cur), {members:fs.arrayRemove(id)});
+    if(b.dataset.tdel){ if(!['admin','coach'].includes(teamRole()))return; if(!confirmDel(b)) return; const id = b.dataset.tdel; await fs.updateDoc(fs.doc(db, 'teams', cur), {members:fs.arrayRemove(id)});
       try{ await fs.deleteDoc(fs.doc(db, 'teams', cur, 'people', id)); }catch(_){}
       toast('Đã bỏ khỏi đội'); return; }
   }catch(err){ toast(fbErr(err)); }
@@ -4613,6 +4661,7 @@ function kFeedback(kind, msg, actions){
   fb.innerHTML = `<span class="msg">${msg}</span>` + (actions||'');
 }
 function kRender(){
+  normalizePlayerReferences();
   const L = KL[K.li];
   $('#kNo').textContent = `Bài ${K.li+1} / ${KL.length}`;
   $('#kTitle').textContent = L.title; $('#kRule').textContent = L.rule;
@@ -4735,7 +4784,6 @@ function kDrop(){
 }
 ksvg.addEventListener('pointerup', kDrop);
 ksvg.addEventListener('pointercancel', kDrop);
-kLesson(0);
 
 /* =================== Full screen nằm ngang =================== */
 let fsEl = null;
@@ -4823,7 +4871,7 @@ function sessions(days){
     .sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start));
 }
 const myKidsKey = () => CLOUD.team || 'local';
-function myKids(){ const k = (SETT.kids || {})[myKidsKey()]; const names = new Set(teamList().map(x => x.key)); return (Array.isArray(k) ? k : []).filter(x => names.has(x)); }
+function myKids(){ const k = (SETT.kids || {})[myKidsKey()]; const names = new Set(teamList().map(x => x.key)); return [...new Set((Array.isArray(k) ? k : []).map(resolveKidKey))].filter(x => names.has(x)); }
 async function setMyKids(list){
   SETT = {...SETT, kids:{...(SETT.kids || {}), [myKidsKey()]:list}}; store.set('sbct.settings.v1', SETT);
   if(CLOUD.user && CLOUD.fb){ try{ const {fs, db} = CLOUD.fb; await fs.updateDoc(fs.doc(db, 'users', CLOUD.user.uid), {settings:SETT}); }catch(err){ toast(fbErr(err)); } }
@@ -4849,7 +4897,7 @@ function renderNext(){
   const side = [];
   if(x.off) side.push(`<div class="nx-abs">Buổi này nghỉ${x.off !== true && x.off !== 'Nghỉ' ? ': ' + esc(x.off) : ''}</div>`);
   if(nxt) side.push(`<div>Buổi kế tiếp: <b>${DOW_S[parseYmd(nxt.date).getDay()]} ${dmy(nxt.date)}</b> · ${esc(timeTxt(nxt))}</div>`);
-  if(!x.off && ab.length) side.push(`<div class="nx-abs">Báo nghỉ: ${ab.map(a => esc(a.kid)).join(', ')}</div>`);
+  if(!x.off && ab.length) side.push(`<div class="nx-abs">Báo nghỉ: ${ab.map(a => esc(kidName(a.kid))).join(', ')}</div>`);
   if(SCH.weekly.length || SCH.extra.length) side.push('<button class="btn" data-ics="1">📅 Thêm vào lịch điện thoại</button>');
   box.innerHTML = `<div class="nx${x.off ? ' off' : ''}">${PITCH_SVG}<div class="nx-date"><small>${DOW_S[d.getDay()]}</small><b>${d.getDate()}</b><span>Th ${d.getMonth()+1}</span></div>
     <div><div class="nx-k">${x.off ? 'Nghỉ tập' : 'Buổi tập tới'} · ${relDay(x.date)}</div><div class="nx-t">${esc(timeTxt(x))}</div>${meta ? `<div class="nx-m">${meta}</div>` : ''}</div>
@@ -4859,7 +4907,7 @@ function renderSched(){
   const L = sessions().slice(0, 8), ed = canTeamEdit();
   $('#lSched').innerHTML = L.length ? `<div class="slist">${L.map(x => { const d = parseYmd(x.date), ab = absFor(x.date);
     const tags = (x.extra ? '<span class="stag ex">Buổi thêm</span>' : '') + (x.off ? '<span class="stag">Nghỉ</span>' : '') + (!x.off && ab.length ? `<span class="stag ab">${ab.length} báo nghỉ</span>` : '');
-    const sub = [x.place, x.off && x.off !== true && x.off !== 'Nghỉ' ? 'Lý do: ' + x.off : '', x.note, !x.off && ab.length && ed ? 'Nghỉ: ' + ab.map(a => a.kid + (a.note ? ` (${a.note})` : '')).join(', ') : ''].filter(Boolean).map(esc).join(' · ');
+    const sub = [x.place, x.off && x.off !== true && x.off !== 'Nghỉ' ? 'Lý do: ' + x.off : '', x.note, !x.off && ab.length && ed ? 'Nghỉ: ' + ab.map(a => kidName(a.kid) + (a.note ? ` (${a.note})` : '')).join(', ') : ''].filter(Boolean).map(esc).join(' · ');
     const act = !ed ? '' : offEdit === x.date ? `<input type="text" id="offWhy" maxlength="60" placeholder="Lý do (vd trời mưa)" aria-label="Lý do nghỉ"><button class="btn primary" data-offok="${x.date}">Lưu</button><button class="btn" data-offx="1">Huỷ</button>`
       : x.off ? `<button class="btn" data-offun="${x.date}">Học lại</button>` : `<button class="btn" data-offset="${x.date}">Cho nghỉ</button>`;
     return `<div class="srow${x.off ? ' off' : ''}"><div class="sd"><b>${DOW_S[d.getDay()]}</b><span>${dmy(x.date)}</span></div><div class="si"><b>${esc(timeTxt(x))}${tags}</b>${sub ? `<small>${sub}</small>` : ''}</div>${act}</div>`; }).join('')}</div>`
@@ -4901,7 +4949,8 @@ function kidStats(k){
   return {days, went, mins:Math.round(mins/60), goals, games, stars:Object.keys(KSTARS[k] || {}).length};
 }
 function renderKids(){
-  const roster = teamList().filter(x => x.name && !/^Số \d+$/.test(x.name)), mine = myKids(), viewer = CLOUD.role === 'viewer';
+  normalizePlayerReferences();
+  const roster = teamList().filter(x => x.name && !/^Số \d+$/.test(x.name)), mine = myKids(), viewer = teamRole() === 'viewer';
   $('#kidTitle').textContent = viewer || !CLOUD.user ? 'Con của tôi' : 'Theo dõi từng cầu thủ';
   if(!roster.length){ $('#kidBody').innerHTML = `<p class="hint" style="margin:0">${canTeamEdit() ? 'Nhập tên các bé ở “Danh sách đội” (tab Bảng chiến thuật, sân 5) để phụ huynh chọn được con mình.' : 'HLV chưa nhập danh sách đội.'}</p>`; return; }
   const canAbs = !!CLOUD.user && isMember() && !!CLOUD.team;
@@ -4910,7 +4959,7 @@ function renderKids(){
     <div class="cpick">${roster.map(x => `<button data-kid="${esc(x.key)}" class="${mine.includes(x.key) ? 'on' : ''}" aria-pressed="${mine.includes(x.key)}">${esc(x.name)}</button>`).join('')}</div>`;
   h += mine.map(k => { const st = kidStats(k), last = st.days.slice(-10), pct = st.days.length ? Math.round(st.went.length/st.days.length*100) : 0;
     const myAbs = ABS.filter(a => a.kid === k && a.date >= today()).sort((a, b) => a.date.localeCompare(b.date));
-    return `<div class="ccard"><div class="chead"><span class="avatar sm" style="background:${avatarColor(k)}">${esc(initials(k))}</span><div><b>${esc(k)}</b><small>${st.days.length ? `Đi tập ${st.went.length}/${st.days.length} buổi (${pct}%)` : 'Chưa có buổi điểm danh nào'}</small></div></div>
+    return `<div class="ccard"><div class="chead"><span class="avatar sm" style="background:${avatarColor(k)}">${esc(initials(k))}</span><div><b>${esc(kidName(k))}</b><small>${st.days.length ? `Đi tập ${st.went.length}/${st.days.length} buổi (${pct}%)` : 'Chưa có buổi điểm danh nào'}</small></div></div>
       <div class="cstats"><div class="cstat"><b>${st.went.length}</b><small>buổi tập</small></div><div class="cstat"><b>${st.games}</b><small>trận đã đá</small></div><div class="cstat"><b>${st.mins}′</b><small>phút thi đấu</small></div><div class="cstat"><b>${st.goals}</b><small>bàn thắng</small></div></div>
       ${last.length ? `<div class="cdots"><span>Gần đây:</span>${last.map(d => `<i class="${ATT[d].includes(k) ? 'y' : ''}" title="${dmy(d)}: ${ATT[d].includes(k) ? 'có mặt' : 'vắng'}"></i>`).join('')}</div>` : ''}
       ${myAbs.length ? `<div>${myAbs.map(a => `<div class="tmem"><div class="mn"><b>Báo nghỉ ${DOW_S[parseYmd(a.date).getDay()]} ${dmy(a.date)}</b><small>${esc([a.note, a.by ? 'gửi bởi ' + a.by : ''].filter(Boolean).join(' · '))}</small></div>${CLOUD.user && (a.uid === CLOUD.user.uid || canEditCloud()) ? `<button class="btn" data-absdel="${esc(a.id)}">Huỷ báo nghỉ</button>` : ''}</div>`).join('')}</div>` : ''}
@@ -4930,7 +4979,7 @@ $('#v-lich').addEventListener('click', async e => {
     const k = D.absadd, date = $(`select[data-absdate="${CSS.escape(k)}"]`).value, note = $(`input[data-absnote="${CSS.escape(k)}"]`).value.trim();
     if(absFor(date, k).length){ toast('Đã báo nghỉ buổi này rồi'); return; }
     const {fs, db} = CLOUD.fb; b.disabled = true;
-    try{ await fs.addDoc(fs.collection(db, 'teams', CLOUD.team, 'absence'), {uid:CLOUD.user.uid, by:(CLOUD.profile && CLOUD.profile.name) || CLOUD.user.email || '', kid:k, date, note, at:fs.serverTimestamp()}); toast(`Đã báo HLV: ${k} nghỉ ${dmy(date)}`); }
+    try{ await fs.addDoc(fs.collection(db, 'teams', CLOUD.team, 'absence'), {uid:CLOUD.user.uid, by:(CLOUD.profile && CLOUD.profile.name) || CLOUD.user.email || '', kid:k, date, note, at:fs.serverTimestamp()}); toast(`Đã báo HLV: ${kidName(k)} nghỉ ${dmy(date)}`); }
     catch(err){ toast(fbErr(err)); b.disabled = false; }
     return;
   }
@@ -5117,8 +5166,7 @@ function publicBoardState(source) {
   const s = deep(source);
   for (const side of ["home", "away"])
     if (s[side])
-      for (const p of [...(s[side].players || []), ...(s[side].bench || [])])
-        p.name = "";
+      for (const p of [...(s[side].players || []), ...(s[side].bench || [])]) { p.name="";delete p.playerUid;delete p.legacyNames; }
   return s;
 }
 function challengeHit(target, point, radius = 0.09) {
@@ -5150,7 +5198,7 @@ function trainingSync() {
   const identity = [
     CLOUD.user?.uid || "local",
     CLOUD.team || "",
-    CLOUD.role,
+    CLOUD.role, teamRole(),
     readOnly,
   ].join("|");
   if (identity === CT.identity) return;
@@ -5220,7 +5268,7 @@ function trainingSync() {
           (s) => {
             if (version !== CT.version) return;
             CT.profiles = Object.fromEntries(
-              s.docs.map((d) => [d.data().kid, d.data()]),
+              s.docs.map((d) => [d.data().kid, {...d.data(),docId:d.id}]),
             );
             CT.scoutingReady = true;
             CT.ready = CT.developmentReady;
@@ -5251,14 +5299,14 @@ function coachRosterOptions(selector) {
 }
 function fillScout() {
   const key = $("#scoutKid").value,
-    p = CT.profiles[key] || {};
+    p = CT.profiles[key] || Object.values(CT.profiles).find(x=>resolveKidKey(x.kid)===key) || {};
   $("#scoutSkill").value = p.skill || 3;
   $("#scoutPosition").value =
     p.position || (teamList().find((x) => x.key === key)?.gk ? "gk" : "middle");
 }
 function guardianOptions() {
   const kid = $("#developmentKid").value,
-    record = CT.development.find((x) => x.kid === kid),
+    record = CT.development.find((x) => resolveKidKey(x.kid) === kid),
     selected = new Set(record?.guardianUids || []);
   const members = new Set(
     (CLOUD.teams || []).find((t) => t.id === CLOUD.team)?.members || [],
@@ -5292,12 +5340,13 @@ function renderDevelopment() {
           last && first && entries.length > 1
             ? `So với buổi đầu: xử lý bóng ${last.ball - first.ball >= 0 ? "+" : ""}${last.ball - first.ball}, phối hợp ${last.team - first.team >= 0 ? "+" : ""}${last.team - first.team}, tinh thần ${last.spirit - first.spirit >= 0 ? "+" : ""}${last.spirit - first.spirit}.`
             : "";
-        return `<article class="development-card"><h3>${esc(r.name)}</h3><p>${entries.length} buổi ghi nhận. ${esc(trend)}</p>${entries.map((e) => `<div class="development-entry"><b>${esc(e.date.split("-").reverse().join("/"))}</b><div class="development-values"><span>Xử lý bóng: ${esc(e.ball)}/5</span><span>Phối hợp: ${esc(e.team)}/5</span><span>Tinh thần: ${esc(e.spirit)}/5</span></div><p>${esc(e.note || "")}</p></div>`).join("") || '<p class="hint">Chưa có buổi đánh giá.</p>'}</article>`;
+        return `<article class="development-card"><h3>${esc(kidName(r.kid))}</h3><p>${entries.length} buổi ghi nhận. ${esc(trend)}</p>${entries.map((e) => `<div class="development-entry"><b>${esc(e.date.split("-").reverse().join("/"))}</b><div class="development-values"><span>Xử lý bóng: ${esc(e.ball)}/5</span><span>Phối hợp: ${esc(e.team)}/5</span><span>Tinh thần: ${esc(e.spirit)}/5</span></div><p>${esc(e.note || "")}</p></div>`).join("") || '<p class="hint">Chưa có buổi đánh giá.</p>'}</article>`;
       })
       .join("") ||
     `<p class="hint">${coachWritable() ? "Chọn cầu thủ và ghi nhận buổi đầu tiên." : "Chưa có sổ được HLV cấp quyền cho tài khoản này."}</p>`;
 }
 function renderTraining() {
+  normalizePlayerReferences();
   if (!$("#v-huan-luyen")) return;
   $("#coachRetry").hidden = !CT.error;
   const edit = coachWritable();
@@ -5348,7 +5397,7 @@ $("#scoutForm").addEventListener("submit", async (e) => {
     if (CLOUD.user) {
       const { fs, db } = CLOUD.fb;
       await fs.setDoc(
-        fs.doc(db, "teams", CLOUD.team, "scouting", coachDocId(kid)),
+        fs.doc(db, "teams", CLOUD.team, "scouting", Object.values(CT.profiles).find(x=>resolveKidKey(x.kid)===kid)?.docId || coachDocId(kid)),
         p,
       );
     } else {
@@ -5401,7 +5450,7 @@ async function saveDevelopment(addEntry) {
   try {
     if (uid) {
       const { fs, db } = CLOUD.fb,
-        ref = fs.doc(db, "teams", tid, "development", coachDocId(kid));
+        ref = fs.doc(db, "teams", tid, "development", CT.development.find(x=>resolveKidKey(x.kid)===kid)?.id || coachDocId(kid));
       await fs.runTransaction(db, async (tx) => {
         const snap = await tx.get(ref);
         tx.set(ref, {
@@ -5410,9 +5459,9 @@ async function saveDevelopment(addEntry) {
         });
       });
     } else {
-      const r = merge(CT.development.find((x) => x.kid === kid));
+      const r = merge(CT.development.find((x) => resolveKidKey(x.kid) === kid));
       CT.development = CT.development
-        .filter((x) => x.kid !== kid)
+        .filter((x) => resolveKidKey(x.kid) !== kid)
         .concat({ id: coachDocId(kid), ...r });
       coachSaveLocal();
     }
@@ -5497,7 +5546,8 @@ $("#balancedBtn").addEventListener("click", () => {
     toast("Điểm danh đủ cầu thủ ở tab Trận đấu trước.");
     return;
   }
-  CT.teams = balancedTeams(players, CT.profiles, count);
+  const profiles=Object.fromEntries(Object.entries(CT.profiles).map(([key,p])=>[resolveKidKey(p.kid||key),p]));
+  CT.teams = balancedTeams(players, profiles, count);
   renderBalanced();
 });
 function renderBalanced() {
@@ -5924,6 +5974,7 @@ function route(){
 window.addEventListener('hashchange', route);
 
 /* =================== Boot =================== */
+kLesson(0);
 setTool('move');
 renderField(); renderPanels(); renderAll();
 renderRules(); renderQuiz(); renderPlan(); renderFavSel();

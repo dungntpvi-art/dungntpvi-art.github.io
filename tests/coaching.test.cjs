@@ -10,7 +10,7 @@ function app() {
   const testHtml = html
     .replace(
       "/* =================== Boot =================== */",
-      `window.__coachTest={balancedTeams,quickPlanDraft,publicBoardState,challengeHit,trainingSync,renderTraining,renderBalanced,saveDevelopment,showChallenge,validChallenge,coachWritable,CT,CLOUD,S,teamList,store,getState:()=>st(),getPlan:()=>plan,getTeams:()=>CT.teams,reset:()=>{CLOUD.team=null;CLOUD.user=null;CLOUD.role='none';readOnly=false;trainingSync();},parent:()=>{CLOUD.user={uid:'parent1'};CLOUD.role='viewer';CLOUD.team='team1';readOnly=false;},publicView:()=>{readOnly=true;},setChallenge:()=>{st().challenge={frame:0,player:'h1',target:[.7,.5],question:'Chạy vào đâu?',explanation:'Tìm khoảng trống'};updateChallengeButtons();}};\n/* =================== Boot =================== */`,
+      `window.__coachTest={teamRole,ensureRosterIds,resolveKidKey,normalizePlayerReferences,rosterSnapshot,applyRoster,keepRoster,doSub,kidStats,setSelected:(id)=>selId=id,setFormatForTest:(f)=>fmt=f,setAttendance:(d)=>ATT=d,getAttendance:()=>ATT,balancedTeams,quickPlanDraft,publicBoardState,challengeHit,trainingSync,renderTraining,renderBalanced,saveDevelopment,showChallenge,validChallenge,coachWritable,CT,CLOUD,S,teamList,store,getState:()=>st(),getPlan:()=>plan,getTeams:()=>CT.teams,reset:()=>{CLOUD.team=null;CLOUD.user=null;CLOUD.role='none';readOnly=false;trainingSync();},parent:()=>{CLOUD.user={uid:'parent1'};CLOUD.role='viewer';CLOUD.team='team1';readOnly=false;},publicView:()=>{readOnly=true;},setChallenge:()=>{st().challenge={frame:0,player:'h1',target:[.7,.5],question:'Chạy vào đâu?',explanation:'Tìm khoảng trống'};updateChallengeButtons();}};\n/* =================== Boot =================== */`,
     )
     .replace("cloudInit();", "/* Cloud is explicitly mocked in DOM tests. */");
   const dom = new JSDOM(testHtml, {
@@ -226,4 +226,39 @@ test('switching accounts clears draft notes and previously displayed team names'
   assert.equal(w.document.querySelector('#developmentNote').value,'');
   assert.equal(w.document.querySelector('#balancedResult').textContent,'');
  }finally{dom.window.close();}
+});
+
+test('player ID and old attendance survive renaming and roster sync',()=>{
+ const {dom,api}=app();try{
+  const first=api.teamList()[0],player=api.S['5'].home.players[0];
+  api.setAttendance({'2026-11-12':[first.name]});player.name='Tên mới';api.ensureRosterIds();api.normalizePlayerReferences();
+  assert.equal(api.teamList()[0].key,first.key);assert.equal(api.getAttendance()['2026-11-12'][0],first.key);
+  const roster=api.rosterSnapshot();api.applyRoster(roster);assert.equal(api.teamList()[0].key,first.key);assert.equal(api.kidStats(first.key).went.length,1);
+ }finally{dom.window.close();}
+});
+test('same-name children remain distinct; ambiguous old name is not guessed',()=>{
+ const {dom,api}=app();try{
+  api.S['5'].home.players[0].name='Trùng tên';api.S['5'].home.players[1].name='Trùng tên';const list=api.teamList();
+  assert.notEqual(list[0].key,list[1].key);assert.equal(api.resolveKidKey('Trùng tên'),'Trùng tên');
+ }finally{dom.window.close();}
+});
+test('person IDs follow players between pitch and bench',()=>{
+ const {dom,api}=app();try{
+  api.setFormatForTest('5');api.ensureRosterIds();const t=api.S['5'].home,a=t.players[0].playerUid,b=t.bench[0].playerUid;
+  api.setSelected('h0');api.doSub('home',0);assert.equal(t.players[0].playerUid,b);assert.equal(t.bench[0].playerUid,a);
+ }finally{dom.window.close();}
+});
+test('public board strips IDs and former names from the roster',()=>{
+ const {dom,api}=app();try{api.ensureRosterIds();const pub=api.publicBoardState(api.S['5']);assert(pub.home.players.every(p=>!p.playerUid&&!p.legacyNames&&p.name===''));}finally{dom.window.close();}
+});
+test('team grant overrides global role without modifying account role',()=>{
+ const {dom,api}=app();try{
+  Object.assign(api.CLOUD,{user:{uid:'coach'},role:'coach',team:'A',teamRoles:{coach:'viewer'}});
+  assert.equal(api.teamRole(),'viewer');assert.equal(api.coachWritable(),false);assert.equal(api.CLOUD.role,'coach');
+  api.CLOUD.team='B';api.CLOUD.teamRoles={coach:'assistant'};assert.equal(api.teamRole(),'assistant');assert.equal(api.coachWritable(),true);
+  api.CLOUD.teamRoles={coach:'disabled'};assert.equal(api.coachWritable(),false);
+ }finally{dom.window.close();}
+});
+test('global account lock still blocks a local team grant',()=>{
+ const {dom,api}=app();try{Object.assign(api.CLOUD,{user:{uid:'x'},role:'disabled',team:'A',teamRoles:{x:'coach'}});assert.equal(api.teamRole(),'disabled');assert.equal(api.coachWritable(),false);}finally{dom.window.close();}
 });

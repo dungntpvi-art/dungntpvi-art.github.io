@@ -14,6 +14,7 @@ const {
   query,
   where,
   updateDoc,
+  writeBatch,
 } = require("firebase/firestore");
 let env;
 before(async () => {
@@ -138,4 +139,35 @@ test("removing a parent from the team revokes progress access", async () => {
     }),
   );
   await assertFails(getDoc(progress("parent1")));
+});
+
+test('one person can be coach in A and viewer in B without cross-team writes',async()=>{
+ await env.withSecurityRulesDisabled(async c=>{const d=c.firestore();await setDoc(doc(d,'teams','A'),{members:['coach','parent2']});await setDoc(doc(d,'teams','B'),{members:['coach','parent2']});await setDoc(doc(d,'teams','A','permissions','coach'),{role:'coach'});await setDoc(doc(d,'teams','B','permissions','coach'),{role:'viewer'});});
+ await assertSucceeds(setDoc(doc(db('coach'),'teams','A','data','sample'),{data:'ok'}));
+ await assertFails(setDoc(doc(db('coach'),'teams','B','data','sample'),{data:'forbidden'}));
+ await assertSucceeds(setDoc(doc(db('coach'),'teams','A','permissions','parent2'),{role:'assistant'}));
+ await assertFails(updateDoc(doc(db('coach'),'users','parent2'),{role:'assistant'}));
+ await assertSucceeds(setDoc(doc(db('parent2'),'teams','A','data','sample'),{data:'assistant allowed'}));
+ await assertFails(setDoc(doc(db('parent2'),'teams','B','data','sample'),{data:'still viewer'}));
+});
+test('assistant cannot manage members, change team grants or make themselves coach',async()=>{
+ await assertFails(updateDoc(doc(db('assistant'),'teams','team1'),{members:['assistant']}));
+ await assertFails(setDoc(doc(db('assistant'),'teams','team1','permissions','assistant'),{role:'coach'}));
+ await assertFails(setDoc(doc(db('assistant'),'teams','team1','permissions','parent2'),{role:'assistant'}));
+});
+test('coach approval grants pending user only a team role atomically',async()=>{
+ await env.withSecurityRulesDisabled(async c=>setDoc(doc(c.firestore(),'teams','A','requests','pending'),{code:'CODE'}));
+ const d=db('coach'),b=writeBatch(d);
+ b.set(doc(d,'teams','A','permissions','pending'),{role:'viewer'});
+ b.update(doc(d,'teams','A'),{members:['coach','parent2','pending']});
+ b.set(doc(d,'teams','A','people','pending'),{name:'New',email:'new@example.test',role:'viewer'});
+ b.delete(doc(d,'teams','A','requests','pending'));
+ await assertSucceeds(b.commit());
+ await assertSucceeds(getDoc(doc(db('pending'),'teams','A')));
+ await assertFails(setDoc(doc(db('pending'),'teams','A','data','sample'),{data:'forbidden'}));
+});
+test('team suspension affects only that team',async()=>{
+ await assertSucceeds(setDoc(doc(db('coach'),'teams','A','permissions','parent2'),{role:'disabled'}));
+ await assertFails(getDoc(doc(db('parent2'),'teams','A','data','sample')));
+ await assertSucceeds(getDoc(doc(db('parent2'),'teams','B')));
 });
