@@ -1,0 +1,31 @@
+name: Coaching checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  coaching:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npm run build && git diff --exit-code -- index.html
+      - run: npm test
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+      - run: npx --yes firebase-tools@14.6.0 emulators:exec --only firestore --project demo-sa-ban-coaching "npm run test:rules"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coaching-browser-screenshots
+          path: test-results/

@@ -78,6 +78,35 @@ service cloud.firestore {
       allow update: if canEdit() && inTeam(tid) && request.resource.data.members is list;
       allow delete: if isAdmin();
 
+      // Progress notes are deliberately outside /data: parents may read only
+      // records assigned to their authenticated UID by an editor of this team.
+      match /development/{kid} {
+        allow read: if inTeam(tid) && (canEdit()
+          || request.auth.uid in resource.data.guardianUids);
+        allow create, update: if canEdit() && inTeam(tid)
+          && request.resource.data.keys().hasOnly(['kid', 'name', 'guardianUids', 'entries', 'updatedBy', 'updatedAt'])
+          && request.resource.data.kid is string
+          && request.resource.data.name is string
+          && request.resource.data.guardianUids is list
+          && request.resource.data.guardianUids.size() <= 10
+          && request.resource.data.guardianUids.hasOnly(get(teamPath(tid)).data.members)
+          && request.resource.data.entries is list
+          && request.resource.data.entries.size() <= 200
+          && request.resource.data.updatedBy == request.auth.uid;
+        allow delete: if canEdit() && inTeam(tid);
+      }
+      // Skill / position assessments never become visible to parents.
+      match /scouting/{kid} {
+        allow read: if canEdit() && inTeam(tid);
+        allow create, update: if canEdit() && inTeam(tid)
+          && request.resource.data.keys().hasOnly(['kid', 'skill', 'position'])
+          && request.resource.data.kid is string
+          && request.resource.data.skill is int
+          && request.resource.data.skill >= 1 && request.resource.data.skill <= 5
+          && request.resource.data.position in ['gk', 'defend', 'middle', 'attack'];
+        allow delete: if canEdit() && inTeam(tid);
+      }
+
       match /boards/{id} {
         allow read: if inTeam(tid) || resource.data.public == true;
         allow create, update, delete: if canEdit() && inTeam(tid);
