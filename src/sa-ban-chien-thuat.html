@@ -3491,7 +3491,7 @@ function scheduleRosterSync(){
     if(tid === CLOUD.team){ if(js === CLOUD.rosterJSON) return; CLOUD.rosterJSON = js; }
     if(!CLOUD.user) return;
     const {fs, db} = CLOUD.fb;
-    fs.setDoc(fs.doc(db, 'teams', tid, 'data', 'roster'), {data:js, updatedAt:fs.serverTimestamp(), by:CLOUD.user.uid}).catch(err => toast(fbErr(err)));
+    fs.setDoc(fs.doc(db, 'teams', tid, 'data', 'roster'), {data:js, rosterVersion:31, updatedAt:fs.serverTimestamp(), by:CLOUD.user.uid}).catch(err => toast(fbErr(err)));
   };
   PENDING.roster = run; rosterTimer = setTimeout(run, 1500);
 }
@@ -3795,7 +3795,7 @@ function renderHist(){
   $('#mHist').innerHTML = MH.length ? `<div class="lib hist">${MH.map(m => {
     const res = m.score[0] > m.score[1] ? 'Thắng' : m.score[0] < m.score[1] ? 'Thua' : 'Hoà';
     const sc = {}; m.goals.forEach(g => { if(g.who) sc[g.who] = (sc[g.who] || 0) + 1; });
-    return `<div class="item"><b>${esc(m.date.split('-').reverse().join('/'))} · ${res} ${m.score[0]}–${m.score[1]} · ${esc(m.opp)}</b><small>${Object.keys(sc).length ? 'Ghi bàn: ' + Object.entries(sc).map(([k, v]) => `${esc(k)}${v > 1 ? ' ×' + v : ''}`).join(', ') : 'Chưa ghi tên người ghi bàn'}</small></div>`;
+    return `<div class="item"><b>${esc(m.date.split('-').reverse().join('/'))} · ${res} ${m.score[0]}–${m.score[1]} · ${esc(m.opp)}</b><small>${Object.keys(sc).length ? 'Ghi bàn: ' + Object.entries(sc).map(([k, v]) => `${esc(kidName(k))}${v > 1 ? ' ×' + v : ''}`).join(', ') : 'Chưa ghi tên người ghi bàn'}</small></div>`;
   }).join('')}</div>` : '<p class="hint">Chưa lưu trận nào.</p>';
   const L = teamList(), tot = {}, goals = {};
   MH.forEach(m => { Object.entries(m.mins || {}).forEach(([k, v]) => tot[k] = (tot[k] || 0) + v); (m.goals || []).forEach(g => { if(g.who) goals[g.who] = (goals[g.who] || 0) + 1; }); });
@@ -4928,7 +4928,7 @@ function renderKids(){
     <div class="cpick">${roster.map(x => `<button data-kid="${esc(x.key)}" class="${mine.includes(x.key) ? 'on' : ''}" aria-pressed="${mine.includes(x.key)}">${esc(x.name)}</button>`).join('')}</div>`;
   h += mine.map(k => { const st = kidStats(k), last = st.days.slice(-10), pct = st.days.length ? Math.round(st.went.length/st.days.length*100) : 0;
     const myAbs = ABS.filter(a => a.kid === k && a.date >= today()).sort((a, b) => a.date.localeCompare(b.date));
-    return `<div class="ccard"><div class="chead"><span class="avatar sm" style="background:${avatarColor(k)}">${esc(initials(k))}</span><div><b>${esc(kidName(k))}</b><small>${st.days.length ? `Đi tập ${st.went.length}/${st.days.length} buổi (${pct}%)` : 'Chưa có buổi điểm danh nào'}</small></div></div>
+    return `<div class="ccard"><div class="chead"><span class="avatar sm" style="background:${avatarColor(k)}">${esc(initials(kidName(k)))}</span><div><b>${esc(kidName(k))}</b><small>${st.days.length ? `Đi tập ${st.went.length}/${st.days.length} buổi (${pct}%)` : 'Chưa có buổi điểm danh nào'}</small></div></div>
       <div class="cstats"><div class="cstat"><b>${st.went.length}</b><small>buổi tập</small></div><div class="cstat"><b>${st.games}</b><small>trận đã đá</small></div><div class="cstat"><b>${st.mins}′</b><small>phút thi đấu</small></div><div class="cstat"><b>${st.goals}</b><small>bàn thắng</small></div></div>
       ${last.length ? `<div class="cdots"><span>Gần đây:</span>${last.map(d => `<i class="${ATT[d].includes(k) ? 'y' : ''}" title="${dmy(d)}: ${ATT[d].includes(k) ? 'có mặt' : 'vắng'}"></i>`).join('')}</div>` : ''}
       ${myAbs.length ? `<div>${myAbs.map(a => `<div class="tmem"><div class="mn"><b>Báo nghỉ ${DOW_S[parseYmd(a.date).getDay()]} ${dmy(a.date)}</b><small>${esc([a.note, a.by ? 'gửi bởi ' + a.by : ''].filter(Boolean).join(' · '))}</small></div>${CLOUD.user && (a.uid === CLOUD.user.uid || canEditCloud()) ? `<button class="btn" data-absdel="${esc(a.id)}">Huỷ báo nghỉ</button>` : ''}</div>`).join('')}</div>` : ''}

@@ -119,7 +119,9 @@ service cloud.firestore {
       }
       match /data/{doc} {
         allow read: if inTeam(tid);
-        allow write: if editTeam(tid);
+        allow create, delete: if editTeam(tid);
+        allow update: if editTeam(tid) && (doc != 'roster'
+          || request.resource.data.get('rosterVersion', 0) >= resource.data.get('rosterVersion', 0));
       }
       // Danh bạ thành viên đội: HLV / Trợ lý của đội xem; mỗi người tự ghi mục của mình (đúng vai trò thật)
       match /people/{pid} {

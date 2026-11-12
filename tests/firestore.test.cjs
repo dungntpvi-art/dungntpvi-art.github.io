@@ -171,3 +171,10 @@ test('team suspension affects only that team',async()=>{
  await assertFails(getDoc(doc(db('parent2'),'teams','A','data','sample')));
  await assertSucceeds(getDoc(doc(db('parent2'),'teams','B')));
 });
+
+test('old clients cannot erase stable IDs from an upgraded roster',async()=>{
+ const ref=doc(db('coach'),'teams','A','data','roster');
+ await assertSucceeds(setDoc(ref,{data:'{"ids":"preserved"}',rosterVersion:31}));
+ await assertFails(setDoc(ref,{data:'old client without IDs'}));
+ await assertSucceeds(setDoc(ref,{data:'new data with IDs',rosterVersion:31}));
+});

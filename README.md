@@ -169,3 +169,5 @@ Workflow **Coaching checks** chạy các kiểm tra trên pull request, gồm Ch
 - Đội cũ chưa có cấp quyền riêng giữ vai trò tài khoản cũ để tương thích; Admin nên cấp quyền rõ ràng cho từng thành viên ở từng đội. Khi đã có cấp quyền riêng, nó thay vai trò cũ trong đội đó. Duyệt lời mời mới dùng batch để gán quyền đội, thêm thành viên và xoá yêu cầu cùng lúc.
 - Trợ lý vẫn sửa nội dung huấn luyện nhưng không thay danh sách thành viên hay cấp quyền. Chặn trên Firestore Rules, không chỉ ẩn nút giao diện.
 - **Triển khai `firestore.rules` v31 trước khi xuất bản HTML v31.** Client v31 chờ tải quyền trước khi cho thao tác; nếu rules cũ không cho đọc collection permissions, thao tác đội sẽ bị khóa. Không kích hoạt bản web mới trước bước này. Không cần hoặc yêu cầu plugin Firebase; có thể dán file rules vào Firebase Console và Publish.
+
+Sau khi danh sách đã được lưu bằng v31, rules chặn client cũ ghi đè danh sách nếu thiếu `rosterVersion:31`, tránh xoá mã cầu thủ. Cần cập nhật APK trước khi sửa danh sách đội từ app cũ; các chức năng đọc vẫn giữ nguyên.
