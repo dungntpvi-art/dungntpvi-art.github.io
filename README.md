@@ -158,3 +158,16 @@ npx firebase-tools@14.6.0 emulators:exec --only firestore --project demo-sa-ban-
 ```
 
 Workflow **Coaching checks** chạy các kiểm tra trên pull request, gồm Chromium desktop / mobile và Firestore Emulator. Ảnh kiểm tra nằm trong artifact `coaching-browser-screenshots`. Kiểm tra Chromium không thay cho thử APK trên thiết bị Android.
+
+
+## Mã cầu thủ và phân quyền đội (v31)
+
+- Mỗi cầu thủ có `playerUid` riêng, tách khỏi `h0/a0` là vị trí trên sa bàn. Đổi tên, thay người và đồng bộ danh sách giữ nguyên mã. Cầu thủ mới có mã mới; hai bé trùng tên không bị gộp.
+- Danh sách cũ chưa có mã được gán mã ổn định theo đội/định dạng/vị trí ban đầu; khi lưu danh sách, mã được đồng bộ. Tên cũ được giữ làm bí danh để đọc điểm danh, phút thi đấu, sao và sổ cũ. Các liên kết được chuyển sang mã khi đọc và lưu lần tiếp theo; không xóa dữ liệu nguồn cũ. Một tên cũ khớp nhiều cầu thủ sẽ được giữ nguyên, không đoán chủ sở hữu.
+- Sổ cũ tiếp tục dùng document ID cũ khi cập nhật lần đầu để không tạo bản sao. Bài chia sẻ công khai bỏ cả mã cầu thủ và bí danh.
+- Vai trò đội nằm ở `teams/{tid}/permissions/{uid}`. Admin có thể cấp HLV riêng cho đội; HLV cấp Trợ lý / Người xem / Khoá ở đội của mình. HLV không sửa `users/{uid}.role` nữa. Admin và khoá tài khoản toàn hệ thống vẫn thuộc `users`.
+- Đội cũ chưa có cấp quyền riêng giữ vai trò tài khoản cũ để tương thích; Admin nên cấp quyền rõ ràng cho từng thành viên ở từng đội. Khi đã có cấp quyền riêng, nó thay vai trò cũ trong đội đó. Duyệt lời mời mới dùng batch để gán quyền đội, thêm thành viên và xoá yêu cầu cùng lúc.
+- Trợ lý vẫn sửa nội dung huấn luyện nhưng không thay danh sách thành viên hay cấp quyền. Chặn trên Firestore Rules, không chỉ ẩn nút giao diện.
+- **Triển khai `firestore.rules` v31 trước khi xuất bản HTML v31.** Client v31 chờ tải quyền trước khi cho thao tác; nếu rules cũ không cho đọc collection permissions, thao tác đội sẽ bị khóa. Không kích hoạt bản web mới trước bước này. Không cần hoặc yêu cầu plugin Firebase; có thể dán file rules vào Firebase Console và Publish.
+
+Sau khi danh sách đã được lưu bằng v31, rules chặn client cũ ghi đè danh sách nếu thiếu `rosterVersion:31`, tránh xoá mã cầu thủ. Cần cập nhật APK trước khi sửa danh sách đội từ app cũ; các chức năng đọc vẫn giữ nguyên.
