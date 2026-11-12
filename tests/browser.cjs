@@ -57,6 +57,10 @@ const server = createServer((req, res) => {
       await page.locator("#challengeClose").click();
       await page.locator("#fieldMode").click();
       assert(await page.locator("#fieldMode").isVisible());
+      const exitBox=await page.locator('#fieldMode').boundingBox();
+      const stageBox=await page.locator('#boardStage').boundingBox();
+      assert(exitBox.x>=stageBox.x && exitBox.x+exitBox.width<=stageBox.x+stageBox.width+1);
+      assert(exitBox.y>=stageBox.y && exitBox.y+exitBox.height<=stageBox.y+stageBox.height+1);
       await page.screenshot({
         path: `test-results/field-${viewport.width}.png`,
       });
