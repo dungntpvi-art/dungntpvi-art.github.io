@@ -691,6 +691,16 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
 }
 
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+.coach-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:16px}.coach-grid .panel{min-width:0}.coach-grid form,.coach-grid label,#developmentForm{display:grid;gap:10px}.coach-teams{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin-top:14px}.coach-team{padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}.coach-player{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0}.coach-player select{width:auto;max-width:100px}.coach-team.dragover{outline:3px solid var(--accent)}#guardianChoices{display:grid;gap:8px}#guardianChoices label{display:flex;gap:8px;align-items:center}.development-card{margin-top:16px;padding:16px;border:1px solid var(--line);border-radius:12px}.development-entry{padding:12px 0;border-top:1px solid var(--line)}.development-entry p{white-space:pre-wrap;margin:6px 0}.development-values{display:flex;flex-wrap:wrap;gap:8px}.development-values span{background:var(--accent-soft);padding:4px 8px;border-radius:8px}#challengePitch{width:100%;max-height:50vh;touch-action:none;background:#246638;border-radius:10px}#challengePitch:focus{outline:3px solid var(--mark)}#challengeModal .mbox{width:min(780px,100%)}#challengeAuthor{display:grid;gap:12px}.field-session #boardStage .toolbar,.field-session #addFrame,.field-session #delFrame,.field-session #exportPng,.field-session #exportVid,.field-session #exportGif{display:none!important}.field-session #boardStage .frames .btn,.field-session #boardStage .frames button{min-height:48px;min-width:48px;font-size:18px}.field-session #boardStage .fsonly{display:inline-flex!important}.field-session #boardStage #fieldMode{display:inline-flex!important}#fieldMode[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}.readonly #challengeCreate,.readonly #fieldMode,.readonly #coachTools,.readonly #developmentForm{display:none!important}#fieldLessonSelect{max-width:240px;width:auto}.field-session #fieldLessonSelect{min-height:48px;max-width:180px}#v-huan-luyen .panel{margin-bottom:16px}.teamro #coachTools,.teamro #developmentForm{display:none!important}@media(max-width:600px){#v-huan-luyen .row{flex-wrap:wrap}#v-huan-luyen .row>.f{min-width:120px}#v-huan-luyen fieldset{min-width:0}#fieldLessonSelect{max-width:140px}.field-session #boardStage .frames{gap:4px}.development-card{padding:12px}}
+
+
+/* Field session keeps the exit in view, including narrow portrait fallbacks. */
+.field-session #boardStage.fs{grid-template-columns:minmax(0,1fr)}
+.field-session #boardStage.fs .pitch-wrap{grid-column:1}
+.field-session #boardStage.fs .frames{grid-column:1;flex-wrap:wrap;overflow:visible;padding:6px;justify-content:center}
+.field-session #boardStage.fs #fieldMode{position:absolute;top:max(8px,env(safe-area-inset-top,0px));right:max(8px,env(safe-area-inset-right,0px));z-index:12;min-height:44px;padding:8px 12px;background:var(--surface);color:var(--ink);box-shadow:0 2px 10px #0004}
+.field-session #boardStage.fs #fsBtn{display:none!important}
+
 </style>
 
 <div class="wrap">
@@ -707,11 +717,30 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
     <a href="#giao-an" data-view="giao-an"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/></svg><span class="nl">Giáo án</span><span class="ns">Giáo án</span></a>
     <a href="#tran" data-view="tran"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M10 2h4"/></svg><span class="nl">Trận đấu</span><span class="ns">Trận</span></a>
     <a href="#ho-so" data-view="ho-so"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="nl">Hồ sơ</span><span class="ns">Hồ sơ</span></a>
+    <a href="#huan-luyen" data-view="huan-luyen"><span class="nl">Huấn luyện</span><span class="ns">HLV</span></a>
     <a href="#quan-ly" data-view="quan-ly" id="navAdmin" hidden><svg class="ni" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg><span class="nl">Quản lý</span><span class="ns">Quản lý</span></a>
   </nav>
   <div class="acct" id="acct"></div>
 </header>
 <div class="cbanner" id="cBanner" hidden></div>
+
+<section id="v-huan-luyen" hidden>
+  <div class="panel"><h2>Bộ công cụ huấn luyện</h2><p>Chuẩn bị buổi tập, chia đội và theo dõi từng bé — bắt đầu từ danh sách đội và các bài đã lưu.</p><p id="coachStatus" class="hint" role="status"></p><button class="btn" id="coachRetry" hidden>Thử tải lại</button></div>
+  <div class="coach-grid" id="coachTools">
+    <section class="panel"><h2>Giáo án gợi ý</h2><form id="quickPlanForm">
+      <div class="row"><label class="f grow">Số cầu thủ<input id="quickCount" type="number" min="2" max="60" value="10" required></label><label class="f grow">Thời lượng (phút)<input id="quickMinutes" type="number" min="20" max="120" value="60" required></label></div>
+      <label class="f">Mục tiêu<select id="quickGoal"><option value="pass">Chuyền và phối hợp</option><option value="dribble">Dẫn bóng và xử lý bóng</option><option value="defend">Phòng ngự và chuyển trạng thái</option></select></label>
+      <p class="hint">Ưu tiên bài đã lưu có nội dung phù hợp, bổ sung bài mẫu khi cần. Bạn xem và chỉnh giáo án trước khi lưu.</p><button class="btn primary">Tạo bản nháp giáo án</button>
+    </form></section>
+    <section class="panel"><h2>Điểm danh → chia đội</h2><p>Chọn các bé có mặt ở tab Trận đấu, rồi cân bằng số người, vị trí và đánh giá riêng của HLV.</p><div class="row"><label class="f grow">Số đội<select id="balancedN"><option>2</option><option>3</option><option>4</option></select></label><label class="f grow">Ngày<input id="balancedDate" type="date" required></label></div><button class="btn primary" id="balancedBtn">Chia cầu thủ có mặt</button><p class="hint">Kéo thả tên để chỉnh; trên điện thoại, chọn đội ở cạnh tên. Đánh giá riêng không hiển thị trong kết quả.</p><div id="balancedResult" class="coach-teams" aria-live="polite"></div></section>
+    <section class="panel"><h2>Đánh giá riêng của HLV</h2><form id="scoutForm"><label class="f">Cầu thủ<select id="scoutKid" required></select></label><div class="row"><label class="f grow">Vị trí<select id="scoutPosition"><option value="gk">Thủ môn</option><option value="defend">Hậu vệ</option><option value="middle">Tiền vệ</option><option value="attack">Tiền đạo</option></select></label><label class="f grow">Mức hiện tại (1–5)<input id="scoutSkill" type="number" min="1" max="5" value="3" required></label></div><button class="btn">Lưu đánh giá riêng</button><p class="hint">Chỉ HLV / Trợ lý của đội và Admin đọc được. Dùng để gợi ý chia đội.</p></form></section>
+  </div>
+  <section class="panel" id="developmentPanel"><h2>Sổ tiến bộ của bé</h2><p>Ghi nhận tiến bộ theo từng buổi, không xếp hạng các bé với nhau.</p>
+    <form id="developmentForm"><label class="f">Cầu thủ<select id="developmentKid" required></select></label><div class="row"><label class="f grow">Ngày<input id="developmentDate" type="date" required></label><label class="f grow">Xử lý bóng<select id="developmentBall"><option value="1">1 · Đang làm quen</option><option value="2">2 · Cần gợi ý</option><option value="3" selected>3 · Đã tự làm</option><option value="4">4 · Khá vững</option><option value="5">5 · Vững và chủ động</option></select></label><label class="f grow">Phối hợp<select id="developmentTeam"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></label><label class="f grow">Tinh thần<select id="developmentSpirit"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></label></div><label class="f">Lời nhắn cho phụ huynh<textarea id="developmentNote" maxlength="600" placeholder="Điều con đã làm tốt, điều nên luyện thêm…"></textarea></label><fieldset><legend>Phụ huynh được xem sổ này</legend><div id="guardianChoices"></div></fieldset><p class="hint">Chỉ các tài khoản được chọn ở trên mới đọc được sổ của bé. Việc tự chọn tên con trong hồ sơ không cấp quyền xem.</p><button class="btn primary">Lưu buổi đánh giá</button><button class="btn" type="button" id="guardianSave">Chỉ cập nhật quyền xem</button></form>
+    <div id="developmentList" aria-live="polite"></div>
+  </section>
+</section>
+<div class="modal" id="challengeModal" hidden role="dialog" aria-modal="true" aria-labelledby="challengeTitle"><div class="mbox"><div class="mhead"><h2 id="challengeTitle">Con sẽ chạy vào đâu?</h2><button class="btn" id="challengeClose">Đóng</button></div><div id="challengeAuthor"><p>Chọn khung trước một chuyển động. Đáp án lấy từ vị trí cầu thủ ở khung kế tiếp.</p><label class="f">Cầu thủ<select id="challengePlayer"></select></label><label class="f">Câu hỏi<input id="challengeQuestion" maxlength="180" value="Con nên chạy vào đâu để hỗ trợ đồng đội?"></label><label class="f">Lời giải của HLV<textarea id="challengeExplanation" maxlength="600"></textarea></label><button class="btn primary" id="challengeSave">Gắn câu hỏi vào bài</button></div><div id="challengePlay"><p id="challengePrompt"></p><svg id="challengePitch" viewBox="0 0 100 64" tabindex="0" role="application" aria-label="Chọn vị trí: chạm sân, hoặc dùng phím mũi tên rồi Enter"></svg><p class="hint">Chạm vị trí con chọn trên sân. Bàn phím: mũi tên để di chuyển, Enter để trả lời.</p><p id="challengeFeedback" role="status"></p><div class="row"><button class="btn" id="challengeReveal">Xem gợi ý của HLV</button><button class="btn" id="challengeRetry">Thử lại</button></div></div></div></div>
 
 <!-- ============ BOARD ============ -->
 <section id="v-bang">
@@ -749,6 +778,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
         <button class="btn pen" id="penBtn" aria-pressed="false" title="Bút để vẽ, ngón tay để kéo cầu thủ và phóng to">✎ Chế độ bút</button>
         <span class="dim" id="dimLabel"></span>
         <button class="btn primary" id="shareBtn" title="Xuất ảnh, video hoặc GIF để gửi nhóm Zalo">⤓ Xuất / Gửi bài</button>
+        <button class="btn" id="fieldMode" aria-pressed="false">☀ Đứng sân</button><button class="btn" id="challengeCreate">? Tạo bài đoán</button><button class="btn" id="challengeTry" hidden>? Thử trả lời</button><button class="btn" id="sharedSpeak">🔊 Đọc hướng dẫn</button>
         <button class="btn" id="fsBtn" title="Xem toàn màn hình, nằm ngang">⛶ Toàn màn hình</button>
       </div>
 
@@ -767,7 +797,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
       <div id="benchBar"></div>
 
       <div class="frames">
-        <span class="lbl">Khung hình</span>
+        <span class="lbl">Khung hình</span><select id="fieldLessonSelect" aria-label="Chuyển bài nhanh"></select>
         <button class="btn fsonly" id="fPrev" title="Khung trước" aria-label="Khung trước">◀</button>
         <div class="chips" id="chips"></div>
         <span class="fsonly fcount" id="fCount" aria-live="polite"></span>
@@ -1217,6 +1247,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
     <div class="mhead"><h2 id="linkTitle">Link chỉ xem</h2><button class="btn" id="linkClose">Đóng</button></div>
     <p class="hint">Ai có link đều mở xem được bài này (kể cả chưa đăng nhập), xem hình động, phóng to, nhưng không sửa được. Dán link vào nhóm Zalo.</p>
     <div class="row"><input type="text" id="linkInput" readonly class="grow" aria-label="Link chỉ xem"><button class="btn primary" id="linkCopy">Sao chép</button></div>
+    <p class="hint">Bài công khai được ẩn tên cầu thủ. Kiểm tra tên bài, ghi chú và chữ vẽ trên sân trước khi gửi vì chúng vẫn hiển thị.</p><button class="btn primary" id="linkZalo">Chia sẻ / Chép gửi Zalo</button>
     <div class="row"><button class="btn danger" id="linkOff">Tắt link này</button></div>
   </div>
 </div>
@@ -1697,7 +1728,7 @@ function renderAll(){
   renderTokens(); renderDrawings(); renderChips(); renderCaption(st().active);
   $$('#fmtSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.fmt === fmt));
   $$('#viewSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.view === ((st() && st().view) || 'full')));
-  renderInfo();
+  renderInfo(); updateChallengeButtons();
 }
 function commit(){
   const s = st();
@@ -1708,6 +1739,7 @@ function commit(){
 /* ---------------- Library ---------------- */
 let libCat = 'Tất cả';
 function renderLib(){
+  refreshFieldLessons();
   const saved = store.get('sbct.saved.v1', []);
   const items = [
     ...CLOUD.boards.filter(x => x.fmt === fmt).map(x => ({cat:'Bài của đội', html:`<div class="item"><div><span class="tag">Của đội${x.public ? ' · có link xem' : ''}</span><b>${esc(x.name)}</b><small>${esc(x.ownerName || '')}${x.updatedAt && x.updatedAt.toDate ? ' · ' + x.updatedAt.toDate().toLocaleDateString('vi-VN') : ''}</small></div>
@@ -2880,6 +2912,7 @@ function refOptions(sel){
   const saved = store.get('sbct.saved.v1', []);
   const opt = (v, t) => `<option value="${esc(v)}"${v === sel ? ' selected' : ''}>${esc(t)}</option>`;
   return opt('', '— Không gắn bài —')
+    + (CLOUD.boards.length ? `<optgroup label="Bài của đội">${CLOUD.boards.map(x => opt('cloud:' + CLOUD.team + '~' + x.id, x.name)).join('')}</optgroup>` : '')
     + `<optgroup label="Bài tập sân 5">${DRILLS.map(d => opt('drill:' + d.id, d.name)).join('')}</optgroup>`
     + `<optgroup label="Chiến thuật mẫu">${SCEN.map(x => opt('ex:' + x.id, `${x.name} (sân ${x.fmt})`)).join('')}</optgroup>`
     + (saved.length ? `<optgroup label="Bài đã lưu">${saved.map(x => opt('saved:' + x.id, `${x.name} (sân ${x.fmt})`)).join('')}</optgroup>` : '');
@@ -2888,6 +2921,7 @@ function refName(ref){
   const [k, id] = (ref || '').split(':');
   if(k === 'drill') return (DRILLS.find(d => d.id === id) || {}).name;
   if(k === 'ex') return (SCEN.find(x => x.id === id) || {}).name;
+  if(k === 'cloud'){ const [tid,bid] = id.split('~'); return tid === CLOUD.team ? CLOUD.boards.find(x => x.id === bid)?.name : ''; }
   if(k === 'saved') return (store.get('sbct.saved.v1', []).find(x => x.id === id) || {}).name;
   return '';
 }
@@ -2992,6 +3026,7 @@ function openRef(ref){
   const [k, id] = (ref || '').split(':');
   if(k === 'drill'){ const D = DRILLS.find(d => d.id === id); if(!D) return; tStop(); if(fmt !== '5') setFormat('5'); S['5'] = keepRoster(S['5'], buildDrill(D)); }
   else if(k === 'ex'){ const sc = SCEN.find(x => x.id === id); if(!sc) return; if(fmt !== sc.fmt) setFormat(sc.fmt); S[fmt] = keepRoster(S[fmt], buildScenario(sc)); }
+  else if(k === 'cloud'){ const [tid,bid] = id.split('~'), x = tid === CLOUD.team && CLOUD.boards.find(x => x.id === bid); if(!x){ toast('Chọn đúng đội hoặc bài đã bị xoá.'); return; } try{ const data=JSON.parse(x.data); if(fmt !== x.fmt) setFormat(x.fmt); S[fmt]=keepRoster(S[fmt],data); }catch(_){toast('Không mở được dữ liệu bài.');return;} }
   else if(k === 'saved'){ const x = store.get('sbct.saved.v1', []).find(y => y.id === id); if(!x) return; if(fmt !== x.fmt) setFormat(x.fmt); S[fmt] = deep(x.data); }
   else return;
   selId = null; resetZoom(); renderPanels(); renderAll(); persist();
@@ -3165,7 +3200,7 @@ function renderAuth(){
   $('#saveBtn').hidden = !!CLOUD.user && !onTeam;
   $('#privBtn').hidden = !CLOUD.user;
   $('#saveHint').textContent = !CLOUD.user ? 'Bài lưu nằm trong trình duyệt này. Đăng nhập để lưu theo tài khoản.' : onTeam ? `“Lưu lên đội” cho cả đội ${teamName()} thấy; “Lưu riêng” chỉ bạn thấy.` : '“Lưu riêng” chỉ bạn thấy, đổi máy vẫn còn.';
-  renderTeamSel(); renderToi(); renderFavSel();
+  renderTeamSel(); renderToi(); renderFavSel(); trainingSync(); if(!$('#v-huan-luyen').hidden) renderTraining();
   renderLib(); renderPlanList();
   document.body.classList.toggle('teamro', !!CLOUD.user && CLOUD.role === 'viewer');
   if(CLOUD.role === 'viewer' && !autoLich){ autoLich = true; if(!location.hash || location.hash === '#bang') location.hash = 'lich'; }
@@ -3314,6 +3349,7 @@ function loadTeamLocal(){
   if(typeof renderLich === 'function'){ if(!$('#v-lich').hidden) renderLich(); else updNewsDot(); }
   if(!$('#v-tran').hidden) renderTran();
   if(!$('#v-be').hidden) kRender();
+  trainingSync();
 }
 function blankRoster(){
   for(const f of ['11','7','5']){ const s0 = S[f]; if(!s0) continue;
@@ -3338,7 +3374,7 @@ function switchTeam(tid){
   U.push(cloudTeamListen('schedule', d => { SCH = normSch(d); store.set(lkey('sbct.sched.v1'), SCH); lichUpd(); }));
   U.push(cloudTeamListen('news', d => { NEWS = Array.isArray(d) ? d : []; store.set(lkey('sbct.news.v1'), NEWS); lichUpd(); }));
   if(canEditCloud() && CLOUD.role !== 'admin') U.push(fs.onSnapshot(fs.collection(db, 'teams', tid, 'people'),
-    q => { CLOUD.people = q.docs.map(d => ({uid:d.id, ...d.data()})); renderToi(); }, err => console.warn(err)));
+    q => { CLOUD.people = q.docs.map(d => ({uid:d.id, ...d.data()})); renderToi(); if(!$('#v-huan-luyen').hidden) guardianOptions(); }, err => console.warn(err)));
   if(['coach', 'admin'].includes(CLOUD.role)) U.push(fs.onSnapshot(fs.collection(db, 'teams', tid, 'requests'),
     q => { CLOUD.reqs = q.docs.map(d => ({id:d.id, ...d.data()})); renderToi(); }, err => console.warn(err)));
   // Báo nghỉ: chỉ tải 60 ngày gần nhất, không tải lại cả lịch sử mỗi lần mở app
@@ -3448,7 +3484,7 @@ function scheduleRosterSync(){
 async function saveBoardCloud(name, makePublic){
   const {fs, db} = CLOUD.fb;
   if(!CLOUD.team) throw {code:'no-team'};
-  const ref = await fs.addDoc(fs.collection(db, 'teams', CLOUD.team, 'boards'), {name, fmt, data:JSON.stringify(st()), owner:CLOUD.user.uid,
+  const ref = await fs.addDoc(fs.collection(db, 'teams', CLOUD.team, 'boards'), {name, fmt, data:JSON.stringify(makePublic ? publicBoardState(st()) : st()), owner:CLOUD.user.uid,
     ownerName:(CLOUD.profile && CLOUD.profile.name) || '', public:!!makePublic, createdAt:fs.serverTimestamp(), updatedAt:fs.serverTimestamp()});
   return ref.id;
 }
@@ -3474,7 +3510,7 @@ async function cloudLibAction(b){
     catch(_){ toast('Bài này bị lỗi dữ liệu, không mở được'); }
   }
   if(b.dataset.cshare){
-    try{ await fs.updateDoc(fs.doc(db, 'teams', CLOUD.team, 'boards', b.dataset.cshare), {public:true}); showLink(b.dataset.cshare); }catch(err){ toast(fbErr(err)); }
+    try{ await fs.updateDoc(fs.doc(db, 'teams', CLOUD.team, 'boards', b.dataset.cshare), {public:true, data:JSON.stringify(publicBoardState(JSON.parse(CLOUD.boards.find(x => x.id === b.dataset.cshare).data)))}); showLink(b.dataset.cshare); }catch(err){ toast(fbErr(err)); }
   }
   if(b.dataset.cdel){
     if(b.dataset.armed !== '1'){ b.dataset.armed = '1'; b.classList.add('armed'); b.textContent = 'Xoá?'; setTimeout(() => { if(b.isConnected){ b.dataset.armed = ''; b.classList.remove('armed'); b.textContent = '✕'; } }, 2500); return; }
@@ -3547,6 +3583,7 @@ async function openShared(id){
   }catch(err){
     banner(`<span class="grow">${err && err.code === 'unavailable' ? 'Không kết nối được máy chủ. Kiểm tra mạng rồi tải lại trang.' : 'Không mở được bài: link đã bị tắt hoặc không đúng.'}</span><a href="${location.pathname}">Về trang chính</a>`, true);
   }
+  refreshFieldLessons();
   route();
 }
 async function cloudInit(){
@@ -4741,6 +4778,7 @@ function toggleFull(el){
   }catch(e){}
 }
 function exitFull(){
+  if(fieldSession) stopFieldSession();
   if(!fsEl) return;
   const el = fsEl; fsEl = null;
   el.classList.remove('fs','rot'); document.body.classList.remove('fs-on');
@@ -4950,8 +4988,924 @@ function downloadIcs(){
   toast('Mở file vừa tải để thêm lịch tập vào điện thoại (có nhắc trước 1 giờ)');
 }
 
+/* =================== Coaching toolkit =================== */
+const COACH_GOALS = {
+  pass: "Chuyền và phối hợp",
+  dribble: "Dẫn bóng và xử lý bóng",
+  defend: "Phòng ngự và chuyển trạng thái",
+};
+// Pure helpers are also exercised by tests/coaching.test.cjs.
+function balancedTeams(players, profiles, count) {
+  const teams = Array.from({ length: count }, () => []),
+    totals = teams.map(() => 0);
+  const value = (p) =>
+    Math.max(1, Math.min(5, Number(profiles[p.key]?.skill) || 3));
+  const position = (p) => profiles[p.key]?.position || (p.gk ? "gk" : "middle");
+  const ordered = players
+    .slice()
+    .sort(
+      (a, b) =>
+        (position(a) === "gk" ? 0 : 1) - (position(b) === "gk" ? 0 : 1) ||
+        value(b) - value(a) ||
+        a.key.localeCompare(b.key, "vi"),
+    );
+  for (const p of ordered) {
+    const shortest = Math.min(...teams.map((t) => t.length));
+    const candidates = teams
+      .map((t, i) => ({
+        i,
+        size: t.length,
+        role: t.filter((x) => position(x) === position(p)).length,
+        score: totals[i],
+      }))
+      .filter((t) => t.size === shortest);
+    candidates.sort(
+      (a, b) => a.role - b.role || a.score - b.score || a.i - b.i,
+    );
+    const i = candidates[0].i;
+    teams[i].push(p);
+    totals[i] += value(p);
+  }
+  // Swap equal-position players if it improves the difference without unbalancing positions.
+  for (let round = 0; round < 20; round++) {
+    let best = null,
+      gain = 0;
+    for (let i = 0; i < count; i++)
+      for (let j = i + 1; j < count; j++)
+        for (let a = 0; a < teams[i].length; a++)
+          for (let b = 0; b < teams[j].length; b++) {
+            const x = teams[i][a],
+              y = teams[j][b];
+            if (position(x) !== position(y)) continue;
+            const delta = value(y) - value(x),
+              improvement =
+                Math.abs(totals[i] - totals[j]) -
+                Math.abs(totals[i] - totals[j] + 2 * delta);
+            if (improvement > gain) {
+              gain = improvement;
+              best = { i, j, a, b, delta };
+            }
+          }
+    if (!best) break;
+    const { i, j, a, b, delta } = best;
+    [teams[i][a], teams[j][b]] = [teams[j][b], teams[i][a]];
+    totals[i] += delta;
+    totals[j] -= delta;
+  }
+  return teams;
+}
+function quickPlanDraft(count, minutes, goal, candidates) {
+  const words = {
+    pass: /chuyền|phối hợp|rondo|ban bật|tam giác/i,
+    dribble: /dẫn bóng|xử lý|zigzag|qua người/i,
+    defend: /phòng ngự|press|đoạt bóng|chuyển trạng thái/i,
+  }[goal];
+  const eligible = candidates.filter((x) => (x.minPlayers || 2) <= count);
+  const useful = eligible.filter((x) =>
+    words.test(x.name + " " + (x.desc || "")),
+  );
+  const picked = (useful.length ? useful : eligible).slice(0, 2);
+  const weights = [0.15, 0.2, 0.3, 0.25],
+    times = weights.map((w) => Math.floor(minutes * w));
+  times.push(minutes - times.reduce((a, b) => a + b, 0));
+  const groupNote = `Có ${count} cầu thủ. Chia nhóm và luân phiên; chỉnh số người theo yêu cầu của bài.`;
+  return {
+    id: "",
+    title: `${COACH_GOALS[goal]} · ${minutes} phút`,
+    date: today(),
+    goal: `${COACH_GOALS[goal]} · ${count} cầu thủ`,
+    blocks: [
+      {
+        ph: "warm",
+        ref: count >= 4 ? "drill:d-slalom" : "drill:d-gates",
+        title: "Khởi động với bóng",
+        min: times[0],
+        note: groupNote,
+      },
+      {
+        ph: "tech",
+        ref: picked[0]?.ref || "",
+        title: picked[0]?.name || "Luyện kỹ thuật theo mục tiêu",
+        min: times[1],
+        note: groupNote,
+      },
+      {
+        ph: "main",
+        ref: picked[1]?.ref || picked[0]?.ref || "",
+        title: picked[1]?.name || picked[0]?.name || "Bài chính theo mục tiêu",
+        min: times[2],
+        note: "Tăng dần áp lực; dừng ngắn để hỏi cầu thủ nhìn thấy khoảng trống nào.",
+      },
+      {
+        ph: "game",
+        ref: "",
+        title: `Đấu tập ${Math.floor(count / 2)} đánh ${Math.floor(count / 2)}${count % 2 ? " + 1 cầu thủ trung lập" : ""}`,
+        min: times[3],
+        note: `Khuyến khích ${COACH_GOALS[goal].toLowerCase()}; luân phiên thủ môn và thời gian thi đấu.`,
+      },
+      {
+        ph: "cool",
+        ref: "",
+        title: "Thả lỏng và nhắc lại điều đã học",
+        min: times[4],
+        note: "Mỗi bé nêu một điều làm tốt và một điều muốn thử ở buổi sau.",
+      },
+    ],
+  };
+}
+function publicBoardState(source) {
+  const s = deep(source);
+  for (const side of ["home", "away"])
+    if (s[side])
+      for (const p of [...(s[side].players || []), ...(s[side].bench || [])])
+        p.name = "";
+  return s;
+}
+function challengeHit(target, point, radius = 0.09) {
+  return (
+    Math.hypot(target[0] - point[0], (target[1] - point[1]) * 0.64) <= radius
+  );
+}
+const CT = {
+  identity: "",
+  unsub: [],
+  development: [],
+  profiles: {},
+  teams: [],
+  ready: false,
+  developmentReady: false,
+  scoutingReady: false,
+  error: "",
+  version: 0,
+};
+const coachWritable = () =>
+  !readOnly && (!CLOUD.user || (!!CLOUD.team && canEditCloud()));
+const coachDocId = (key) =>
+  "kid-" +
+  Array.from(new TextEncoder().encode(key), (x) =>
+    x.toString(16).padStart(2, "0"),
+  ).join("");
+const localCoachKey = "sbct.coaching.local.v1";
+function trainingSync() {
+  const identity = [
+    CLOUD.user?.uid || "local",
+    CLOUD.team || "",
+    CLOUD.role,
+    readOnly,
+  ].join("|");
+  if (identity === CT.identity) return;
+  CT.identity = identity;
+  CT.version++;
+  $('#developmentNote').value='';
+  $('#guardianChoices').replaceChildren();
+  $('#developmentKid').replaceChildren();
+  $('#scoutKid').replaceChildren();
+  $('#scoutSkill').value=3;
+  $('#scoutPosition').value='middle';
+  $('#balancedResult').replaceChildren();
+  CT.unsub.forEach((f) => f());
+  CT.unsub = [];
+  CT.development = [];
+  CT.profiles = {};
+  CT.teams = [];
+  CT.error = "";
+  CT.ready = false;
+  CT.developmentReady = false;
+  CT.scoutingReady = false;
+  if (!CLOUD.user && !readOnly) {
+    const d = store.get(localCoachKey, {});
+    CT.development = d.development || [];
+    CT.profiles = d.profiles || {};
+    CT.ready = true;
+  }
+  if (CLOUD.user && CLOUD.team && isMember() && !readOnly && CLOUD.fb) {
+    const { fs, db } = CLOUD.fb,
+      tid = CLOUD.team,
+      version = CT.version;
+    const fail = (err) => {
+      if (version !== CT.version) return;
+      CT.error =
+        "Không tải được dữ liệu đội. Kiểm tra kết nối hoặc nhờ quản trị viên kiểm tra quyền truy cập. " +
+        fbErr(err);
+      CT.ready = false;
+      CT.version++; CT.developmentReady=false; CT.scoutingReady=false;
+      CT.unsub.forEach(f=>f()); CT.unsub=[];
+      CT.development = []; CT.profiles = {}; CT.teams = [];
+      renderTraining(); renderBalanced();
+    };
+    const ref = fs.collection(db, "teams", tid, "development");
+    const q = canEditCloud()
+      ? ref
+      : fs.query(
+          ref,
+          fs.where("guardianUids", "array-contains", CLOUD.user.uid),
+        );
+    CT.unsub.push(
+      fs.onSnapshot(
+        q,
+        (s) => {
+          if (version !== CT.version) return;
+          CT.development = s.docs.map((d) => ({ id: d.id, ...d.data() }));
+          CT.developmentReady = true;
+          CT.ready = !canEditCloud() || CT.scoutingReady;
+          renderTraining();
+        },
+        fail,
+      ),
+    );
+    if (canEditCloud())
+      CT.unsub.push(
+        fs.onSnapshot(
+          fs.collection(db, "teams", tid, "scouting"),
+          (s) => {
+            if (version !== CT.version) return;
+            CT.profiles = Object.fromEntries(
+              s.docs.map((d) => [d.data().kid, d.data()]),
+            );
+            CT.scoutingReady = true;
+            CT.ready = CT.developmentReady;
+            renderTraining();
+          },
+          fail,
+        ),
+      );
+  }
+  renderTraining();
+}
+function coachSaveLocal() {
+  localStorage.setItem(
+    localCoachKey,
+    JSON.stringify({ development: CT.development, profiles: CT.profiles }),
+  );
+}
+function coachRosterOptions(selector) {
+  const el = $(selector),
+    value = el.value;
+  el.innerHTML = teamList()
+    .map(
+      (p) =>
+        `<option value="${esc(p.key)}">${esc(p.num)} · ${esc(p.name)}</option>`,
+    )
+    .join("");
+  if (teamList().some((p) => p.key === value)) el.value = value;
+}
+function fillScout() {
+  const key = $("#scoutKid").value,
+    p = CT.profiles[key] || {};
+  $("#scoutSkill").value = p.skill || 3;
+  $("#scoutPosition").value =
+    p.position || (teamList().find((x) => x.key === key)?.gk ? "gk" : "middle");
+}
+function guardianOptions() {
+  const kid = $("#developmentKid").value,
+    record = CT.development.find((x) => x.kid === kid),
+    selected = new Set(record?.guardianUids || []);
+  const members = new Set(
+    (CLOUD.teams || []).find((t) => t.id === CLOUD.team)?.members || [],
+  );
+  const dir = memberDir();
+  const ids = new Set(Object.values(dir).filter(p => p.uid && members.has(p.uid) && p.role === 'viewer').map(p => p.uid));
+  for (const uid of selected) if (members.has(uid)) ids.add(uid);
+  const people = [...ids].map(uid => dir[uid] || {uid, name:'Tài khoản đã gán: '+uid});
+  $("#guardianChoices").innerHTML =
+    people
+      .map(
+        (p) =>
+          `<label><input type="checkbox" value="${esc(p.uid)}" ${selected.has(p.uid) ? "checked" : ""}>${esc(p.name || p.email || p.uid)}</label>`,
+      )
+      .join("") ||
+    '<p class="hint">Chưa có tài khoản phụ huynh trong danh bạ đội. HLV duyệt người vào đội trước; chưa gán thì chỉ HLV xem được.</p>';
+}
+function renderDevelopment() {
+  const list = CT.development
+    .slice()
+    .sort((a, b) => String(a.name).localeCompare(String(b.name), "vi"));
+  $("#developmentList").innerHTML =
+    list
+      .map((r) => {
+        const entries = (r.entries || [])
+            .slice()
+            .sort((a, b) => b.date.localeCompare(a.date) || b.at - a.at),
+          last = entries[0],
+          first = entries[entries.length - 1];
+        const trend =
+          last && first && entries.length > 1
+            ? `So với buổi đầu: xử lý bóng ${last.ball - first.ball >= 0 ? "+" : ""}${last.ball - first.ball}, phối hợp ${last.team - first.team >= 0 ? "+" : ""}${last.team - first.team}, tinh thần ${last.spirit - first.spirit >= 0 ? "+" : ""}${last.spirit - first.spirit}.`
+            : "";
+        return `<article class="development-card"><h3>${esc(r.name)}</h3><p>${entries.length} buổi ghi nhận. ${esc(trend)}</p>${entries.map((e) => `<div class="development-entry"><b>${esc(e.date.split("-").reverse().join("/"))}</b><div class="development-values"><span>Xử lý bóng: ${esc(e.ball)}/5</span><span>Phối hợp: ${esc(e.team)}/5</span><span>Tinh thần: ${esc(e.spirit)}/5</span></div><p>${esc(e.note || "")}</p></div>`).join("") || '<p class="hint">Chưa có buổi đánh giá.</p>'}</article>`;
+      })
+      .join("") ||
+    `<p class="hint">${coachWritable() ? "Chọn cầu thủ và ghi nhận buổi đầu tiên." : "Chưa có sổ được HLV cấp quyền cho tài khoản này."}</p>`;
+}
+function renderTraining() {
+  if (!$("#v-huan-luyen")) return;
+  $("#coachRetry").hidden = !CT.error;
+  const edit = coachWritable();
+  $("#coachTools").hidden = !edit;
+  $("#developmentForm").hidden = !edit;
+  $("#coachStatus").textContent =
+    CT.error ||
+    (readOnly
+      ? "Đang xem bài công khai."
+      : !CLOUD.user
+        ? "Chế độ trên máy: dữ liệu chỉ lưu ở trình duyệt này. Đăng nhập để đồng bộ cho đội và cấp quyền phụ huynh."
+        : !CLOUD.team
+          ? "Chọn đội trong Hồ sơ để bắt đầu."
+          : !isMember()
+            ? "Tài khoản chưa được duyệt."
+            : !CT.ready
+              ? "Đang tải sổ của đội…"
+              : edit
+                ? `Đội ${teamName()}. Sổ tiến bộ chỉ chia sẻ với phụ huynh được gán quyền.`
+                : "Bạn chỉ thấy sổ được HLV cấp quyền.");
+  if (edit) {
+    coachRosterOptions("#scoutKid");
+    coachRosterOptions("#developmentKid");
+    fillScout();
+    guardianOptions();
+  }
+  $$("#v-huan-luyen button[type=submit],#guardianSave").forEach(
+    (b) => (b.disabled = !CT.ready),
+  );
+  renderDevelopment();
+  refreshFieldLessons();
+}
+$("#coachRetry").addEventListener("click",()=>{CT.identity="";trainingSync();});
+$("#scoutKid").addEventListener("change", fillScout);
+$("#developmentKid").addEventListener("change", () => { $("#developmentNote").value=""; guardianOptions(); });
+$("#scoutForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!coachWritable() || !CT.ready) return;
+  const kid = $("#scoutKid").value;
+  if (!kid) return;
+  const version = CT.version,
+    p = {
+      kid,
+      skill: Number($("#scoutSkill").value),
+      position: $("#scoutPosition").value,
+    };
+  try {
+    if (CLOUD.user) {
+      const { fs, db } = CLOUD.fb;
+      await fs.setDoc(
+        fs.doc(db, "teams", CLOUD.team, "scouting", coachDocId(kid)),
+        p,
+      );
+    } else {
+      CT.profiles[kid] = p;
+      coachSaveLocal();
+    }
+    if (version === CT.version) toast("Đã lưu đánh giá riêng");
+  } catch (err) {
+    toast("Chưa lưu được: " + fbErr(err));
+  }
+});
+async function saveDevelopment(addEntry) {
+  if (!coachWritable() || !CT.ready) return;
+  const kid = $("#developmentKid").value;
+  if (!kid) return;
+  const person = teamList().find((p) => p.key === kid);
+  if (!person) return;
+  const guardianUids = $$("#guardianChoices input:checked").map((x) => x.value);
+  if(guardianUids.length > 10){ toast("Chọn tối đa 10 tài khoản được xem."); return; }
+  const date = $("#developmentDate").value;
+  if (addEntry && !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+  const entry = {
+    date,
+    ball: Number($("#developmentBall").value),
+    team: Number($("#developmentTeam").value),
+    spirit: Number($("#developmentSpirit").value),
+    note: $("#developmentNote").value.trim(),
+    at: Date.now(),
+  };
+  const version = CT.version,
+    tid = CLOUD.team,
+    uid = CLOUD.user?.uid;
+  const merge = (prev) => {
+    let entries = (prev?.entries || []).slice();
+    if (addEntry) {
+      entries = entries.filter((x) => x.date !== date);
+      entries.push(entry);
+    }
+    if (entries.length > 200) throw new Error("Sổ đã đủ 200 buổi.");
+    return {
+      kid,
+      name: person.name,
+      guardianUids,
+      entries,
+      updatedBy: uid || "local",
+    };
+  };
+  const buttons = $$("#developmentForm button");
+  buttons.forEach((b) => (b.disabled = true));
+  try {
+    if (uid) {
+      const { fs, db } = CLOUD.fb,
+        ref = fs.doc(db, "teams", tid, "development", coachDocId(kid));
+      await fs.runTransaction(db, async (tx) => {
+        const snap = await tx.get(ref);
+        tx.set(ref, {
+          ...merge(snap.exists() ? snap.data() : null),
+          updatedAt: fs.serverTimestamp(),
+        });
+      });
+    } else {
+      const r = merge(CT.development.find((x) => x.kid === kid));
+      CT.development = CT.development
+        .filter((x) => x.kid !== kid)
+        .concat({ id: coachDocId(kid), ...r });
+      coachSaveLocal();
+    }
+    if (version === CT.version) {
+      $("#developmentNote").value = "";
+      renderDevelopment();
+      toast(
+        addEntry
+          ? "Đã lưu buổi đánh giá (cùng ngày sẽ cập nhật)"
+          : "Đã cập nhật phụ huynh được xem",
+      );
+    }
+  } catch (err) {
+    toast("Chưa lưu được: " + (err.code ? fbErr(err) : err.message));
+  } finally {
+    if (version === CT.version)
+      buttons.forEach((b) => (b.disabled = !CT.ready));
+  }
+}
+$("#developmentForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  saveDevelopment(true);
+});
+$("#guardianSave").addEventListener("click", () => saveDevelopment(false));
+$("#quickPlanForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (!coachWritable()) return;
+  const count = Number($("#quickCount").value),
+    minutes = Number($("#quickMinutes").value),
+    goal = $("#quickGoal").value;
+  const minimum = x => Number(String(x.data?.info?.n || "").match(/\d+/)?.[0]) || (FMT[x.fmt]?.n || 1) * 2;
+  const saved = store
+    .get("sbct.saved.v1", [])
+    .map((x) => ({
+      ref: "saved:" + x.id,
+      name: x.name,
+      desc: x.data?.note || "",
+      minPlayers: minimum(x),
+    }));
+  const cloud = (CLOUD.boards || []).map((x) => ({
+    ref: "cloud:" + CLOUD.team + "~" + x.id,
+    name: x.name,
+    minPlayers: minimum({...x, data: (() => { try { return JSON.parse(x.data); } catch { return {}; } })()}),
+  }));
+  const candidates = [
+    ...cloud,
+    ...saved,
+    ...DRILLS.map((x) => ({
+      ref: "drill:" + x.id,
+      name: x.name,
+      desc: x.desc,
+      minPlayers: Number(x.n.match(/\d+/)?.[0]) || 2,
+    })),
+    ...SCEN.map((x) => ({ ref: "ex:" + x.id, name: x.name, desc: x.desc, minPlayers: FMT[x.fmt].n * 2 })),
+  ];
+  if (
+    plan.blocks?.length &&
+    !confirm(
+      "Thay giáo án đang soạn bằng bản nháp mới? Các giáo án đã lưu vẫn còn.",
+    )
+  )
+    return;
+  plan = quickPlanDraft(count, minutes, goal, candidates);
+  savePlanCur();
+  tStop();
+  T.idx = 0;
+  T.left = null;
+  renderPlan();
+  location.hash = "giao-an";
+  toast("Đã tạo bản nháp. Xem và chỉnh các phần trước khi lưu.");
+});
+$("#balancedBtn").addEventListener("click", () => {
+  if (!coachWritable()) return;
+  if (!CT.ready) {
+    toast("Chờ tải xong đánh giá riêng trước khi chia đội");
+    return;
+  }
+  const here = new Set(ATT[$("#balancedDate").value] || []),
+    players = teamList().filter((p) => here.has(p.key)),
+    count = Number($("#balancedN").value);
+  if (players.length < count) {
+    toast("Điểm danh đủ cầu thủ ở tab Trận đấu trước.");
+    return;
+  }
+  CT.teams = balancedTeams(players, CT.profiles, count);
+  renderBalanced();
+});
+function renderBalanced() {
+  $("#balancedResult").innerHTML = CT.teams
+    .map(
+      (t, i) =>
+        `<section class="coach-team" data-team="${i}"><h3>Đội ${TEAM_COLORS[i][0]} · ${t.length}</h3>${t.map((p) => `<div class="coach-player" draggable="true" data-player="${esc(p.key)}"><span>${esc(p.num)} · ${esc(p.name)}</span><select data-move="${esc(p.key)}" aria-label="Chuyển ${esc(p.name)} sang đội">${CT.teams.map((_, j) => `<option value="${j}"${i === j ? " selected" : ""}>${TEAM_COLORS[j][0]}</option>`).join("")}</select></div>`).join("")}</section>`,
+    )
+    .join("");
+}
+function moveBalanced(key, dest) {
+  if (!coachWritable() || !CT.teams[dest]) return;
+  let found;
+  CT.teams = CT.teams.map((t) =>
+    t.filter((p) => {
+      if (p.key === key) {
+        found = p;
+        return false;
+      }
+      return true;
+    }),
+  );
+  if (found) CT.teams[dest].push(found);
+  renderBalanced();
+}
+$("#balancedResult").addEventListener("change", (e) => {
+  if (e.target.matches("[data-move]"))
+    moveBalanced(e.target.dataset.move, Number(e.target.value));
+});
+let draggingCoach = "";
+$("#balancedResult").addEventListener("dragstart", (e) => {
+  const p = e.target.closest("[data-player]");
+  if (p) {
+    draggingCoach = p.dataset.player;
+    e.dataTransfer.setData("text/plain", draggingCoach);
+  }
+});
+$("#balancedResult").addEventListener("dragover", (e) => {
+  if (e.target.closest("[data-team]")) e.preventDefault();
+});
+$("#balancedResult").addEventListener("drop", (e) => {
+  const t = e.target.closest("[data-team]");
+  if (t) {
+    e.preventDefault();
+    moveBalanced(draggingCoach, Number(t.dataset.team));
+    draggingCoach = "";
+  }
+});
+
+/* Field session: reuse existing fullscreen, frame controls and lesson library. */
+let fieldSession = false,
+  fieldLock = null,
+  fieldSessionId = 0;
+async function fieldWake() {
+  if (
+    !fieldSession ||
+    document.visibilityState !== "visible" ||
+    (fieldLock && !fieldLock.released)
+  )
+    return;
+  const session = fieldSessionId;
+  let lock = null;
+  try {
+    lock = await navigator.wakeLock?.request("screen");
+  } catch (_) {}
+  if (!fieldSession || session !== fieldSessionId) {
+    try {
+      lock?.release();
+    } catch (_) {}
+    return;
+  }
+  fieldLock = lock;
+  $("#fieldMode").title = fieldLock
+    ? "Đang giữ màn hình sáng"
+    : "Thiết bị không hỗ trợ giữ màn hình sáng; kiểm tra cài đặt tự khoá";
+}
+function stopFieldSession() {
+  $("#boardStage .toolbar").append($("#fieldMode"));
+  fieldSession = false;
+  fieldSessionId++;
+  document.body.classList.remove("field-session");
+  $("#fieldMode").setAttribute("aria-pressed", "false");
+  $("#fieldMode").textContent = "☀ Đứng sân";
+  try {
+    fieldLock?.release();
+  } catch (_) {}
+  fieldLock = null;
+}
+$("#fieldMode").addEventListener("click", async () => {
+  if (fieldSession) {
+    stopFieldSession();
+    exitFull();
+    return;
+  }
+  fieldSession = true;
+  fieldSessionId++;
+  document.body.classList.add("field-session");
+  $("#fieldMode").setAttribute("aria-pressed", "true");
+  $("#fieldMode").textContent = "✕ Rời sân";
+  if (!fsEl) toggleFull($("#boardStage"));
+  $("#boardStage .frames").append($("#fieldMode"));
+  await fieldWake();
+});
+document.addEventListener("visibilitychange", () => {
+  if (fieldSession && document.visibilityState === "visible") fieldWake();
+});
+function refreshFieldLessons() {
+  const el = $("#fieldLessonSelect");
+  if (!el) return;
+  el.hidden = readOnly;
+  if (readOnly) return;
+  const v = el.value;
+  el.innerHTML =
+    '<option value="">Chuyển bài nhanh…</option>' +
+    SCEN.map(
+      (x) => `<option value="ex:${esc(x.id)}">${esc(x.name)}</option>`,
+    ).join("") +
+    store
+      .get("sbct.saved.v1", [])
+      .map((x) => `<option value="saved:${esc(x.id)}">${esc(x.name)}</option>`)
+      .join("") +
+    (CLOUD.boards || [])
+      .map(
+        (x) =>
+          `<option value="cloud:${esc(x.id)}">Đội · ${esc(x.name)}</option>`,
+      )
+      .join("");
+  el.value = v;
+}
+$("#fieldLessonSelect").addEventListener("change", (e) => {
+  if (readOnly) return;
+  const [kind, id] = e.target.value.split(":");
+  let state, newFmt;
+  if (kind === "ex") {
+    const x = SCEN.find((x) => x.id === id);
+    if (x) {
+      state = buildScenario(x);
+      newFmt = x.fmt;
+    }
+  } else {
+    const x = (
+      kind === "cloud" ? CLOUD.boards : store.get("sbct.saved.v1", [])
+    ).find((x) => x.id === id);
+    if (x) {
+      try {
+        state = typeof x.data === "string" ? JSON.parse(x.data) : deep(x.data);
+        newFmt = x.fmt;
+      } catch (_) {}
+    }
+  }
+  if (!state || !FMT[newFmt]) return;
+  stopPlay();
+  fmt = newFmt;
+  S[fmt] = keepRoster(S[fmt], state);
+  normState(S[fmt]);
+  selId = null;
+  resetZoom();
+  renderField();
+  renderPanels();
+  renderAll();
+  persist();
+});
+
+/* Coach-authored spatial questions, preserved with the board and its public link. */
+let challengeData = null,
+  challengeChoice = [0.5, 0.5],
+  challengeRevealed = false,
+  challengeFocus = null;
+function validChallenge(c, s = st()) {
+  return (
+    c &&
+    Number.isInteger(c.frame) &&
+    c.frame >= 0 &&
+    c.frame < s.frames.length - 1 &&
+    typeof c.player === "string" &&
+    s.frames[c.frame]?.pos[c.player] &&
+    Array.isArray(c.target) &&
+    c.target.length === 2 &&
+    c.target.every((n) => Number.isFinite(n) && n >= 0 && n <= 1)
+  );
+}
+function updateChallengeButtons() {
+  const valid = !!validChallenge(st().challenge);
+  $("#challengeTry").hidden = !valid;
+  $("#challengeCreate").hidden = readOnly || !coachWritable();
+  $("#challengeCreate").textContent = valid
+    ? "✎ Sửa câu hỏi"
+    : "? Tạo bài đoán";
+}
+function showChallenge(author) {
+  stopPlay();
+  challengeFocus = document.activeElement;
+  $("#challengeModal").hidden = false;
+  $("#challengeAuthor").hidden = !author;
+  $("#challengePlay").hidden = author;
+  if (author) {
+    const s = st(),
+      i = s.active >= 0 ? s.active : 0;
+    if (!s.frames[i + 1]) {
+      toast("Chọn một khung có khung tiếp theo để lấy đáp án.");
+      $("#challengeModal").hidden = true;
+      return;
+    }
+    $("#challengeModal").dataset.frame = i;
+    $("#challengePlayer").innerHTML = s.home.players
+      .filter((p) => s.frames[i].pos[p.id] && s.frames[i + 1].pos[p.id])
+      .map(
+        (p) =>
+          `<option value="${esc(p.id)}">Số ${esc(p.num)}${p.name ? " · " + esc(p.name) : ""}</option>`,
+      )
+      .join("");
+    const c = s.challenge;
+    if (validChallenge(c)) {
+      $("#challengePlayer").value = c.player;
+      $("#challengeQuestion").value = c.question || "";
+      $("#challengeExplanation").value = c.explanation || "";
+    } else $("#challengeExplanation").value = s.frames[i + 1].note || "";
+  } else {
+    challengeData = deep(st());
+    challengeChoice = [0.5, 0.5];
+    challengeRevealed = false;
+    $("#challengeFeedback").textContent = "";
+    renderChallenge();
+  }
+  $("#challengeClose").focus();
+}
+function closeChallenge() {
+  $("#challengeModal").hidden = true;
+  challengeData = null;
+  challengeFocus?.focus();
+}
+$("#challengeClose").addEventListener("click", closeChallenge);
+$("#challengeModal").addEventListener("click", (e) => {
+  if (e.target === $("#challengeModal")) closeChallenge();
+});
+$("#challengeCreate").addEventListener("click", () => showChallenge(true));
+$("#challengeTry").addEventListener("click", () => showChallenge(false));
+$("#challengeSave").addEventListener("click", () => {
+  if (!coachWritable()) return;
+  const s = st(),
+    i = Number($("#challengeModal").dataset.frame),
+    player = $("#challengePlayer").value,
+    target = s.frames[i + 1]?.pos[player];
+  if (!target || !target.every((n) => Number.isFinite(n) && n >= 0 && n <= 1)) {
+    toast("Vị trí đáp án phải nằm trong sân.");
+    return;
+  }
+  s.challenge = {
+    frame: i,
+    player,
+    target: target.slice(),
+    question: $("#challengeQuestion").value.trim() || "Con nên chạy vào đâu?",
+    explanation: $("#challengeExplanation").value.trim(),
+  };
+  persist();
+  updateChallengeButtons();
+  closeChallenge();
+  toast("Đã gắn câu hỏi. Lưu bài hoặc tạo link để gửi cho các bé.");
+});
+function renderChallenge() {
+  if (!challengeData || !validChallenge(challengeData.challenge, challengeData))
+    return;
+  const s = challengeData,
+    c = s.challenge,
+    fr = s.frames[c.frame];
+  const player = s.home.players.find((p) => p.id === c.player);
+  $("#challengePrompt").textContent =
+    `${c.question} (Cầu thủ số ${player?.num || "?"}, viền vàng)`;
+  let svg =
+    '<rect x="1" y="1" width="98" height="62" fill="#246638" stroke="white"/><path d="M50 1v62M1 21h12v22H1M99 21H87v22h12" fill="none" stroke="white"/><circle cx="50" cy="32" r="9" fill="none" stroke="white"/>';
+  for (const side of ["home", "away"]) {
+    if (side === "away" && !s.showAway) continue;
+    for (const p of s[side].players) {
+      const pos = fr.pos[p.id];
+      if (!pos) continue;
+      svg += `<g><circle cx="${pos[0] * 100}" cy="${pos[1] * 64}" r="2.8" fill="${safeColor(s[side].color, "#d63a3a")}" stroke="${p.id === c.player ? "#ffd84a" : "white"}" stroke-width="${p.id === c.player ? 1.1 : 0.3}"/><text x="${pos[0] * 100}" y="${pos[1] * 64 + 1}" font-size="3" text-anchor="middle" fill="white">${esc(p.num)}</text></g>`;
+    }
+  }
+  const ball = fr.pos.ball;
+  if (ball)
+    svg += `<circle cx="${ball[0] * 100}" cy="${ball[1] * 64}" r="1.3" fill="white" stroke="black" stroke-width=".3"/>`;
+  svg += `<path d="M${challengeChoice[0] * 100 - 2} ${challengeChoice[1] * 64}h4m-2 -2v4" stroke="#ffd84a" stroke-width=".5"/>`;
+  if (challengeRevealed)
+    svg += `<ellipse cx="${c.target[0] * 100}" cy="${c.target[1] * 64}" rx="9" ry="9" fill="#ffd84a" fill-opacity=".3" stroke="#ffd84a" stroke-dasharray="2 1"/>`;
+  $("#challengePitch").innerHTML = svg;
+}
+function answerChallenge() {
+  if (!challengeData) return;
+  const c = challengeData.challenge,
+    hit = challengeHit(c.target, challengeChoice);
+  challengeRevealed = true;
+  renderChallenge();
+  $("#challengeFeedback").textContent =
+    (hit ? "Đúng hướng rồi! " : "Thử quan sát vùng vàng HLV gợi ý. ") +
+    (c.explanation ||
+      "Chạy vào khoảng trống để đồng đội có thêm phương án chuyền.");
+}
+$("#challengePitch").addEventListener("pointerdown", (e) => {
+  if (!challengeData) return;
+  const svg = e.currentTarget,
+    p = svg.createSVGPoint();
+  p.x = e.clientX;
+  p.y = e.clientY;
+  const m = svg.getScreenCTM();
+  if (!m) return;
+  const q = p.matrixTransform(m.inverse());
+  challengeChoice = [
+    Math.max(0, Math.min(1, q.x / 100)),
+    Math.max(0, Math.min(1, q.y / 64)),
+  ];
+  answerChallenge();
+});
+$("#challengePitch").addEventListener("keydown", (e) => {
+  const moves = {
+    ArrowLeft: [-0.03, 0],
+    ArrowRight: [0.03, 0],
+    ArrowUp: [0, -0.05],
+    ArrowDown: [0, 0.05],
+  };
+  if (moves[e.key]) {
+    e.preventDefault();
+    challengeChoice = challengeChoice.map((n, i) =>
+      Math.max(0, Math.min(1, n + moves[e.key][i])),
+    );
+    renderChallenge();
+  }
+  if (e.key === "Enter") {
+    e.preventDefault();
+    answerChallenge();
+  }
+});
+$("#challengeReveal").addEventListener("click", () => {
+  if (!challengeData) return;
+  challengeRevealed = true;
+  renderChallenge();
+  $("#challengeFeedback").textContent =
+    challengeData.challenge.explanation ||
+    "Quan sát vùng vàng: đó là vị trí HLV gợi ý.";
+});
+$("#challengeRetry").addEventListener("click", () => {
+  challengeChoice = [0.5, 0.5];
+  challengeRevealed = false;
+  $("#challengeFeedback").textContent = "";
+  renderChallenge();
+});
+$("#challengeModal").addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    e.preventDefault();
+    e.stopPropagation();
+    closeChallenge();
+  }
+  if (e.key === "Tab") {
+    const focusable = [
+        ...e.currentTarget.querySelectorAll(
+          'button,input,select,textarea,[tabindex="0"]',
+        ),
+      ].filter((x) => x.getClientRects().length && !x.disabled),
+      first = focusable[0],
+      last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+});
+$("#sharedSpeak").addEventListener("click", () => {
+  if (!window.speechSynthesis) {
+    toast("Thiết bị chưa hỗ trợ đọc lời hướng dẫn");
+    return;
+  }
+  if (speechSynthesis.speaking) {
+    speechSynthesis.cancel();
+    return;
+  }
+  const text = st().frames[st().active]?.note || st().note;
+  if (!text) {
+    toast("Khung này chưa có lời hướng dẫn");
+    return;
+  }
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "vi-VN";
+  speechSynthesis.speak(u);
+});
+$("#linkZalo").addEventListener("click", async () => {
+  const url = $("#linkInput").value,
+    text = `Bài tập Sa Bàn: mở link để xem chuyển động và lời hướng dẫn, không cần tài khoản.\n${url}`;
+  try {
+    if (navigator.share)
+      await navigator.share({ title: "Bài tập Sa Bàn", text, url });
+    else {
+      await navigator.clipboard.writeText(text);
+      toast("Đã chép lời nhắn. Dán vào Zalo để gửi.");
+    }
+  } catch (err) {
+    if (err.name !== "AbortError") {
+      $("#linkInput").select();
+      toast("Chọn và sao chép link để gửi Zalo.");
+    }
+  }
+});
+$("#balancedDate").value = today();
+$("#developmentDate").value = today();
+
 /* =================== Routing =================== */
-const VIEWS = ['lich','bang','luat','cau-hoi','giao-an','tran','ho-so','quan-ly'];
+const VIEWS = ['lich','bang','luat','cau-hoi','giao-an','tran','ho-so','quan-ly','huan-luyen'];
 const VIEW_ALIAS = {toi:'ho-so', be:'bang'};   // link cũ
 function route(){
   const h0 = location.hash.slice(1), h = VIEW_ALIAS[h0] || h0;
@@ -4964,6 +5918,7 @@ function route(){
   if(v === 'tran') renderTran();
   if(v === 'ho-so') renderToi();
   if(v === 'lich') renderLich();
+  if(v === 'huan-luyen'){ trainingSync(); renderTraining(); }
   exitFull();
 }
 window.addEventListener('hashchange', route);
@@ -4974,6 +5929,7 @@ renderField(); renderPanels(); renderAll();
 renderRules(); renderQuiz(); renderPlan(); renderFavSel();
 if(SETT.defFmt && FMT[SETT.defFmt] && SETT.defFmt !== fmt && !new URLSearchParams(location.search).get('xem')) setFormat(SETT.defFmt);
 applySettings(false);
+trainingSync();
 route();
 cloudInit();
 })();

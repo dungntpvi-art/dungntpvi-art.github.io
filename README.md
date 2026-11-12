@@ -130,3 +130,31 @@ Bài đã lưu, danh sách đội và tiến độ bài học của bé nằm tr
 ## Lưu ý về luật
 
 Phần luật chỉ là tóm tắt để tham khảo. Luật sân 7 và sân 5 phong trào khác nhau giữa các giải, nên luôn đối chiếu điều lệ giải bạn tham gia. Kích thước sân trên bảng chỉ để minh họa tỉ lệ.
+
+
+## Bộ công cụ huấn luyện (v30)
+
+- **Bài đoán vị trí:** ở Bảng chiến thuật, chọn khung có khung kế tiếp, bấm “Tạo bài đoán”, chọn cầu thủ và nhập lời giải. Đáp án lấy từ khung kế tiếp. Lưu bài để giữ câu hỏi; người nhận link công khai cũng trả lời được. Đây là gợi ý của HLV, không phải bộ chấm mọi phương án chiến thuật.
+- **Gửi qua Zalo:** Xuất / Gửi bài → Link chỉ xem → Chia sẻ / Chép gửi Zalo. Người nhận không cần tài khoản. Bản công khai ẩn tên trong danh sách cầu thủ, nhưng tên bài, chữ vẽ và ghi chú vẫn hiển thị — HLV kiểm tra trước khi gửi. “Đọc hướng dẫn” dùng giọng đọc tiếng Việt của thiết bị (nếu có), không thay thế bản ghi âm HLV.
+- **Đứng sân:** toàn màn hình, nút điều khiển lớn, chuyển bài nhanh, yêu cầu giữ màn hình sáng khi trình duyệt hỗ trợ. Bấm “Rời sân” hoặc Escape để thoát.
+- **Giáo án gợi ý:** tab Huấn luyện → chọn số người, thời lượng, mục tiêu. Ưu tiên bài đã lưu của đội / trên máy có từ khóa phù hợp; bổ sung bài mẫu. Bản nháp mở trong trình soạn giáo án để HLV chỉnh rồi lưu. Đây là ghép bài theo quy tắc, không gọi dịch vụ AI.
+- **Chia đội cân bằng:** điểm danh ở tab Trận đấu, vào Huấn luyện chọn đúng ngày và số đội. Gợi ý cân bằng số người, vị trí và mức đánh giá riêng 1–5. Kéo thả hoặc dùng ô chọn đội để chỉnh.
+- **Sổ tiến bộ:** HLV / Trợ lý chọn bé, ngày, ba mức đánh giá và lời nhắn. Lưu lại cùng ngày cập nhật buổi đó. Chỉ phụ huynh được HLV gán tài khoản mới xem được; tự chọn tên con trong Hồ sơ không cấp quyền. Đánh giá dùng chia đội được lưu riêng, phụ huynh không đọc được.
+
+### Triển khai và kiểm tra
+
+1. Triển khai **firestore.rules** mới trước khi dùng sổ đồng bộ (Firebase Console → Firestore → Rules). Không thay thế bằng rules cho phép toàn bộ. Mã nguồn không tự xuất bản rules lên Firebase.
+2. Merge thay đổi web để GitHub Pages cập nhật. Chạy lại Build APK ở repo Android để đóng gói bản web mới.
+3. Điểm danh và sổ đang dùng khóa cầu thủ theo tên, giống cấu trúc có sẵn. Khi đổi tên, sổ cũ vẫn còn nhưng không tự chuyển sang tên mới; không nhập hai cầu thủ trùng tên. Sổ giới hạn 200 ngày đánh giá / bé và 10 tài khoản được xem; không tự xóa buổi cũ.
+4. Chưa đăng nhập: dữ liệu huấn luyện lưu riêng trên trình duyệt. Dữ liệu thử trên máy không tự chuyển lên đội sau khi đăng nhập. Đã đăng nhập: sổ mới dùng Firestore, không lưu bản sao sổ của đội vào localStorage; khi chưa tải được dữ liệu sẽ khóa thao tác ghi.
+
+```sh
+npm ci
+npm run build
+npm test
+npx playwright install chromium
+npm run test:browser
+npx firebase-tools@14.6.0 emulators:exec --only firestore --project demo-sa-ban-coaching "npm run test:rules"
+```
+
+Workflow **Coaching checks** chạy các kiểm tra trên pull request, gồm Chromium desktop / mobile và Firestore Emulator. Ảnh kiểm tra nằm trong artifact `coaching-browser-screenshots`. Kiểm tra Chromium không thay cho thử APK trên thiết bị Android.
