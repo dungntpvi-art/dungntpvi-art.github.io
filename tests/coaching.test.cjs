@@ -197,3 +197,33 @@ test("field session has an accessible exit and restores regular toolbar", () => 
     dom.window.close();
   }
 });
+
+test('quick plan excludes exercises requiring more players than are present', () => {
+ const {dom,api}=app();try{
+  const p=api.quickPlanDraft(2,30,'pass',[{ref:'rondo',name:'Rondo chuyền bóng',minPlayers:5},{ref:'pairs',name:'Chuyền theo cặp',minPlayers:2}]);
+  assert.equal(p.blocks[1].ref,'pairs');assert.equal(p.blocks[0].ref,'drill:d-gates');
+ }finally{dom.window.close();}
+});
+test('cloud reads wait for both private datasets, clear on revocation and ignore stale callbacks', () => {
+ const {dom,api}=app();try{
+  const callbacks=[];
+  const fs={collection:(...x)=>x,query:(...x)=>x,where:(...x)=>x,onSnapshot:(q,success,fail)=>{callbacks.push({success,fail});return ()=>{};}};
+  Object.assign(api.CLOUD,{user:{uid:'coach'},role:'coach',team:'team1',teams:[{id:'team1',members:['coach']}],fb:{fs,db:{}}});
+  api.trainingSync();assert.equal(api.CT.ready,false);
+  callbacks[0].success({docs:[{id:'kid1',data:()=>({kid:'An',name:'An',guardianUids:[],entries:[]})}]});assert.equal(api.CT.ready,false);
+  callbacks[1].success({docs:[]});assert.equal(api.CT.ready,true);
+  callbacks[0].fail({code:'permission-denied'});assert.equal(api.CT.ready,false);assert.equal(api.CT.development.length,0);
+  callbacks[1].success({docs:[]});assert.equal(api.CT.ready,false);
+  api.reset();callbacks[0].success({docs:[{id:'late',data:()=>({name:'stale'})}]});assert(!api.CT.development.some(x=>x.name==='stale'));
+ }finally{dom.window.close();}
+});
+
+test('switching accounts clears draft notes and previously displayed team names',()=>{
+ const {dom,w,api}=app();try{
+  w.document.querySelector('#developmentNote').value='Private draft';
+  w.document.querySelector('#balancedResult').textContent='Old team children';
+  api.parent();api.trainingSync();
+  assert.equal(w.document.querySelector('#developmentNote').value,'');
+  assert.equal(w.document.querySelector('#balancedResult').textContent,'');
+ }finally{dom.window.close();}
+});

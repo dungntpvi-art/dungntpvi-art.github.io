@@ -686,7 +686,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
 <div class="cbanner" id="cBanner" hidden></div>
 
 <section id="v-huan-luyen" hidden>
-  <div class="panel"><h2>Bộ công cụ huấn luyện</h2><p>Chuẩn bị buổi tập, chia đội và theo dõi từng bé — bắt đầu từ danh sách đội và các bài đã lưu.</p><p id="coachStatus" class="hint" role="status"></p></div>
+  <div class="panel"><h2>Bộ công cụ huấn luyện</h2><p>Chuẩn bị buổi tập, chia đội và theo dõi từng bé — bắt đầu từ danh sách đội và các bài đã lưu.</p><p id="coachStatus" class="hint" role="status"></p><button class="btn" id="coachRetry" hidden>Thử tải lại</button></div>
   <div class="coach-grid" id="coachTools">
     <section class="panel"><h2>Giáo án gợi ý</h2><form id="quickPlanForm">
       <div class="row"><label class="f grow">Số cầu thủ<input id="quickCount" type="number" min="2" max="60" value="10" required></label><label class="f grow">Thời lượng (phút)<input id="quickMinutes" type="number" min="20" max="120" value="60" required></label></div>
@@ -5021,10 +5021,11 @@ function quickPlanDraft(count, minutes, goal, candidates) {
     dribble: /dẫn bóng|xử lý|zigzag|qua người/i,
     defend: /phòng ngự|press|đoạt bóng|chuyển trạng thái/i,
   }[goal];
-  const useful = candidates.filter((x) =>
+  const eligible = candidates.filter((x) => (x.minPlayers || 2) <= count);
+  const useful = eligible.filter((x) =>
     words.test(x.name + " " + (x.desc || "")),
   );
-  const picked = (useful.length ? useful : candidates).slice(0, 2);
+  const picked = (useful.length ? useful : eligible).slice(0, 2);
   const weights = [0.15, 0.2, 0.3, 0.25],
     times = weights.map((w) => Math.floor(minutes * w));
   times.push(minutes - times.reduce((a, b) => a + b, 0));
@@ -5037,7 +5038,7 @@ function quickPlanDraft(count, minutes, goal, candidates) {
     blocks: [
       {
         ph: "warm",
-        ref: "drill:d-slalom",
+        ref: count >= 4 ? "drill:d-slalom" : "drill:d-gates",
         title: "Khởi động với bóng",
         min: times[0],
         note: groupNote,
@@ -5116,6 +5117,13 @@ function trainingSync() {
   if (identity === CT.identity) return;
   CT.identity = identity;
   CT.version++;
+  $('#developmentNote').value='';
+  $('#guardianChoices').replaceChildren();
+  $('#developmentKid').replaceChildren();
+  $('#scoutKid').replaceChildren();
+  $('#scoutSkill').value=3;
+  $('#scoutPosition').value='middle';
+  $('#balancedResult').replaceChildren();
   CT.unsub.forEach((f) => f());
   CT.unsub = [];
   CT.development = [];
@@ -5138,10 +5146,13 @@ function trainingSync() {
     const fail = (err) => {
       if (version !== CT.version) return;
       CT.error =
-        "Chưa đọc được sổ. Cần triển khai Firestore Rules mới và kiểm tra kết nối. " +
+        "Không tải được dữ liệu đội. Kiểm tra kết nối hoặc nhờ quản trị viên kiểm tra quyền truy cập. " +
         fbErr(err);
       CT.ready = false;
-      renderTraining();
+      CT.version++; CT.developmentReady=false; CT.scoutingReady=false;
+      CT.unsub.forEach(f=>f()); CT.unsub=[];
+      CT.development = []; CT.profiles = {}; CT.teams = [];
+      renderTraining(); renderBalanced();
     };
     const ref = fs.collection(db, "teams", tid, "development");
     const q = canEditCloud()
@@ -5213,9 +5224,10 @@ function guardianOptions() {
   const members = new Set(
     (CLOUD.teams || []).find((t) => t.id === CLOUD.team)?.members || [],
   );
-  const people = Object.values(memberDir()).filter(
-    (p) => p.uid && members.has(p.uid) && p.role === "viewer",
-  );
+  const dir = memberDir();
+  const ids = new Set(Object.values(dir).filter(p => p.uid && members.has(p.uid) && p.role === 'viewer').map(p => p.uid));
+  for (const uid of selected) if (members.has(uid)) ids.add(uid);
+  const people = [...ids].map(uid => dir[uid] || {uid, name:'Tài khoản đã gán: '+uid});
   $("#guardianChoices").innerHTML =
     people
       .map(
@@ -5248,6 +5260,7 @@ function renderDevelopment() {
 }
 function renderTraining() {
   if (!$("#v-huan-luyen")) return;
+  $("#coachRetry").hidden = !CT.error;
   const edit = coachWritable();
   $("#coachTools").hidden = !edit;
   $("#developmentForm").hidden = !edit;
@@ -5278,8 +5291,9 @@ function renderTraining() {
   renderDevelopment();
   refreshFieldLessons();
 }
+$("#coachRetry").addEventListener("click",()=>{CT.identity="";trainingSync();});
 $("#scoutKid").addEventListener("change", fillScout);
-$("#developmentKid").addEventListener("change", guardianOptions);
+$("#developmentKid").addEventListener("change", () => { $("#developmentNote").value=""; guardianOptions(); });
 $("#scoutForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!coachWritable() || !CT.ready) return;
@@ -5314,6 +5328,7 @@ async function saveDevelopment(addEntry) {
   const person = teamList().find((p) => p.key === kid);
   if (!person) return;
   const guardianUids = $$("#guardianChoices input:checked").map((x) => x.value);
+  if(guardianUids.length > 10){ toast("Chọn tối đa 10 tài khoản được xem."); return; }
   const date = $("#developmentDate").value;
   if (addEntry && !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
   const entry = {
@@ -5389,16 +5404,19 @@ $("#quickPlanForm").addEventListener("submit", (e) => {
   const count = Number($("#quickCount").value),
     minutes = Number($("#quickMinutes").value),
     goal = $("#quickGoal").value;
+  const minimum = x => Number(String(x.data?.info?.n || "").match(/\d+/)?.[0]) || (FMT[x.fmt]?.n || 1) * 2;
   const saved = store
     .get("sbct.saved.v1", [])
     .map((x) => ({
       ref: "saved:" + x.id,
       name: x.name,
       desc: x.data?.note || "",
+      minPlayers: minimum(x),
     }));
   const cloud = (CLOUD.boards || []).map((x) => ({
     ref: "cloud:" + CLOUD.team + "~" + x.id,
     name: x.name,
+    minPlayers: minimum({...x, data: (() => { try { return JSON.parse(x.data); } catch { return {}; } })()}),
   }));
   const candidates = [
     ...cloud,
@@ -5407,8 +5425,9 @@ $("#quickPlanForm").addEventListener("submit", (e) => {
       ref: "drill:" + x.id,
       name: x.name,
       desc: x.desc,
+      minPlayers: Number(x.n.match(/\d+/)?.[0]) || 2,
     })),
-    ...SCEN.map((x) => ({ ref: "ex:" + x.id, name: x.name, desc: x.desc })),
+    ...SCEN.map((x) => ({ ref: "ex:" + x.id, name: x.name, desc: x.desc, minPlayers: FMT[x.fmt].n * 2 })),
   ];
   if (
     plan.blocks?.length &&
