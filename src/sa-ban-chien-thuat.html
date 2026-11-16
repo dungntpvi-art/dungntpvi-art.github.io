@@ -685,6 +685,10 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
 .feaswarn ul{margin:6px 0;padding-left:18px}
 .feaswarn .row{margin-top:6px}
 .lib .match{font-size:12px;color:var(--muted)}
+#hints{pointer-events:none}
+.feaswarn li{margin:4px 0}
+.feaswarn .fx{display:inline-flex;flex-wrap:wrap;gap:6px;margin-left:4px;vertical-align:middle}
+.feaswarn .fx .btn{padding:3px 9px;font-size:13px;min-height:30px}
 .libhead{font-size:13px;color:var(--muted);margin:2px 0 6px}
 .row.wrap{flex-wrap:wrap}
 body.readonly #fsecBox,body.readonly #feasWarn{display:none!important}
@@ -774,7 +778,7 @@ body.readonly #fsecBox,body.readonly #feasWarn{display:none!important}
 
       <div class="pitch-wrap">
         <svg id="pitch" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sân bóng chiến thuật">
-          <g id="field"></g><g id="drawings"></g><g id="handles"></g><g id="preview"></g><g id="trails"></g><g id="tokens"></g>
+          <g id="field"></g><g id="drawings"></g><g id="handles"></g><g id="preview"></g><g id="trails"></g><g id="hints"></g><g id="tokens"></g>
         </svg>
         <div class="caption" id="caption"></div>
         <div class="zoomctl" role="group" aria-label="Phóng to thu nhỏ">
@@ -1464,7 +1468,7 @@ function applyHist(js){
 }
 function undo(){ if(readOnly) return; const h = histOf(); if(!h.u.length){ toast('Không còn gì để hoàn tác'); return; } stopPlay(); h.r.push(JSON.stringify(S[fmt])); applyHist(h.u.pop()); }
 function redo(){ if(readOnly) return; const h = histOf(); if(!h.r.length){ toast('Không còn gì để làm lại'); return; } stopPlay(); h.u.push(JSON.stringify(S[fmt])); applyHist(h.r.pop()); }
-function persist(){ if(readOnly) return; store.set('sbct.work.v1', {fmt, S}); scheduleRosterSync(); trackHistory(); }
+function persist(){ if(readOnly) return; store.set('sbct.work.v1', {fmt, S}); scheduleRosterSync(); trackHistory(); try{ renderFeas(); }catch(_){} }
 
 // Danh sách đội sân 5 điền sẵn (áp dụng một lần; sau đó người dùng sửa tự do)
 // [số áo, tên, là thủ môn]. Người đầu tiên đứng khung thành; thủ môn dự bị có cờ TM.
@@ -2497,7 +2501,7 @@ function showResult(blob, ext){
 $('#expClose').addEventListener('click', closeModal);
 $('#expModal').addEventListener('click', e => { if(e.target.id === 'expModal') closeModal(); });
 $('#expShare').addEventListener('click', async () => { if(!expFile) return; try{ await navigator.share({files:[expFile], title:'Sa Bàn Chiến Thuật'}); }catch(_){} });
-function beginExport(){ stopPlay(); const keep = selId; selId = null; exporting = true; renderTokens(); renderDrawings(); return keep; }
+function beginExport(){ stopPlay(); const keep = selId; selId = null; exporting = true; $('#hints').innerHTML = ''; renderTokens(); renderDrawings(); return keep; }
 function endExport(keep){ exporting = false; selId = keep; const s = st(); if(s.active >= 0) loadFrame(s, s.active); renderAll(); }
 async function exportPNG(){
   openModal('Xuất ảnh', 'Đang tạo ảnh…');
@@ -6170,12 +6174,98 @@ function feasIssues(s){
       if(!p0 || !p1 || (s.hidden || []).includes(p.id)) continue;
       const P = mp[p.id], dist = P ? pathLen(P) + dmN(p0, P.start) + dmN(p1, P.end) : dmN(p0, p1);
       const speed = P && P.d.t === 'dribble' ? v * .75 : v, need = dist / speed;
-      if(dist > 2 && need > sec + .3) out.push({i, id:p.id, num:p.num, name:p.name, dist, need, sec, dribble:!!(P && P.d.t === 'dribble')});
+      if(dist > 2 && need > sec + .3){
+        const r = reachPoint(a, b, p.id, mp, speed * sec * .95);
+        out.push({i, id:p.id, num:p.num, name:p.name, dist, need, sec, dribble:!!(P && P.d.t === 'dribble'), reach:r.xy, e:r.e});
+      }
     }
   }
   return out;
 }
 const fmt1 = n => (Math.round(n * 10) / 10).toLocaleString('vi-VN');
+// Vị trí của một cầu thủ trên đường đi giữa 2 khung (giống hệt lúc phát hình động)
+function moveAt(a, b, id, mp, e){
+  const p = a.pos[id], q = b.pos[id], P = mp && mp[id];
+  if(P){ const m = P.at(e); return [m[0] + (p[0] - P.start[0]) * (1 - e) + (q[0] - P.end[0]) * e, m[1] + (p[1] - P.start[1]) * (1 - e) + (q[1] - P.end[1]) * e]; }
+  return [p[0] + (q[0] - p[0]) * e, p[1] + (q[1] - p[1]) * e];
+}
+// Điểm xa nhất cầu thủ tới được trên đúng đường đã vẽ (quãng đường = reach mét)
+function reachPoint(a, b, id, mp, reach){
+  let prev = moveAt(a, b, id, mp, 0), cum = 0;
+  for(let k = 1; k <= 48; k++){
+    const e = k / 48, c = moveAt(a, b, id, mp, e), d = dmN(prev, c);
+    if(cum + d >= reach){ const f = d ? (reach - cum) / d : 0, ee = (k - 1 + f) / 48; return {e:ee, xy:moveAt(a, b, id, mp, ee)}; }
+    cum += d; prev = c;
+  }
+  return {e:1, xy:b.pos[id]};
+}
+const r4 = v => +(+v).toFixed(4);
+// Cắt mũi tên (chạy/dẫn bóng/chuyền) để kết thúc ở điểm mới; mũi tên cong giữ đúng độ cong của đoạn đầu
+function trimArrow(d, e, xy){
+  if(!d) return;
+  if(d.t === 'free'){ const n = Math.max(2, Math.round(d.pts.length * e)); d.pts = d.pts.slice(0, n); d.pts[n - 1] = [r4(xy[0]), r4(xy[1]), d.pts[n - 1][2] || 1]; return; }
+  if(d.cx != null){ d.cx = r4(d.x1 + (d.cx - d.x1) * e); d.cy = r4(d.y1 + (d.cy - d.y1) * e); }
+  d.x2 = r4(xy[0]); d.y2 = r4(xy[1]);
+}
+function fixShorten(i, id){
+  const s = st(), a = s.frames[i], b = s.frames[i + 1]; if(!a || !b) return;
+  const x = feasIssues(s).find(y => y.i === i && y.id === id); if(!x) return;
+  const mp = motionPaths(a, b), old = b.pos[id], tol = FMT[fmt].r * 1.6;
+  const P = mp[id]; if(P) trimArrow(a.dr.find(d => d === P.d), x.e, x.reach);
+  b.pos[id] = [r4(x.reach[0]), r4(x.reach[1])];
+  // Cầu thủ đang nhận bóng ở điểm cũ: bóng và đường chuyền tới đó dời theo
+  if(b.pos.ball && dmN(b.pos.ball, old) < tol){
+    const B = mp.ball;
+    if(B){ const d = a.dr.find(z => z === B.d); if(d && d.t !== 'free'){ d.x2 = b.pos[id][0]; d.y2 = b.pos[id][1]; if(d.cx != null){ d.cx = r4((d.x1 + d.x2) / 2 + (d.cx - (d.x1 + old[0]) / 2)); d.cy = r4((d.y1 + d.y2) / 2 + (d.cy - (d.y1 + old[1]) / 2)); } } }
+    b.pos.ball = [b.pos[id][0], b.pos[id][1]];
+  }
+  if(s.active === i + 1){ loadFrame(s, i + 1); }
+  else if(s.active === i){ s.dr = deep(a.dr); }
+  renderAll(); persist();
+  toast(`Đã rút ngắn: số ${x.num} chạy tới chỗ kịp trong ${fmt1(x.sec)} giây. Kéo lại nếu muốn chỉnh thêm.`);
+}
+function fixMiddle(i){
+  const s = st(), a = s.frames[i], b = s.frames[i + 1]; if(!a || !b) return;
+  const iss = feasIssues(s).filter(y => y.i === i); if(!iss.length) return;
+  const mp = motionPaths(a, b), e = Math.max(.25, Math.min(.75, Math.min(...iss.map(y => y.e))));
+  const pos = {};
+  for(const id in b.pos) pos[id] = a.pos[id] ? moveAt(a, b, id, mp, e).map(r4) : deep(b.pos[id]);
+  // Tách đôi các mũi tên đang dẫn đường: nửa đầu ở khung cũ, nửa sau sang khung mới
+  const midDr = [], done = new Set();
+  for(const id in mp){
+    const P = mp[id], d = a.dr.find(z => z === P.d);
+    if(!d || done.has(d)) continue; done.add(d);
+    const cut = P.at(e);
+    if(d.t === 'free'){
+      const k = Math.max(1, Math.min(d.pts.length - 2, Math.round((d.pts.length - 1) * e)));
+      midDr.push({t:'free', c:d.c, pts:deep(d.pts.slice(k))}); d.pts = d.pts.slice(0, k + 1);
+      continue;
+    }
+    const rest = {t:d.t, x1:r4(cut[0]), y1:r4(cut[1]), x2:d.x2, y2:d.y2};
+    if(d.cx != null){ rest.cx = r4(d.cx + (d.x2 - d.cx) * e); rest.cy = r4(d.cy + (d.y2 - d.cy) * e); d.cx = r4(d.x1 + (d.cx - d.x1) * e); d.cy = r4(d.y1 + (d.cy - d.y1) * e); }
+    d.x2 = r4(cut[0]); d.y2 = r4(cut[1]);
+    midDr.push(rest);
+  }
+  for(const id in mp) pos[id] = moveAt(a, b, id, mp, e).map(r4);
+  const mid = {pos, dr:midDr, note:''};
+  if(a.sec != null) mid.sec = a.sec;
+  s.frames.splice(i + 1, 0, mid);
+  s.active = i + 1; loadFrame(s, i + 1);
+  renderAll(); renderNote(); persist();
+  toast(`Đã thêm khung ${i + 2} ở giữa: cầu thủ chạy tới chỗ kịp rồi mới tới đích ở khung ${i + 3}.`);
+}
+// Vẽ gợi ý lên sân: vòng nét đứt = chỗ chạy tới kịp, đoạn đỏ = phần không kịp
+function renderHints(iss){
+  const g = $('#hints'); if(!g) return;
+  const s = st(), F = FMT[fmt];
+  if(!iss || playing || exporting || tool !== 'move'){ g.innerHTML = ''; return; }
+  g.innerHTML = iss.filter(x => s.active === x.i || s.active === x.i + 1).map(x => {
+    const [rx, ry] = M(...x.reach), [tx, ty] = M(...s.frames[x.i + 1].pos[x.id]);
+    return `<line x1="${rx.toFixed(2)}" y1="${ry.toFixed(2)}" x2="${tx.toFixed(2)}" y2="${ty.toFixed(2)}" stroke="#ff5a3c" stroke-width="${(F.r * .22).toFixed(3)}" stroke-dasharray="${(F.r * .35).toFixed(2)} ${(F.r * .3).toFixed(2)}" stroke-opacity=".85"/>
+      <circle cx="${rx.toFixed(2)}" cy="${ry.toFixed(2)}" r="${(F.r * 1.05).toFixed(2)}" fill="#ffd84a" fill-opacity=".25" stroke="#ffd84a" stroke-width="${(F.r * .16).toFixed(3)}" stroke-dasharray="${(F.r * .4).toFixed(2)} ${(F.r * .25).toFixed(2)}"/>
+      <text x="${rx.toFixed(2)}" y="${(ry - F.r * 1.45).toFixed(2)}" text-anchor="middle" font-size="${(F.r * .7).toFixed(2)}" font-weight="800" fill="#ffd84a" stroke="rgba(0,0,0,.7)" stroke-width="${(F.r * .18).toFixed(2)}" paint-order="stroke">kịp tới đây</text>`;
+  }).join('');
+}
 function renderFeas(){
   const s = st(), box = $('#feasWarn'), inp = $('#frameSec'), lab = $('#fsecBox');
   if(!s || !box) return;
@@ -6186,14 +6276,25 @@ function renderFeas(){
   const iss = playing || readOnly ? [] : feasIssues(s);
   const byFrame = new Set(iss.map(x => x.i + 1));
   $$('#chips button[data-i]').forEach(b => { const w = byFrame.has(+b.dataset.i); b.classList.toggle('warn', w); if(w) b.title = 'Có cầu thủ chạy không kịp tới vị trí ở khung này'; else b.removeAttribute('title'); });
-  if(!iss.length){ box.hidden = true; box.innerHTML = ''; return; }
+  renderHints(iss);
+  if(!iss.length){ box.hidden = true; box.innerHTML = ''; box._h = ''; return; }
   const who = x => `số ${esc(x.num)}${x.name ? ' ' + esc(x.name) : ''}`;
   box.hidden = false;
-  box.innerHTML = `<b>⚠ Có ${iss.length} cầu thủ chạy không kịp</b> (tính theo tốc độ chạy nhanh khoảng ${RUN_MS[fmt]} m/giây${fmt === '5' ? ' của thiếu nhi' : ''}):
-    <ul>${iss.slice(0, 4).map(x => `<li>Khung ${x.i + 1} → ${x.i + 2}: ${who(x)} ${x.dribble ? 'dẫn bóng' : 'chạy'} ${fmt1(x.dist)} m trong ${fmt1(x.sec)} giây, cần khoảng ${fmt1(x.need)} giây.</li>`).join('')}${iss.length > 4 ? `<li>… và ${iss.length - 4} trường hợp khác.</li>` : ''}</ul>
-    Cách sửa: tăng thời gian khung, kéo điểm đến gần hơn, hoặc thêm một khung ở giữa.
+  // Chỉ vẽ lại khi nội dung đổi, để không mất cú bấm đang dở (vd vừa gõ số giây rồi bấm nút)
+  const html = `<b>⚠ Có ${iss.length} cầu thủ chạy không kịp</b> (tính theo tốc độ chạy nhanh khoảng ${RUN_MS[fmt]} m/giây${fmt === '5' ? ' của thiếu nhi' : ''}):
+    <ul>${iss.slice(0, 4).map(x => `<li>Khung ${x.i + 1} → ${x.i + 2}: ${who(x)} ${x.dribble ? 'dẫn bóng' : 'chạy'} ${fmt1(x.dist)} m trong ${fmt1(x.sec)} giây, cần khoảng ${fmt1(x.need)} giây.
+      <span class="fx"><button class="btn" data-fx="short" data-fi="${x.i}" data-fid="${esc(x.id)}" title="Dời điểm đến về chỗ chạy tới kịp, cắt ngắn mũi tên">Rút ngắn cho kịp</button><button class="btn" data-fx="mid" data-fi="${x.i}" title="Chèn một khung: cầu thủ tới chỗ kịp trước, khung sau mới tới đích">Thêm khung giữa</button><button class="btn" data-fx="see" data-fi="${x.i}" title="Xem gợi ý trên sân">Xem trên sân</button></span></li>`).join('')}${iss.length > 4 ? `<li>… và ${iss.length - 4} trường hợp khác.</li>` : ''}</ul>
+    Vòng vàng nét đứt trên sân là chỗ cầu thủ chạy tới kịp. Hoặc giữ nguyên đường chạy và cho thêm thời gian:
     <div class="row"><button class="btn" id="feasFix">Tự tăng thời gian cho đủ</button></div>`;
+  if(box._h !== html){ box.innerHTML = html; box._h = html; }
 }
+document.addEventListener('click', e => {
+  const b = e.target.closest('#feasWarn button[data-fx]'); if(!b) return;
+  const i = +b.dataset.fi;
+  if(b.dataset.fx === 'short') fixShorten(i, b.dataset.fid);
+  else if(b.dataset.fx === 'mid') fixMiddle(i);
+  else { if(st().active !== i + 1) selectFrame(i + 1); else renderFeas(); toast('Vòng vàng: chỗ chạy tới kịp. Nét đỏ: đoạn không kịp.'); }
+});
 document.addEventListener('click', e => {
   if(!e.target.closest('#feasFix')) return;
   const s = st(), need = {};
@@ -6227,6 +6328,7 @@ let trailCtx = null, trailsOn = store.get('sbct.trails.v1', true);
 function interpT(a, b, e, mp){ trailCtx = trailsOn ? {a, b, e, mp} : null; return interpFrames(a, b, e, mp); }
 function renderTrails(){
   const g = $('#trails'); if(!g) return;
+  if(playing || exporting){ const h = $('#hints'); if(h) h.innerHTML = ''; }
   const c = trailCtx; trailCtx = null;
   if(!c || c.e <= 0){ g.innerHTML = ''; return; }
   const s = st(), F = FMT[fmt], hid = new Set(s.hidden || []), n = Math.max(2, Math.ceil(c.e * 14));

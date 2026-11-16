@@ -12,7 +12,7 @@ function app() {
   const testHtml = html
     .replace(
       "/* =================== Routing =================== */",
-      "window.__boardTest={sanitizeBoard,packBoard,unpackBoard,searchLib,libIndex,feasIssues,secOf,S,getState:()=>st(),setFmt:(f)=>setFormat(f),store};\n/* =================== Routing =================== */",
+      "window.__boardTest={sanitizeBoard,packBoard,unpackBoard,searchLib,libIndex,feasIssues,secOf,fixShorten,fixMiddle,S,getState:()=>st(),setFmt:(f)=>setFormat(f),store};\n/* =================== Routing =================== */",
     )
     .replace("cloudInit();", "/* cloud mocked */");
   const dom = new JSDOM(testHtml, {
@@ -100,4 +100,26 @@ test("warns when a player cannot reach the next position in time", () => {
   assert(iss[0].need > 3);
   s.frames[0].sec = Math.ceil(iss[0].need) + 1;
   assert.equal(api.feasIssues(s).filter((x) => x.id === id).length, 0);
+});
+
+test("suggested fixes make the run reachable", () => {
+  const { api } = app();
+  const s = api.getState();
+  while (s.frames.length > 2) s.frames.pop();
+  const id = s.home.players[1].id;
+  s.frames[1].pos[id] = [Math.min(1, s.frames[0].pos[id][0] + 0.9), s.frames[0].pos[id][1]];
+  s.frames[0].sec = 3;
+  const one = () => api.feasIssues(api.getState()).filter((x) => x.id === id && x.i === 0);
+  assert.equal(one().length, 1);
+  const reach = one()[0].reach;
+  api.fixShorten(0, id);
+  assert.equal(one().length, 0);
+  assert(Math.abs(api.getState().frames[1].pos[id][0] - reach[0]) < 0.001);
+  // Thêm khung giữa: chia đôi đoạn chạy
+  const st2 = api.getState();
+  st2.frames[1].pos[id] = [Math.min(1, st2.frames[0].pos[id][0] + 0.9), st2.frames[0].pos[id][1]];
+  api.fixMiddle(0);
+  const f = api.getState().frames;
+  assert.equal(f.length, 3);
+  assert.equal(api.feasIssues(api.getState()).filter((x) => x.id === id && x.i === 0).length, 0);
 });

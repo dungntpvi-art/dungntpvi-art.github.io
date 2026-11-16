@@ -47,7 +47,7 @@ HLV vào Hồ sơ → Phân quyền → **Gửi link mời** (gửi vào nhóm Z
 - **File bài và sao lưu**: “File bài này” tải bài đang mở thành file để gửi HLV khác; “Sao lưu tất cả” tải mọi dữ liệu trên máy (bài, giáo án, trận đấu, điểm danh, cài đặt); “Mở / khôi phục file” nạp lại cả hai loại.
 - **Vệt chạy**: khi phát hình động (và trong video/GIF), cầu thủ và bóng để lại vệt mờ cho dễ nhớ ai chạy đi đâu. Bật/tắt ở ô “Vệt chạy”.
 - **Góc nghiêng (2.5D)**: nút ◩ Nghiêng cho sân nghiêng như nhìn từ khán đài khi trình chiếu; bấm lại để sửa bài.
-- **Cảnh báo chạy không kịp**: mỗi bước chuyển khung có thời gian thật (mặc định 3 giây, chỉnh ở ô ⏱). Nếu có cầu thủ phải chạy quá xa so với tốc độ thật (sân 5 thiếu nhi ~5 m/giây, sân 7 ~6, sân 11 ~7), app báo ⚠ và có nút “Tự tăng thời gian cho đủ”.
+- **Cảnh báo chạy không kịp**: mỗi bước chuyển khung có thời gian thật (mặc định 3 giây, chỉnh ở ô ⏱). Nếu có cầu thủ phải chạy quá xa so với tốc độ thật (sân 5 thiếu nhi ~5 m/giây, sân 7 ~6, sân 11 ~7), app báo ⚠, vẽ vòng vàng “kịp tới đây” trên sân và gợi ý cách sửa: **Rút ngắn cho kịp** (dời điểm đến và cắt mũi tên, bóng nhận ở đó dời theo), **Thêm khung giữa** (chèn khung trung gian, tách đôi mũi tên) hoặc **Tự tăng thời gian cho đủ**.
 
 ### Giáo án buổi tập
 - Ghép nhiều phần (khởi động, kỹ thuật, bài chính, đấu tập, thả lỏng), gắn bài tập từ thư viện, ghi số phút và ghi chú.
