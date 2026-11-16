@@ -9,7 +9,7 @@
   "private": true,
   "scripts": {
     "build": "sh build.sh",
-    "test": "node --test tests/coaching.test.cjs",
+    "test": "node --test tests/coaching.test.cjs tests/board-tools.test.cjs",
     "test:browser": "node tests/browser.cjs",
     "test:rules": "node --test tests/firestore.test.cjs"
   }

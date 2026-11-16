@@ -670,6 +670,25 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
 .field-session #boardStage.fs #fieldMode{position:absolute;top:max(8px,env(safe-area-inset-top,0px));right:max(8px,env(safe-area-inset-right,0px));z-index:12;min-height:44px;padding:8px 12px;background:var(--surface);color:var(--ink);box-shadow:0 2px 10px #0004}
 .field-session #boardStage.fs #fsBtn{display:none!important}
 
+/* Thời gian khung, vệt chạy, góc nghiêng, cảnh báo chạy không kịp, tìm bài */
+.fsec{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--muted)}
+.fsec input{width:62px;padding:4px 6px}
+.fsec.off{opacity:.45}
+.trailsw{font-size:13px}
+#tiltBtn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+#pitch{transition:transform .35s ease}
+#pitch.tilt{transform:perspective(1300px) rotateX(34deg) scale(.97);transform-origin:50% 62%}
+@media (prefers-reduced-motion:reduce){#pitch{transition:none}}
+#trails polyline{fill:none;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.chips button.warn{border-color:#e0a100;box-shadow:inset 0 -3px 0 #e0a100}
+.feaswarn{margin-top:8px;padding:10px 12px;border-radius:var(--r);border:1px solid #e0a100;background:color-mix(in srgb,#ffd84a 16%,var(--surface));font-size:14px;line-height:1.45}
+.feaswarn ul{margin:6px 0;padding-left:18px}
+.feaswarn .row{margin-top:6px}
+.lib .match{font-size:12px;color:var(--muted)}
+.libhead{font-size:13px;color:var(--muted);margin:2px 0 6px}
+.row.wrap{flex-wrap:wrap}
+body.readonly #fsecBox,body.readonly #feasWarn{display:none!important}
+.sharebar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 </style>
 
 <div class="wrap">
@@ -753,7 +772,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
 
       <div class="pitch-wrap">
         <svg id="pitch" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sân bóng chiến thuật">
-          <g id="field"></g><g id="drawings"></g><g id="handles"></g><g id="preview"></g><g id="tokens"></g>
+          <g id="field"></g><g id="drawings"></g><g id="handles"></g><g id="preview"></g><g id="trails"></g><g id="tokens"></g>
         </svg>
         <div class="caption" id="caption"></div>
         <div class="zoomctl" role="group" aria-label="Phóng to thu nhỏ">
@@ -773,7 +792,10 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
         <button class="btn fsonly" id="fNext" title="Khung sau" aria-label="Khung sau">▶</button>
         <button class="btn" id="addFrame" title="Chụp vị trí hiện tại thành một khung mới">+ Thêm khung</button>
         <button class="btn danger" id="delFrame">Xoá khung</button>
+        <label class="fsec" id="fsecBox" title="Thời gian thật từ khung này sang khung sau (để kiểm tra cầu thủ chạy có kịp không)">⏱<input type="number" id="frameSec" min="0.5" max="30" step="0.5" inputmode="decimal" aria-label="Số giây từ khung này sang khung sau"><span>giây</span></label>
         <span class="spacer"></span>
+        <label class="switch trailsw" title="Cầu thủ để lại vệt mờ khi chạy"><input type="checkbox" id="trailChk"> Vệt chạy</label>
+        <button class="btn" id="tiltBtn" aria-pressed="false" title="Nhìn sân nghiêng như từ khán đài">◩ Nghiêng</button>
         <select id="speed" aria-label="Tốc độ phát" style="width:auto">
           <option value="1.6">Chậm (0.6×)</option><option value="1" selected>Vừa (1×)</option><option value="0.6">Nhanh (1.7×)</option>
         </select>
@@ -783,6 +805,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
         <button class="btn" id="exportGif" title="Lưu cả chuỗi hình động thành GIF">⤓ GIF</button>
       </div>
       </div>
+      <div class="feaswarn" id="feasWarn" hidden role="status"></div>
       <div class="panel drillinfo" id="drillInfo" hidden></div>
       <details class="tipbox hint"><summary>💡 Xem mẹo sử dụng</summary><p class="hint">Mẹo: chọn <b>Kéo thả</b> để di chuyển cầu thủ, chọn công cụ vẽ rồi kéo trên sân để vẽ (bắt đầu từ một cầu thủ thì mũi tên tự bám vào cầu thủ đó). Mỗi khung lưu vị trí + nét vẽ; nét vẽ ở khung N mô tả chuyển động sang khung N+1. Sửa khung đang chọn sẽ tự lưu.</p></details>
     </div>
@@ -864,11 +887,14 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
           <button class="btn" id="privBtn" hidden title="Chỉ bạn thấy, đổi máy vẫn còn">Lưu riêng</button>
         </div>
         <p class="hint" id="saveHint">Bài lưu nằm trong trình duyệt này.</p>
-        <label class="f">Lọc<select id="libCat"></select></label>
+        <label class="f">Tìm bài theo mô tả<input type="search" id="libQ" placeholder="vd phản công cánh trái sân 5" autocomplete="off" enterkeyhint="search"></label>
+        <label class="f" id="libCatBox">Lọc<select id="libCat"></select></label>
         <div class="lib" id="lib"></div>
-        <div class="row">
-          <button class="btn" id="libExport" title="Tải các bài lưu trên máy này thành file .json">⤓ Sao lưu (.json)</button>
-          <button class="btn" id="libImport" title="Nạp lại bài từ file .json đã sao lưu">⤒ Khôi phục (.json)</button>
+        <div class="row wrap">
+          <button class="btn" id="boardFile" title="Tải bài đang mở thành file để gửi HLV khác hoặc cất đi">⤓ File bài này</button>
+          <button class="btn" id="libExport" title="Tải các bài lưu trên máy này thành file .json">⤓ Bài đã lưu</button>
+          <button class="btn" id="fullExport" title="Sao lưu mọi dữ liệu Sa Bàn trên máy này: bài, giáo án, trận đấu, điểm danh, cài đặt">⤓ Sao lưu tất cả</button>
+          <button class="btn" id="libImport" title="Mở file bài, file bài đã lưu hoặc file sao lưu tất cả">⤒ Mở / khôi phục file</button>
           <input type="file" id="libFile" accept=".json,application/json" hidden>
         </div>
       </div>
@@ -1182,6 +1208,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;max-width:80ch}
       <button data-x="png"><b>Ảnh khung đang xem</b><span>PNG, nét, nhẹ.</span></button>
       <button data-x="gif"><b>GIF động</b><span>Tự lặp lại, không cần bấm phát.</span></button>
       <button data-x="voice"><b>Video có giọng HLV</b><span>App phát hình động và thu tiếng bạn giảng giải cùng lúc. Gửi Zalo cho các bé xem lại.</span></button>
+      <button data-x="qlink"><b>Link nhanh, không cần tài khoản</b><span>Bài nằm luôn trong link. Người nhận xem hình động, lưu vào thư viện hoặc sửa tiếp.</span></button>
       <button data-x="link"><b>Link chỉ xem</b><span>Gửi link, cầu thủ mở xem hình động, không sửa được. Cần tài khoản HLV/Trợ lý.</span></button>
     </div>
     <div class="mprog" id="expProg" hidden><span id="expBar"></span></div>
@@ -1676,6 +1703,7 @@ function renderTokens(pos){
   s.home.players.forEach(p => { if(!hid.has(p.id) && okPos(pos[p.id])) out += tokenSVG(p.id, p, pos[p.id]); });
   if(okPos(pos.ball)) out += tokenSVG('ball', null, pos.ball);
   $('#tokens').innerHTML = out;
+  renderTrails();
 }
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
@@ -1727,6 +1755,7 @@ function renderChips(){
   $('#delFrame').disabled = s.active < 0;
   $('#playBtn').disabled = s.frames.length < 2 && !playing;
   $('#fCount').textContent = s.frames.length ? `${Math.max(0, s.active) + 1}/${s.frames.length}` : '0/0';
+  renderFeas();
 }
 function renderAll(){
   renderTokens(); renderDrawings(); renderChips(); renderCaption(st().active);
@@ -1736,7 +1765,7 @@ function renderAll(){
 }
 function commit(){
   const s = st();
-  if(s.active >= 0){ const note = s.frames[s.active].note; s.frames[s.active] = snapshot(s, note); }
+  if(s.active >= 0){ const old = s.frames[s.active], fr = snapshot(s, old.note); if(old.sec != null) fr.sec = old.sec; s.frames[s.active] = fr; }
   persist();
 }
 
@@ -1848,6 +1877,8 @@ function nearestTok(e, px = 26){
   return best ? $(`#tokens [data-id="${best}"]`) : null;
 }
 svg.addEventListener('pointerdown', e => {
+  if(tilted && !readOnly){ e.preventDefault(); toast('Đang xem nghiêng. Bấm ◩ Nghiêng để tắt rồi mới kéo hoặc vẽ.'); return; }
+  if(tilted) return;
   if(e.pointerType === 'pen'){
     penDown = true;
     if(!penMode && !store.get('sbct.penAuto.v1', false)){
@@ -2251,7 +2282,7 @@ function tween(a, b, dur, tok){
     const step = now => {
       if(tok !== playTok) return res();
       const t = Math.min(1, (now - t0)/dur), e = t < .5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2;
-      renderTokens(interpFrames(a, b, e, mp));
+      renderTokens(interpT(a, b, e, mp));
       t < 1 ? requestAnimationFrame(step) : res();
     };
     requestAnimationFrame(step);
@@ -2268,7 +2299,7 @@ async function play(){
     renderTokens(a.pos); renderDrawings(a.dr); renderCaption(i);
     markChip(i);
     await wait(1300*k); if(tok !== playTok) return;
-    await tween(a, b, 1100*k, tok);
+    await tween(a, b, 1100*k*secK(a), tok);
   }
   if(tok !== playTok) return;
   const last = s.frames.length-1;
@@ -2329,8 +2360,16 @@ $('#libFile').addEventListener('change', async e => {
   const f = e.target.files && e.target.files[0]; e.target.value = ''; if(!f) return;
   if(f.size > 20e6){ toast('File quá lớn'); return; }
   let j; try{ j = JSON.parse(await f.text()); }catch(err){ toast('File không phải JSON hợp lệ'); return; }
+  if(j && j.app === 'sa-ban' && j.kind === 'full'){ restoreFull(j); return; }
+  let openAfter = null;
+  if(j && j.app === 'sa-ban' && j.kind === 'board'){
+    const data = sanitizeBoard(j.data);
+    if(!data || !FMT[j.fmt]){ toast('File bài bị lỗi, không mở được'); return; }
+    openAfter = 's' + Date.now();
+    j = {items:[{id:openAfter, name:String(j.name || 'Bài từ file').slice(0,80), fmt:j.fmt, at:Date.now(), data}]};
+  }
   const arr = Array.isArray(j) ? j : j && Array.isArray(j.items) ? j.items : null;
-  if(!arr){ toast('File không đúng định dạng sao lưu của Sa Bàn'); return; }
+  if(!arr){ toast('File không đúng định dạng của Sa Bàn'); return; }
   const ok = arr.filter(x => x && typeof x.name === 'string' && x.name.trim() && FMT[x.fmt] && x.data && typeof x.data === 'object' && Array.isArray(x.data.frames) && x.data.pos && typeof x.data.pos === 'object');
   if(!ok.length){ toast('Không tìm thấy bài hợp lệ trong file'); return; }
   const saved = store.get('sbct.saved.v1', []), byId = new Map(saved.map(x => [x.id, x]));
@@ -2346,6 +2385,11 @@ $('#libFile').addEventListener('change', async e => {
   store.set('sbct.saved.v1', list);
   if(store.get('sbct.saved.v1', []).length !== list.length){ toast('Bộ nhớ trình duyệt đầy, không khôi phục được'); return; }
   renderLib();
+  if(openAfter){
+    const x = list.find(y => y.id === openAfter);
+    if(x){ stopPlay(); if(x.fmt !== fmt) setFormat(x.fmt); S[fmt] = keepRoster(S[fmt], deep(x.data)); normState(S[fmt]); selId = null; resetZoom(); renderPanels(); renderAll(); persist(); toast(`Đã mở “${x.name}” và lưu vào thư viện`); }
+    return;
+  }
   const other = ok.filter(x => x.fmt !== fmt).length;
   toast(add || upd ? `Đã khôi phục: ${add} bài mới${upd ? `, ${upd} bài cập nhật` : ''}${other ? ` (${other} bài ở sân khác)` : ''}` : 'Các bài trong file đã có sẵn');
 });
@@ -2496,7 +2540,7 @@ async function exportGIF(){
     for(let i=0; i<s.frames.length-1; i++){
       const a = s.frames[i], b = s.frames[i+1], mp = motionPaths(a, b);
       await add(a.pos, a.dr, i, Math.round(1300*k));
-      for(let j=1; j<=steps; j++){ const t = j/(steps+1), e = t < .5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2; await add(interpFrames(a, b, e, mp), a.dr, i, Math.round(1100*k/steps)); }
+      for(let j=1; j<=steps; j++){ const t = j/(steps+1), e = t < .5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2; await add(interpT(a, b, e, mp), a.dr, i, Math.round(1100*k*secK(a)/steps)); }
     }
     const L = s.frames.length - 1; await add(s.frames[L].pos, s.frames[L].dr, L, 2600);
     gif.finish();
@@ -2528,7 +2572,7 @@ async function buildVideoFrames(W, steps, label){
   for(let i=0; i<s.frames.length-1; i++){
     const a = s.frames[i], b = s.frames[i+1], mp = motionPaths(a, b);
     await add(a.pos, a.dr, i, Math.round(2200*k));
-    for(let j=1; j<=steps; j++){ const t = j/(steps+1), e = t < .5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2; await add(interpFrames(a, b, e, mp), a.dr, i, Math.round(1400*k/steps)); }
+    for(let j=1; j<=steps; j++){ const t = j/(steps+1), e = t < .5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2; await add(interpT(a, b, e, mp), a.dr, i, Math.round(1400*k*secK(a)/steps)); }
   }
   const L = s.frames.length - 1; await add(s.frames[L].pos, s.frames[L].dr, L, 3000);
   return {frames, W, H};
@@ -2627,7 +2671,7 @@ async function exportVideo(){
     for(let i=0; i<s.frames.length-1; i++){
       const a = s.frames[i], b = s.frames[i+1], mp = motionPaths(a, b);
       await add(a.pos, a.dr, i, Math.round(1500*k));
-      for(let j=1; j<=steps; j++){ const t = j/(steps+1), e = t < .5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2; await add(interpFrames(a, b, e, mp), a.dr, i, Math.round(1200*k/steps)); }
+      for(let j=1; j<=steps; j++){ const t = j/(steps+1), e = t < .5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2; await add(interpT(a, b, e, mp), a.dr, i, Math.round(1200*k*secK(a)/steps)); }
     }
     const L = s.frames.length - 1; await add(s.frames[L].pos, s.frames[L].dr, L, 2500);
     // Quay: phát lại các hình theo đúng thời gian lên một canvas đang được ghi
@@ -2663,6 +2707,7 @@ $('#expChoices').addEventListener('click', e => {
   const b = e.target.closest('button[data-x]'); if(!b) return;
   $('#expChoices').hidden = true;
   if(b.dataset.x === 'link'){ shareCurrent(); return; }
+  if(b.dataset.x === 'qlink'){ shareQuickLink(); return; }
   if(b.dataset.x === 'voice'){ exportVoiceVideo(); return; }
   ({vid:exportVideo, png:exportPNG, gif:exportGIF})[b.dataset.x]();
 });
@@ -3606,6 +3651,7 @@ async function cloudInit(){
   const qp = new URLSearchParams(location.search), xem = qp.get('xem'), moi = normCode(qp.get('moi'));
   if(moi){ store.set('sbct.invite', moi); try{ history.replaceState(null, '', location.pathname + location.hash); }catch(_){} }
   if(xem) openShared(xem);
+  else if(qp.get('bai')) openQuickLink(qp.get('bai'));
   try{
     const fb = await loadFB();
     CLOUD.state = 'ready';
@@ -5923,6 +5969,370 @@ $("#linkZalo").addEventListener("click", async () => {
 $("#balancedDate").value = today();
 $("#developmentDate").value = today();
 
+/* =================== Link nhanh, file bài, sao lưu, vệt chạy, góc nghiêng, kiểm tra tốc độ, tìm bài =================== */
+// ---- Làm sạch dữ liệu bài nhận từ link / file (người lạ có thể gửi link nên không tin dữ liệu)
+const num01 = v => { const n = +v; return isFinite(n) ? Math.max(-0.5, Math.min(1.5, n)) : null; };
+const strN = (v, n) => typeof v === 'string' ? v.slice(0, n) : '';
+const DR_T = ['run','pass','dribble','shot','free','zone','line','text'];
+function cleanPos(pos, ids){
+  const out = {};
+  if(!pos || typeof pos !== 'object') return out;
+  for(const id of ids){ const q = pos[id]; if(Array.isArray(q)){ const x = num01(q[0]), y = num01(q[1]); if(x != null && y != null) out[id] = [x, y]; } }
+  return out;
+}
+function cleanDr(list){
+  if(!Array.isArray(list)) return [];
+  const out = [];
+  for(const d of list.slice(0, 200)){
+    if(!d || !DR_T.includes(d.t)) continue;
+    if(d.t === 'text'){ const x = num01(d.x), y = num01(d.y); if(x != null && y != null) out.push({t:'text', x, y, s:strN(d.s, 40), c:safeColor(d.c, '#f4f7f2')}); continue; }
+    if(d.t === 'free'){
+      const pts = (Array.isArray(d.pts) ? d.pts : []).slice(0, 600).map(q => [num01(q && q[0]), num01(q && q[1]), Math.max(.2, Math.min(3, +(q && q[2]) || 1))]).filter(q => q[0] != null && q[1] != null);
+      if(pts.length > 1) out.push({t:'free', pts, c:safeColor(d.c, '#f4f7f2')});
+      continue;
+    }
+    const v = ['x1','y1','x2','y2'].map(k => num01(d[k]));
+    if(v.some(x => x == null)) continue;
+    const o = {t:d.t, x1:v[0], y1:v[1], x2:v[2], y2:v[3]};
+    const cx = num01(d.cx), cy = num01(d.cy); if(cx != null && cy != null){ o.cx = cx; o.cy = cy; }
+    out.push(o);
+  }
+  return out;
+}
+function sanitizeBoard(src){
+  if(!src || typeof src !== 'object' || !Array.isArray(src.frames)) return null;
+  const s = {showAway:src.showAway !== false, view:['full','half','third'].includes(src.view) ? src.view : 'full', hidden:[], eq:[], note:strN(src.note, 2000)};
+  const ids = ['ball'];
+  for(const side of ['home','away']){
+    const T = src[side] || {};
+    const players = (Array.isArray(T.players) ? T.players : []).slice(0, 11).map((p, i) => ({id:(side === 'home' ? 'h' : 'a') + i, num:strN(String(p && p.num != null ? p.num : i + 1), 3), name:strN(p && p.name, 18)}));
+    players.forEach(p => ids.push(p.id));
+    s[side] = {form:strN(T.form, 12) || '1-2-1', color:safeColor(T.color, side === 'home' ? '#d63a3a' : '#2563c9'), players,
+      bench:(Array.isArray(T.bench) ? T.bench : []).slice(0, 20).map(b => ({num:strN(String(b && b.num != null ? b.num : ''), 3), name:strN(b && b.name, 18)}))};
+  }
+  const okIds = new Set(ids);
+  s.hidden = (Array.isArray(src.hidden) ? src.hidden : []).filter(x => okIds.has(x));
+  s.pos = cleanPos(src.pos, ids); s.dr = cleanDr(src.dr);
+  s.frames = src.frames.slice(0, 60).map(f => { const fr = {pos:cleanPos(f && f.pos, ids), dr:cleanDr(f && f.dr), note:strN(f && f.note, 1000)}; const sec = +(f && f.sec); if(isFinite(sec) && sec > 0) fr.sec = Math.min(30, sec); return fr; });
+  s.active = Number.isInteger(src.active) && src.active >= -1 && src.active < s.frames.length ? src.active : (s.frames.length ? 0 : -1);
+  if(s.active >= 0) { s.pos = deep(s.frames[s.active].pos); s.dr = deep(s.frames[s.active].dr); }
+  if(!s.pos.ball) s.pos.ball = [.5, .5];
+  const I = src.info;
+  if(I && typeof I === 'object') s.info = {name:strN(I.name, 80), cat:strN(I.cat, 40), time:strN(I.time, 40), n:strN(I.n, 60), setup:strN(I.setup, 1000), vary:strN(I.vary, 1000), points:(Array.isArray(I.points) ? I.points : []).slice(0, 12).map(x => strN(x, 300))};
+  const C = src.challenge;
+  if(C && typeof C === 'object' && Array.isArray(C.target) && okIds.has(C.player)){
+    const tx = num01(C.target[0]), ty = num01(C.target[1]);
+    if(tx != null && ty != null) s.challenge = {frame:Math.max(0, Math.min(s.frames.length - 1, Math.floor(+C.frame) || 0)), player:C.player, target:[tx, ty], question:strN(C.question, 300), explanation:strN(C.explanation, 600)};
+  }
+  return s;
+}
+
+// ---- Gói bài vào link: JSON gọn → nén (nếu trình duyệt hỗ trợ) → base64url
+const b64u = {
+  enc(bytes){ let bin = ''; for(let i = 0; i < bytes.length; i += 8192) bin += String.fromCharCode(...bytes.subarray(i, i + 8192)); return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); },
+  dec(str){ const b = atob(str.replace(/-/g, '+').replace(/_/g, '/')); const u = new Uint8Array(b.length); for(let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+};
+async function streamBytes(bytes, stream){ return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer()); }
+let curBoardName = '';
+function boardName(){ return $('#saveName').value.trim() || (st().info && st().info.name) || curBoardName || ('Bài chiến thuật ' + new Date().toLocaleDateString('vi-VN')); }
+async function packBoard(name){
+  const data = publicBoardState(st());
+  const json = JSON.stringify({v:1, f:fmt, n:String(name).slice(0, 80), s:data}, (k, v) => typeof v === 'number' ? Math.round(v * 1000) / 1000 : v);
+  const raw = new TextEncoder().encode(json);
+  if(typeof CompressionStream === 'function'){
+    try{ return 'z' + b64u.enc(await streamBytes(raw, new CompressionStream('deflate-raw'))); }catch(_){}
+  }
+  return 'j' + b64u.enc(raw);
+}
+async function unpackBoard(code){
+  code = String(code || '');
+  if(code.length > 60000) throw Error('too-long');
+  let bytes = b64u.dec(code.slice(1));
+  if(code[0] === 'z'){
+    if(typeof DecompressionStream !== 'function') throw Error('no-decompress');
+    bytes = await streamBytes(bytes, new DecompressionStream('deflate-raw'));
+  } else if(code[0] !== 'j') throw Error('bad');
+  const j = JSON.parse(new TextDecoder().decode(bytes));
+  const data = j && FMT[j.f] ? sanitizeBoard(j.s) : null;
+  if(!data) throw Error('bad');
+  return {fmt:j.f, name:strN(j.n, 80) || 'Bài chiến thuật', data};
+}
+async function shareQuickLink(){
+  closeModal();
+  const name = boardName();
+  let code;
+  try{ code = await packBoard(name); }catch(_){ toast('Không tạo được link trên trình duyệt này'); return; }
+  const url = MAIN_SITE + '?bai=' + code;
+  const m = $('#linkModal');
+  m.dataset.id = ''; m.dataset.mode = 'quick';
+  $('#linkTitle').textContent = 'Link nhanh';
+  m.querySelector('p.hint').textContent = 'Bài nằm luôn trong link, không cần tài khoản, không lưu lên máy chủ. Người nhận mở ra xem hình động, có thể lưu vào thư viện của họ hoặc sửa tiếp. Tên cầu thủ được ẩn.';
+  $('#linkOff').closest('.row').hidden = true;
+  $('#linkInput').value = url;
+  m.hidden = false;
+  if(url.length > 8000) toast('Bài khá dài nên link rất dài. Nếu Zalo cắt link, hãy gửi video hoặc “File bài này”.');
+}
+// Trả hộp link về dạng “link chỉ xem” khi mở từ thư viện đội
+const _showLink = showLink;
+showLink = function(id){
+  const m = $('#linkModal'); m.dataset.mode = '';
+  $('#linkTitle').textContent = 'Link chỉ xem';
+  m.querySelector('p.hint').textContent = 'Ai có link đều mở xem được bài này (kể cả chưa đăng nhập), xem hình động, phóng to, nhưng không sửa được. Dán link vào nhóm Zalo.';
+  $('#linkOff').closest('.row').hidden = false;
+  _showLink(id);
+};
+let quickShared = null;
+async function openQuickLink(code){
+  readOnly = true; document.body.classList.add('readonly');
+  banner('Đang mở bài…');
+  try{
+    const b = await unpackBoard(code);
+    quickShared = b;
+    fmt = b.fmt; S[fmt] = deep(b.data); normState(S[fmt]); selId = null;
+    setTool('move'); renderField(); renderPanels(); renderAll();
+    banner(`<span class="grow">Bài được gửi cho bạn: <b>${esc(b.name)}</b>. Bấm ▶ Phát để xem hình động.</span><span class="sharebar"><button class="btn primary" id="qlSave">Lưu vào thư viện</button><button class="btn" id="qlEdit">Sửa bài này</button><a href="${location.pathname}">Về trang chính</a></span>`);
+  }catch(err){
+    banner(`<span class="grow">${err && err.message === 'no-decompress' ? 'Trình duyệt này quá cũ để mở link. Hãy mở bằng Chrome hoặc Safari mới.' : 'Link bài bị hỏng hoặc thiếu. Nhờ người gửi chép lại link đầy đủ.'}</span><a href="${location.pathname}">Về trang chính</a>`, true);
+  }
+  refreshFieldLessons();
+  route();
+}
+function quickToLibrary(){
+  const b = quickShared; if(!b) return null;
+  const saved = store.get('sbct.saved.v1', []);
+  const it = {id:'s' + Date.now(), name:b.name, fmt:b.fmt, at:Date.now(), data:deep(b.data)};
+  saved.unshift(it); store.set('sbct.saved.v1', saved);
+  return it;
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('#qlSave,#qlEdit'); if(!t || !quickShared) return;
+  if(t.id === 'qlSave'){
+    if(quickToLibrary()){ t.disabled = true; t.textContent = '✓ Đã lưu'; toast(`Đã lưu “${quickShared.name}” vào thư viện trên máy này`); }
+    return;
+  }
+  // Sửa: đưa bài vào bảng làm việc của mình (giữ tên đội mình) rồi tải lại trang không còn link
+  const work = store.get('sbct.work.v1', null);
+  let all = work && work.S && work.S['11'] && work.S['7'] && work.S['5'] ? work.S : null;
+  if(!all){ all = {'11':buildScenario(SCEN[0]), '7':buildScenario(SCEN[2]), '5':buildScenario(SCEN[4])}; }
+  all[quickShared.fmt] = keepRoster(all[quickShared.fmt], deep(quickShared.data));
+  store.set('sbct.work.v1', {fmt:quickShared.fmt, S:all});
+  location.replace(location.pathname + '#bang');
+});
+
+// ---- File bài lẻ và sao lưu toàn bộ
+function downloadJSON(obj, name){
+  const blob = new Blob([JSON.stringify(obj)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+const fileSafe = t => String(t).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').replace(/[^\w-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50).toLowerCase() || 'bai';
+$('#boardFile').addEventListener('click', () => {
+  const name = boardName();
+  downloadJSON({app:'sa-ban', kind:'board', v:1, at:Date.now(), name, fmt, data:deep(st())}, `sa-ban-${fileSafe(name)}.json`);
+  toast(`Đã tải file “${name}”. Gửi file này, người nhận bấm “Mở / khôi phục file”.`);
+});
+function backupKeys(){ const ks = []; try{ for(let i = 0; i < localStorage.length; i++){ const k = localStorage.key(i); if(k && k.startsWith('sbct.')) ks.push(k); } }catch(_){} return ks.sort(); }
+$('#fullExport').addEventListener('click', () => {
+  const data = {}; for(const k of backupKeys()){ try{ data[k] = localStorage.getItem(k); }catch(_){} }
+  const n = Object.keys(data).length;
+  if(!n){ toast('Máy này chưa có dữ liệu để sao lưu'); return; }
+  downloadJSON({app:'sa-ban', kind:'full', v:1, at:Date.now(), data}, `sa-ban-sao-luu-${new Date().toISOString().slice(0, 10)}.json`);
+  toast('Đã sao lưu tất cả. Cất file này vào Google Drive hoặc Zalo “Cloud của tôi”.');
+});
+function restoreFull(j){
+  const data = j && j.data && typeof j.data === 'object' ? j.data : null;
+  const keys = data ? Object.keys(data).filter(k => k.startsWith('sbct.') && typeof data[k] === 'string') : [];
+  if(!keys.length){ toast('File sao lưu trống hoặc bị lỗi'); return; }
+  const when = j.at ? new Date(+j.at).toLocaleString('vi-VN') : 'không rõ ngày';
+  if(!confirm(`Khôi phục bản sao lưu lúc ${when}?\n\nDữ liệu Sa Bàn trên máy này (bài, giáo án, trận đấu, điểm danh, cài đặt) sẽ được thay bằng bản sao lưu. Dữ liệu trên tài khoản đội (cloud) không bị ảnh hưởng.`)) return;
+  let bad = 0;
+  for(const k of keys){ try{ JSON.parse(data[k]); localStorage.setItem(k, data[k]); }catch(_){ bad++; } }
+  if(bad === keys.length){ toast('Không ghi được dữ liệu (bộ nhớ trình duyệt đầy?)'); return; }
+  toast('Đã khôi phục. Đang tải lại…');
+  setTimeout(() => location.reload(), 600);
+}
+
+// ---- Thời gian khung và kiểm tra cầu thủ chạy kịp không
+const DEF_SEC = 3;   // mặc định: mỗi bước chuyển khung ứng với khoảng 3 giây trên sân thật
+const RUN_MS = {'5':5, '7':6, '11':7};   // tốc độ chạy nhanh hợp lý (m/s): sân 5 cho thiếu nhi
+const secOf = fr => fr && +fr.sec > 0 ? +fr.sec : DEF_SEC;
+const secK = fr => secOf(fr) / DEF_SEC;
+function pathLen(P){ let L = 0, prev = P.at(0); for(let i = 1; i <= 16; i++){ const c = P.at(i/16); L += dmN(prev, c); prev = c; } return L; }
+function feasIssues(s){
+  s = s || st();
+  const out = [], v = RUN_MS[fmt] || 6;
+  for(let i = 0; i < s.frames.length - 1; i++){
+    const a = s.frames[i], b = s.frames[i + 1], mp = motionPaths(a, b), sec = secOf(a);
+    for(const p of [...s.home.players, ...(s.showAway ? s.away.players : [])]){
+      const p0 = a.pos[p.id], p1 = b.pos[p.id];
+      if(!p0 || !p1 || (s.hidden || []).includes(p.id)) continue;
+      const P = mp[p.id], dist = P ? pathLen(P) + dmN(p0, P.start) + dmN(p1, P.end) : dmN(p0, p1);
+      const speed = P && P.d.t === 'dribble' ? v * .75 : v, need = dist / speed;
+      if(dist > 2 && need > sec + .3) out.push({i, id:p.id, num:p.num, name:p.name, dist, need, sec, dribble:!!(P && P.d.t === 'dribble')});
+    }
+  }
+  return out;
+}
+const fmt1 = n => (Math.round(n * 10) / 10).toLocaleString('vi-VN');
+function renderFeas(){
+  const s = st(), box = $('#feasWarn'), inp = $('#frameSec'), lab = $('#fsecBox');
+  if(!s || !box) return;
+  const i = s.active, canSet = i >= 0 && i < s.frames.length - 1;
+  inp.disabled = !canSet; lab.classList.toggle('off', !canSet);
+  inp.value = canSet ? secOf(s.frames[i]) : '';
+  lab.title = canSet ? `Từ khung ${i + 1} sang khung ${i + 2} mất bao nhiêu giây trên sân thật` : 'Chọn một khung (không phải khung cuối) để đặt thời gian sang khung sau';
+  const iss = playing || readOnly ? [] : feasIssues(s);
+  const byFrame = new Set(iss.map(x => x.i + 1));
+  $$('#chips button[data-i]').forEach(b => { const w = byFrame.has(+b.dataset.i); b.classList.toggle('warn', w); if(w) b.title = 'Có cầu thủ chạy không kịp tới vị trí ở khung này'; else b.removeAttribute('title'); });
+  if(!iss.length){ box.hidden = true; box.innerHTML = ''; return; }
+  const who = x => `số ${esc(x.num)}${x.name ? ' ' + esc(x.name) : ''}`;
+  box.hidden = false;
+  box.innerHTML = `<b>⚠ Có ${iss.length} cầu thủ chạy không kịp</b> (tính theo tốc độ chạy nhanh khoảng ${RUN_MS[fmt]} m/giây${fmt === '5' ? ' của thiếu nhi' : ''}):
+    <ul>${iss.slice(0, 4).map(x => `<li>Khung ${x.i + 1} → ${x.i + 2}: ${who(x)} ${x.dribble ? 'dẫn bóng' : 'chạy'} ${fmt1(x.dist)} m trong ${fmt1(x.sec)} giây, cần khoảng ${fmt1(x.need)} giây.</li>`).join('')}${iss.length > 4 ? `<li>… và ${iss.length - 4} trường hợp khác.</li>` : ''}</ul>
+    Cách sửa: tăng thời gian khung, kéo điểm đến gần hơn, hoặc thêm một khung ở giữa.
+    <div class="row"><button class="btn" id="feasFix">Tự tăng thời gian cho đủ</button></div>`;
+}
+document.addEventListener('click', e => {
+  if(!e.target.closest('#feasFix')) return;
+  const s = st(), need = {};
+  for(const x of feasIssues(s)) need[x.i] = Math.max(need[x.i] || 0, Math.ceil((x.need + .2) * 2) / 2);
+  for(const i in need) s.frames[i].sec = Math.min(30, need[i]);
+  renderChips(); persist();
+  toast(`Đã chỉnh thời gian ${Object.keys(need).length} bước chuyển khung. Hình động sẽ chạy chậm lại tương ứng.`);
+});
+// Bài mẫu có sẵn: tự đặt đủ thời gian cho các bước chạy dài để không báo nhầm
+function autoSec(s, f){
+  const keep = fmt; fmt = f;
+  try{ const need = {}; for(const x of feasIssues(s)) need[x.i] = Math.max(need[x.i] || 0, Math.ceil((x.need + .2) * 2) / 2); for(const i in need) s.frames[i].sec = Math.min(30, need[i]); }
+  catch(_){}
+  finally{ fmt = keep; }
+}
+$('#lib').addEventListener('click', e => {
+  const b = e.target.closest('button[data-ex],button[data-drill],button[data-open],button[data-pb],button[data-cb]'); if(!b) return;
+  const nm = b.closest('.item') && b.closest('.item').querySelector('b'); curBoardName = nm ? nm.textContent : '';
+  if(b.dataset.ex || b.dataset.drill){ autoSec(st(), fmt); renderChips(); persist(); }
+});
+if(!saved0) for(const f of ['11','7','5']) autoSec(S[f], f);
+$('#frameSec').addEventListener('change', e => {
+  const s = st(), i = s.active; if(i < 0 || i >= s.frames.length - 1) return;
+  const v = Math.round(Math.max(.5, Math.min(30, +String(e.target.value).replace(',', '.') || DEF_SEC)) * 2) / 2;
+  if(v === DEF_SEC) delete s.frames[i].sec; else s.frames[i].sec = v;
+  renderChips(); persist();
+});
+
+// ---- Vệt chạy: vẽ đường đã đi của từng cầu thủ trong lúc phát / xuất video
+let trailCtx = null, trailsOn = store.get('sbct.trails.v1', true);
+function interpT(a, b, e, mp){ trailCtx = trailsOn ? {a, b, e, mp} : null; return interpFrames(a, b, e, mp); }
+function renderTrails(){
+  const g = $('#trails'); if(!g) return;
+  const c = trailCtx; trailCtx = null;
+  if(!c || c.e <= 0){ g.innerHTML = ''; return; }
+  const s = st(), F = FMT[fmt], hid = new Set(s.hidden || []), n = Math.max(2, Math.ceil(c.e * 14));
+  let out = '';
+  for(const id in c.b.pos){
+    const p = c.a.pos[id], q = c.b.pos[id];
+    if(!p || !q || hid.has(id) || dmN(p, q) < .5) continue;
+    if(id[0] === 'a' && !s.showAway) continue;
+    const pts = [];
+    for(let k = 0; k <= n; k++){ const e = c.e * k / n, P = c.mp && c.mp[id];
+      const xy = P ? (() => { const m = P.at(e); return [m[0] + (p[0] - P.start[0]) * (1 - e) + (q[0] - P.end[0]) * e, m[1] + (p[1] - P.start[1]) * (1 - e) + (q[1] - P.end[1]) * e]; })() : [p[0] + (q[0] - p[0]) * e, p[1] + (q[1] - p[1]) * e];
+      pts.push((xy[0] * F.L).toFixed(2) + ',' + (xy[1] * F.W).toFixed(2)); }
+    const isBall = id === 'ball', side = id[0] === 'h' ? 'home' : 'away';
+    const col = isBall ? '#ffffff' : /^[ha]0$/.test(id) ? (side === 'home' ? '#f0b429' : '#2bb673') : safeColor(s[side].color, side === 'home' ? '#d63a3a' : '#2563c9');
+    out += `<polyline points="${pts.join(' ')}" stroke="${col}" stroke-opacity="${isBall ? .55 : .5}" stroke-width="${(F.r * (isBall ? .28 : .55)).toFixed(3)}"${isBall ? ` stroke-dasharray="${(F.r * .5).toFixed(2)} ${(F.r * .45).toFixed(2)}"` : ''}/>`;
+  }
+  g.innerHTML = out;
+}
+$('#trailChk').checked = trailsOn;
+$('#trailChk').addEventListener('change', e => { trailsOn = e.target.checked; store.set('sbct.trails.v1', trailsOn); if(!trailsOn) $('#trails').innerHTML = ''; toast(trailsOn ? 'Bật vệt chạy: bấm ▶ Phát để xem' : 'Đã tắt vệt chạy'); });
+
+// ---- Góc nhìn nghiêng (2.5D): chỉ để xem / trình chiếu, tắt đi mới sửa được
+let tilted = false;
+function setTilt(on){
+  tilted = !!on; svg.classList.toggle('tilt', tilted);
+  $('#tiltBtn').setAttribute('aria-pressed', String(tilted));
+  try{ sessionStorage.setItem('sbct.tilt', tilted ? '1' : ''); }catch(_){}
+}
+$('#tiltBtn').addEventListener('click', () => { setTilt(!tilted); if(tilted) toast('Đang xem nghiêng như từ khán đài. Bấm ▶ Phát để xem. Bấm lại ◩ để sửa bài.'); });
+
+// ---- Tìm bài theo mô tả (không cần AI: so khớp từ khoá tiếng Việt có/không dấu)
+const vnFold = t => String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/[^a-z0-9]+/g, ' ').trim();
+const CONCEPTS = [
+  ['phan cong','counter','chuyen trang thai','tan cong nhanh','phan cong nhanh'],
+  ['pressing','ep tran','gay ap luc','tranh cuop','doat bong','bay bien','ap sat'],
+  ['chuyen bong','chuyen','phoi hop','ban bat','1 2','tuong','pass'],
+  ['sut','dut diem','ghi ban','ket thuc','sut bong','cut back','cat nguoc'],
+  ['dan bong','re bong','qua nguoi','dribble','1v1','1 vs 1','doi mat','zigzag'],
+  ['thu mon','bat bong','tm','giu khung thanh'],
+  ['phong ngu','kem nguoi','kem','chan','thu','khoi phong ngu','lui ve'],
+  ['tan cong','len bong','danh bong','xay dung','trien khai'],
+  ['canh','bien','danh bien','hanh lang'],
+  ['khoi dong','lam nong','warm up','kich hoat'],
+  ['giu bong','kiem soat','rondo','chuyen ban','luan chuyen'],
+  ['co dinh','phat goc','da phat','phat bien','quang bien','tinh huong co dinh'],
+  ['2v1','2 vs 1','hon so','uu the quan so'],
+  ['ky thuat','dung bong','tang bong','khong che'],
+  ['the luc','toc do','phan xa','nhanh nhen'],
+  ['tro choi','vui','thi dua','dau tap','dau doi'],
+];
+const STOP = new Set(['bai','tap','cho','va','cac','de','mot','nhung','the','nao','ve','o','tren','san','nguoi','dung','lam','voi','khi','tim','be','tre','em','trai','phai','giua','co','khong','duoc','nhu','tu','den','ra','vao','cua','thi','la','hay','can','muon','minh','toi','ban','gi','sao','nay','do','day','kia','lai','roi','se','da','dang','phut','hai','ba','bon','nam']);
+const SIDE_WORDS = ['trai','phai','giua'];
+function libIndex(){
+  const items = [];
+  const add = (x) => { x.text = vnFold([x.name, x.cat, x.desc].join(' ')); x.nameF = vnFold(x.name); items.push(x); };
+  for(const x of SCEN) add({name:x.name, cat:'Chiến thuật trận đấu', desc:[x.desc, ...x.frames.map(f => f.n || '')].join(' '), fmt:x.fmt, btn:`data-ex="${x.id}"`, sub:x.desc});
+  for(const x of DRILLS) add({name:x.name, cat:x.cat, desc:[x.desc, x.setup, ...(x.points || []), x.vary, x.n].join(' '), fmt:'5', btn:`data-drill="${x.id}"`, sub:`${x.time} · ${x.n}`});
+  for(const x of store.get('sbct.saved.v1', [])) add({name:x.name, cat:'Đã lưu', desc:[(x.data && x.data.note) || '', ...((x.data && x.data.frames) || []).map(f => f.note || ''), (x.data && x.data.info && x.data.info.setup) || ''].join(' '), fmt:x.fmt, btn:`data-open="${esc(x.id)}"`, sub:`${(x.data && x.data.frames || []).length} khung`});
+  for(const x of privList('board')) add({name:x.name, cat:'Kho riêng', desc:'', fmt:x.fmt, btn:`data-pb="${esc(x.id)}"`, sub:'Chỉ bạn thấy'});
+  for(const x of CLOUD.boards) add({name:x.name, cat:'Bài của đội', desc:x.ownerName || '', fmt:x.fmt, btn:`data-cb="${esc(x.id)}"`, sub:x.ownerName || ''});
+  return items;
+}
+function searchLib(q, items){
+  let Q = ' ' + vnFold(q) + ' ';
+  let wantFmt = null;
+  const fm = Q.match(/ (?:san )?(5|7|11)(?: nguoi)? /) || (/ futsal /.test(Q) ? [0, '5'] : null);
+  if(fm){ wantFmt = fm[1]; Q = Q.replace(fm[0], ' ').replace(/ futsal /, ' '); }
+  const hit = [];
+  for(const C of CONCEPTS){
+    const ph = C.slice().sort((a, b) => b.length - a.length).find(p => Q.includes(' ' + p + ' '));
+    if(ph){ hit.push(C); Q = Q.replace(' ' + ph + ' ', ' '); }
+  }
+  const sides = SIDE_WORDS.filter(w => Q.includes(' ' + w + ' '));
+  const terms = Q.split(' ').filter(w => w.length > 1 && !STOP.has(w));
+  if(!hit.length && !terms.length && !sides.length) return [];
+  const has = (text, p) => (' ' + text + ' ').includes(' ' + p + ' ');
+  const res = [];
+  for(const x of items){
+    if(wantFmt && x.fmt !== wantFmt) continue;
+    let sc = 0; const why = [];
+    for(const C of hit){ const p = C.find(p => has(x.text, p)); if(p){ sc += has(x.nameF, p) || C.some(c => has(x.nameF, c)) ? 5 : 3; why.push(C[0]); } }
+    for(const w of terms) if(has(x.text, w)){ sc += has(x.nameF, w) ? 2 : 1; }
+    for(const w of sides) if(has(x.text, w)) sc += 1;
+    if(sc > 0) res.push({x, sc, why});
+  }
+  return res.sort((a, b) => b.sc - a.sc || a.x.name.localeCompare(b.x.name, 'vi')).slice(0, 12);
+}
+const FMT_SHORT = {'5':'Sân 5', '7':'Sân 7', '11':'Sân 11'};
+function renderLibSearch(){
+  const q = $('#libQ').value.trim();
+  $('#libCatBox').hidden = !!q;
+  if(!q) return false;
+  const res = searchLib(q, libIndex());
+  $('#lib').innerHTML = `<p class="libhead">${res.length ? `${res.length} bài hợp với “${esc(q)}”, bài hợp nhất ở trên` : `Chưa thấy bài nào hợp với “${esc(q)}”. Thử từ khác, vd: phản công, chuyền, sút, thủ môn, khởi động.`}</p>` +
+    res.map(({x}) => `<div class="item"><div><span class="tag">${esc(x.cat)} · ${FMT_SHORT[x.fmt] || ''}</span><b>${esc(x.name)}</b><small>${esc(x.sub || '')}</small></div>
+      <div class="acts"><button class="btn" ${x.btn} data-sfmt="${esc(x.fmt)}">Mở</button></div></div>`).join('');
+  return true;
+}
+const _renderLib = renderLib;
+renderLib = function(){ _renderLib(); renderLibSearch(); };
+let libQT = null;
+$('#libQ').addEventListener('input', () => { clearTimeout(libQT); libQT = setTimeout(() => { if(!renderLibSearch()) _renderLib(); }, 150); });
+// Mở bài ở sân khác: đổi sân trước rồi để trình xử lý cũ mở bài
+$('#lib').addEventListener('click', e => {
+  const b = e.target.closest('button[data-sfmt]'); if(!b) return;
+  if(b.dataset.sfmt && FMT[b.dataset.sfmt] && b.dataset.sfmt !== fmt) setFormat(b.dataset.sfmt);
+}, true);
+
 /* =================== Routing =================== */
 const VIEWS = ['lich','bang','luat','cau-hoi','giao-an','tran','ho-so','quan-ly','huan-luyen'];
 const VIEW_ALIAS = {toi:'ho-so', be:'bang'};   // link cũ
@@ -5947,7 +6357,7 @@ kLesson(0);
 setTool('move');
 renderField(); renderPanels(); renderAll();
 renderRules(); renderQuiz(); renderPlan(); renderFavSel();
-if(SETT.defFmt && FMT[SETT.defFmt] && SETT.defFmt !== fmt && !new URLSearchParams(location.search).get('xem')) setFormat(SETT.defFmt);
+if(SETT.defFmt && FMT[SETT.defFmt] && SETT.defFmt !== fmt && !new URLSearchParams(location.search).get('xem') && !new URLSearchParams(location.search).get('bai')) setFormat(SETT.defFmt);
 applySettings(false);
 trainingSync();
 route();
